@@ -14,7 +14,7 @@ static const std::string kDebugFileName = "logs/logs.txt";
 
 template<typename... Args>
 void
-SnakeDebugMsg( std::string_view level, Args... args)
+SnakeDebugMsg(std::string_view level, Args... args)
 {
     // FIXME open file as static variable, or do something like this to avoid reopening
     std::ofstream out{ kDebugFileName, std::ios::app};
