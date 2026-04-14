@@ -29,6 +29,18 @@ struct Point
     {
     }
 
+    bool
+    operator==( const Point& rhs) const
+    {
+        return (x == rhs.x) && (y == rhs.y);
+    }
+
+    bool
+    operator!=( const Point& rhs) const
+    {
+        return !((*this) == rhs);
+    }
+
     Coordinate x;
     Coordinate y;
 
@@ -49,6 +61,18 @@ struct Snake
     bool             is_alive{ true};
 };
 
+struct Rabbit
+{
+    Rabbit( Coordinate x,
+            Coordinate y)
+     :  point{ x, y}
+    {
+    }
+
+    Point point;
+    bool  is_alive{ true};
+};
+
 class Model
 {
 public:
@@ -64,6 +88,26 @@ public:
     {
         return game_finished_;
     }
+
+    std::pair<Coordinate, Coordinate>
+    GetFieldSize() const
+    {
+        return { width_, height_};
+    }
+
+    void
+    SetFieldSize( Coordinate width,
+                  Coordinate height)
+    {
+        width_ = width;
+        height_ = height;
+    }
+
+    void Tick();
+
+    //
+    // Snake control methods
+    //
 
     SnakeID
     AddSnake( Coordinate x,
@@ -93,27 +137,37 @@ public:
         return snakes_;
     }
 
-    std::pair<Coordinate, Coordinate>
-    GetFieldSize() const
-    {
-        return { width_, height_};
-    }
+    //
+    // Rabbits control methods
+    //
 
     void
-    SetFieldSize( Coordinate width,
-                  Coordinate height)
+    AddRabbit( Coordinate x,
+               Coordinate y)
     {
-        width_ = width;
-        height_ = height;
+        rabbits_.emplace_back( x, y);
+        ++rabbits_number_;
     }
 
-    void Tick();
+    std::size_t
+    GetRabbitsNumber() const
+    {
+        return rabbits_number_;
+    }
+
+    const std::vector<Rabbit>&
+    GetRabbits() const &
+    {
+        return rabbits_;
+    }
 
 private:
-    Coordinate         width_;
-    Coordinate         height_;
-    bool               game_finished_ { false};
-    std::vector<Snake> snakes_        {};
+    Coordinate          width_;
+    Coordinate          height_;
+    bool                game_finished_  { false};
+    std::vector<Snake>  snakes_         {};
+    std::vector<Rabbit> rabbits_        {};
+    std::size_t         rabbits_number_ { 0};
 
 };
 

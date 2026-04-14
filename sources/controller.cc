@@ -7,6 +7,22 @@
 namespace snake
 {
 
+namespace
+{
+
+template<typename T>
+T
+rand_min_max( T min,
+              T max)
+{
+    return (std::rand() % (max - min)) + min;
+}
+
+constexpr int kMinRabbitsSpawnRate = 10;
+constexpr int kMaxRabbitsSpawnRate = 20;
+
+} // ! anonymous namespace
+
 void
 Controller::Run()
 {
@@ -14,6 +30,9 @@ Controller::Run()
     SnakeID second_snake_id = model_.AddSnake( 20, 20, Direction::TOP);
     players_snakes_.emplace_back( first_snake_id);
     players_snakes_.emplace_back( second_snake_id);
+
+    int rabbits_counter     = 0;
+    int next_rabbit_counter = rand_min_max( kMinRabbitsSpawnRate, kMaxRabbitsSpawnRate);
 
     for ( ; ; )
     {
@@ -37,6 +56,20 @@ Controller::Run()
             break;
         }
 
+        if ( rabbits_counter == next_rabbit_counter )
+        {
+            auto winsz = model_.GetFieldSize();
+            Coordinate x = rand_min_max( 0, winsz.first);
+            Coordinate y = rand_min_max( 0, winsz.second);
+            model_.AddRabbit( x, y);
+
+            rabbits_counter = 0;
+            next_rabbit_counter = rand_min_max( kMinRabbitsSpawnRate, kMaxRabbitsSpawnRate);
+        } else
+        {
+            ++rabbits_counter;
+        }
+
         model_.Tick();
 
         view_.Render( model_);
@@ -45,7 +78,7 @@ Controller::Run()
             break;
         }
 
-        std::this_thread::sleep_for( std::chrono::milliseconds( 200));
+        std::this_thread::sleep_for( std::chrono::milliseconds( 150));
     }
 
     players_snakes_.clear();

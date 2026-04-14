@@ -69,6 +69,15 @@ AsciiView::Render( const Model& model)
         render_snake( snake);
     }
 
+    for ( const Rabbit& rabbit : model.GetRabbits() )
+    {
+        if ( !rabbit.is_alive )
+        {
+            continue;
+        }
+        render_rabbit( rabbit);
+    }
+
     std::cout.flush();
 }
 
@@ -97,6 +106,16 @@ AsciiView::render_snake( const Snake& snake)
 
     go_to_xy( it->x, it->y);
     std::cout << "●";
+    set_color( 0x000000);
+}
+
+void
+AsciiView::render_rabbit( const Rabbit& rabbit)
+{
+    go_to_xy( rabbit.point.x, rabbit.point.y);
+    set_color( 0x0a15eb);
+    std::cout << "♥";
+    set_color( 0x000000);
 }
 
 std::pair<Coordinate, Coordinate>
