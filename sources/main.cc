@@ -5,6 +5,7 @@
 int
 main( void)
 {
+    std::srand( std::time( nullptr));
     snake::AsciiView view{};
 
     view.RequestWindowSize();

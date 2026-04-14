@@ -36,8 +36,23 @@ Model::Tick()
                 throw std::runtime_error{ "Unexpected snake direction"};
             }
         }
-        snake.points.pop_front();
+
+        bool need_pop_front = true;
         snake.points.emplace_back( next_head);
+
+        for ( Rabbit& rabbit : rabbits_ )
+        {
+            if ( next_head == rabbit.point )
+            {
+                rabbit.is_alive = false;
+                need_pop_front = false;
+                break;
+            }
+        }
+        if ( need_pop_front )
+        {
+            snake.points.pop_front();
+        }
     }
 }
 

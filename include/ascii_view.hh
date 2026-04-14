@@ -23,6 +23,7 @@ public:
 
 private:
     void render_snake( const Snake& snake);
+    void render_rabbit( const Rabbit& rabbit);
 
 public:
     static void clear_screen();
