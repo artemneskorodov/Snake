@@ -17,7 +17,7 @@ public:
 
 public:
     void                              Render( const Model& model)       override;
-    std::pair<Coordinate, Coordinate> GetWindowSize()             const override;
+    std::pair<Coordinate, Coordinate> GetGameFieldSize()          const override;
     void                              UpdateEvents()                    override;
     void                              RequestWindowSize()               override;
 

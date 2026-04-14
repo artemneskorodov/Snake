@@ -49,7 +49,7 @@ public:
 
 public:
     virtual void                              Render( const Model& model) = 0;
-    virtual std::pair<Coordinate, Coordinate> GetWindowSize() const       = 0;
+    virtual std::pair<Coordinate, Coordinate> GetGameFieldSize() const    = 0;
     virtual void                              UpdateEvents()              = 0;
     virtual void                              RequestWindowSize()         = 0;
 
