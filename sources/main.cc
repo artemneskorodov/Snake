@@ -9,7 +9,7 @@ main( void)
     snake::AsciiView view{};
 
     view.RequestWindowSize();
-    auto winsz = view.GetWindowSize();
+    auto winsz = view.GetGameFieldSize();
     snake::Model model{ winsz.first, winsz.second};
 
     snake::Controller controller{ model, view};

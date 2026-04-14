@@ -116,7 +116,7 @@ Controller::handle_event( Event event)
         }
         case Event::WINDOW_SIZE_CHANGED:
         {
-            auto winsize = view_.GetWindowSize();
+            auto winsize = view_.GetGameFieldSize();
             model_.SetFieldSize( winsize.first, winsize.second);
             break;
         }

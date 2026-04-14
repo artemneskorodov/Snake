@@ -35,6 +35,10 @@ constexpr std::array<KeyInfo, 9> kKeysInfo{{
     {      "q", Event::KEY_PRESSED_EXIT,                     false},
 }};
 
+constexpr Coordinate kStatusBarHeight = 4;
+constexpr Coordinate kGameFieldOffsetX = 1;
+constexpr Coordinate kGameFieldOffsetY = 1;
+
 } // ! anonymous namespace
 
 AsciiView::AsciiView()
@@ -44,6 +48,8 @@ AsciiView::AsciiView()
     console_attr_saved_ = attr;
     cfmakeraw( &attr);
     tcsetattr( STDIN_FILENO, 0, &attr);
+
+    RequestWindowSize();
 }
 
 AsciiView::~AsciiView()
@@ -55,10 +61,9 @@ void
 AsciiView::Render( const Model& model)
 {
     clear_screen();
-    std::pair<Coordinate, Coordinate> winsz = model.GetFieldSize();
 
-    Coordinate width  = winsz.first  - 1;
-    Coordinate height = winsz.second - 1;
+    Coordinate width  = current_window_size_.first  - 1;
+    Coordinate height = current_window_size_.second - 1;
 
     draw_box( 0, 0, width, height,
               "╔", "║", "╚", "═",
@@ -88,7 +93,7 @@ AsciiView::render_snake( const Snake& snake)
 
     set_color( kSnakeColor);
 
-    go_to_xy( it->x, it->y);
+    go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
     std::cout << "○";
     ++it;
 
@@ -100,11 +105,11 @@ AsciiView::render_snake( const Snake& snake)
 
     for ( ; it != std::prev( snake.points.cend()); ++it )
     {
-        go_to_xy( it->x, it->y);
+        go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
         std::cout << "⩔";
     }
 
-    go_to_xy( it->x, it->y);
+    go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
     std::cout << "●";
     set_color( 0x000000);
 }
@@ -112,16 +117,17 @@ AsciiView::render_snake( const Snake& snake)
 void
 AsciiView::render_rabbit( const Rabbit& rabbit)
 {
-    go_to_xy( rabbit.point.x, rabbit.point.y);
+    go_to_xy( rabbit.point.x + kGameFieldOffsetX, rabbit.point.y + kGameFieldOffsetY);
     set_color( 0x0a15eb);
     std::cout << "♥";
     set_color( 0x000000);
 }
 
 std::pair<Coordinate, Coordinate>
-AsciiView::GetWindowSize() const
+AsciiView::GetGameFieldSize() const
 {
-    return current_window_size_;
+    return {current_window_size_.first - (kGameFieldOffsetX + 1),
+            current_window_size_.second - (kGameFieldOffsetY + 1 + 1 + kStatusBarHeight)};
 }
 
 void
