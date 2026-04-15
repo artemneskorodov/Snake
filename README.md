@@ -4,7 +4,7 @@
 
 [x] Create minimal compiling version with ascii view and human snakes.
 
-[ ] Add simple dumb bots which will go to closest rabbit
+[x] Add simple dumb bots which will go to closest rabbit
 
 [ ] Add bot which will go to closest accessible rabbit
 
