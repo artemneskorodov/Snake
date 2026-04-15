@@ -133,7 +133,8 @@ public:
     SetSnakeDirection( SnakeID   id,
                        Direction direction)
     {
-        if ( is_opposite( direction, snakes_[id].direction) )
+        if ( (snakes_[id].points.size() != 1) &&
+             is_opposite( direction, snakes_[id].direction) )
         {
             return ;
         }
