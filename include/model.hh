@@ -162,13 +162,6 @@ public:
                Coordinate y)
     {
         rabbits_.emplace_back( x, y);
-        ++rabbits_number_;
-    }
-
-    std::size_t
-    GetRabbitsNumber() const
-    {
-        return rabbits_number_;
     }
 
     const std::vector<Rabbit>&
@@ -178,12 +171,16 @@ public:
     }
 
 private:
+    void tick_snake_positions_update();
+    void tick_snake_rabbit_collisions_check();
+    void tick_snake_snake_collisions_check();
+
+private:
     Coordinate          width_;
     Coordinate          height_;
     bool                game_finished_  { false};
     std::vector<Snake>  snakes_         {};
     std::vector<Rabbit> rabbits_        {};
-    std::size_t         rabbits_number_ { 0};
     std::size_t         snakes_number_  { 0};
 
 };
