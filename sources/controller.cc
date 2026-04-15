@@ -9,22 +9,6 @@
 namespace snake
 {
 
-namespace
-{
-
-template<typename T>
-T
-rand_min_max( T min,
-              T max)
-{
-    return (std::rand() % (max - min)) + min;
-}
-
-constexpr int kMinRabbitsSpawnRate = 10;
-constexpr int kMaxRabbitsSpawnRate = 20;
-
-} // ! anonymous namespace
-
 void
 Controller::Run()
 {
@@ -34,9 +18,6 @@ Controller::Run()
     players_snakes_.emplace_back( second_snake_id);
 
     model_.AddSnake( 30, 30, Direction::TOP, bots::TickDumbBot);
-
-    int rabbits_counter     = 0;
-    int next_rabbit_counter = rand_min_max( kMinRabbitsSpawnRate, kMaxRabbitsSpawnRate);
 
     for ( ; ; )
     {
@@ -58,20 +39,6 @@ Controller::Run()
         if ( need_exit_ )
         {
             break;
-        }
-
-        if ( rabbits_counter == next_rabbit_counter )
-        {
-            auto winsz = model_.GetFieldSize();
-            Coordinate x = rand_min_max( 0, winsz.first);
-            Coordinate y = rand_min_max( 0, winsz.second);
-            model_.AddRabbit( x, y);
-
-            rabbits_counter = 0;
-            next_rabbit_counter = rand_min_max( kMinRabbitsSpawnRate, kMaxRabbitsSpawnRate);
-        } else
-        {
-            ++rabbits_counter;
         }
 
         model_.Tick();
