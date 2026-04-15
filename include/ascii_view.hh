@@ -30,7 +30,7 @@ private:
 public:
     static void clear_screen();
     static void go_to_xy( Coordinate x, Coordinate y);
-    static void set_color( uint32_t rgb);
+    static void set_color( const std::string& rgb);
     static void draw_line( Coordinate  x1,
                            Coordinate  y1,
                            Coordinate  x2,
