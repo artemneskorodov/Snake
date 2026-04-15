@@ -1,4 +1,5 @@
 #include "model.hh"
+#include "logging.hh"
 
 namespace snake
 {
@@ -52,6 +53,35 @@ Model::Tick()
         if ( need_pop_front )
         {
             snake.points.pop_front();
+        }
+    }
+
+    for ( Snake& snake : snakes_ )
+    {
+        const Point& head = snake.points.back();
+        for ( Snake& concurent : snakes_ )
+        {
+            auto it = concurent.points.cbegin();
+            for ( ; it != std::prev( concurent.points.cend()); it++ )
+            {
+                if ( *it == head )
+                {
+                    DEBUG_INFO( "it->x = ", it->x, ", it->y = ", it->y, ", head.x = ", head.x, ", head.y = ", head.y);
+                    snake.is_alive = false;
+                    break;
+                }
+            }
+
+            if ( &snake != &concurent )
+            {
+                if ( *it == head )
+                {
+                    DEBUG_INFO( "it->x = ", it->x, ", it->y = ", it->y, ", head.x = ", head.x, ", head.y = ", head.y);
+                    snake.is_alive = false;
+                    concurent.is_alive = false;
+                    break;
+                }
+            }
         }
     }
 }
