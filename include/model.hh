@@ -16,10 +16,10 @@ using SnakeID = int;
 
 enum class Direction
 {
-    TOP,
-    LEFT,
-    BOTTOM,
-    RIGHT,
+    TOP    = 1,
+    LEFT   = 2,
+    BOTTOM = 3,
+    RIGHT  = 4,
 };
 
 inline bool
@@ -134,13 +134,15 @@ public:
     //
 
     SnakeID
-    AddSnake( Coordinate  x,
-              Coordinate  y,
-              Direction   direction,
-              SnakeTicker ticker = []( Model&, const Snake&) {})
+    AddSnake( SnakeTicker ticker = []( Model&, const Snake&) {})
     {
         SnakeID id = static_cast<SnakeID>( snakes_.size());
-        snakes_.emplace_back( x, y, direction, id, ticker);
+        Coordinate x = utils::random_min_max( 0, width_);
+        Coordinate y = utils::random_min_max( 0, height_);
+        int dir_value = utils::random_min_max( 1, 4);
+        Direction dir = static_cast<Direction>( dir_value);
+
+        snakes_.emplace_back( x, y, dir, id, ticker);
         ++snakes_number_;
         return id;
     }
