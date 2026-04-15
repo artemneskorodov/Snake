@@ -62,12 +62,12 @@ AsciiView::Render( const Model& model)
 {
     clear_screen();
 
-    Coordinate width  = current_window_size_.first  - 1;
-    Coordinate height = current_window_size_.second - 1;
+    draw_game_box();
 
-    draw_box( 0, 0, width, height,
-              "╔", "║", "╚", "═",
-              "╝", "║", "╗", "═");
+    Coordinate status_offset = 1;
+    Coordinate snakes_number = model.GetSnakes().size();
+    Coordinate width = current_window_size_.first;
+    Coordinate pixels_per_snake = width / snakes_number;
 
     for ( const Snake& snake : model.GetSnakes() )
     {
@@ -75,6 +75,8 @@ AsciiView::Render( const Model& model)
         {
             continue;
         }
+        render_snake_status( snake, status_offset);
+        status_offset += pixels_per_snake;
         render_snake( snake);
     }
 
@@ -224,37 +226,37 @@ AsciiView::set_color( uint32_t rgb)
 }
 
 void
-AsciiView::draw_box( Coordinate  x,
-                     Coordinate  y,
-                     Coordinate  width,
-                     Coordinate  height,
-                     const char *top_left,
-                     const char *left,
-                     const char *bottom_left,
-                     const char *bottom,
-                     const char *bottom_right,
-                     const char *right,
-                     const char *top_right,
-                     const char *top)
+AsciiView::draw_game_box()
 {
-    set_color( 0xffffff);
+    set_color( 0x00ffe1);
 
-    go_to_xy( x, y);
-    std::cout << top_left;
+    Coordinate width  = current_window_size_.first  - 1;
+    Coordinate height = current_window_size_.second - 1;
 
-    go_to_xy( x + width, y);
-    std::cout << top_right;
+    go_to_xy(0, 0);
+    std::cout << "╔";
+    go_to_xy( 0, height);
+    std::cout << "╚";
+    go_to_xy( width, height);
+    std::cout << "╝";
+    go_to_xy( width, 0);
+    std::cout << "╗";
+    go_to_xy( 0, height - 1 - kStatusBarHeight);
+    std::cout << "╠";
+    go_to_xy( width, height - 1 - kStatusBarHeight);
+    std::cout << "╣";
 
-    go_to_xy( x, y + height);
-    std::cout << bottom_left;
+    draw_line( 1, 0, width - 1, 0, "═");
+    draw_line( 1, height, width - 1, height, "═");
+    draw_line( 1, height - 1 - kStatusBarHeight, width - 1, height - 1 - kStatusBarHeight, "═");
 
-    go_to_xy( x + width, y + height);
-    std::cout << bottom_right;
+    draw_line( 0, 1, 0, height - kStatusBarHeight - 2, "║");
+    draw_line( width, 1, width, height - kStatusBarHeight - 2, "║");
 
-    draw_line( x + 1,     y,          x + width - 1, y,              top);
-    draw_line( x,         y + 1,      x,             y + height - 1, left);
-    draw_line( x + 1,     y + height, x + width - 1, y + height,     bottom);
-    draw_line( x + width, y + 1,      x + width,     y + height - 1, right);
+    draw_line( 0, height - kStatusBarHeight, 0, height - 1, "║");
+    draw_line( width, height - kStatusBarHeight, width, height - 1, "║");
+
+    set_color( 0x000000);
 }
 
 void
@@ -294,6 +296,20 @@ AsciiView::draw_line( Coordinate  x1,
             y1 += dir_y;
         }
     }
+}
+
+void
+AsciiView::render_snake_status( const Snake& snake,
+                                Coordinate status_offset)
+{
+    set_color( 0xffffff);
+    Coordinate height = current_window_size_.second;
+    go_to_xy( status_offset, height - kStatusBarHeight);
+    std::cout << "Snake" << snake.id;
+    go_to_xy( status_offset, height - kStatusBarHeight + 1);
+    std::cout << (snake.is_alive ? "alive" : "dead");
+    set_color( 0x000000);
+
 }
 
 } // ! namespace snake

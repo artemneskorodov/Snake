@@ -60,14 +60,17 @@ struct Snake
 {
     Snake( Coordinate x,
            Coordinate y,
-           Direction direction)
+           Direction  direction,
+           SnakeID    id)
      :  points    { {x, y}},
-        direction { direction}
+        direction { direction},
+        id        { id}
     {
     }
 
     std::list<Point> points;
     Direction        direction;
+    SnakeID          id;
     bool             is_alive{ true};
 };
 
@@ -124,9 +127,10 @@ public:
               Coordinate y,
               Direction  direction)
     {
-        snakes_.emplace_back( x, y, direction);
+        SnakeID id = static_cast<SnakeID>( snakes_.size());
+        snakes_.emplace_back( x, y, direction, id);
         ++snakes_number_;
-        return static_cast<SnakeID>( snakes_.size() - 1);
+        return id;
     }
 
     void

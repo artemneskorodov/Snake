@@ -24,23 +24,13 @@ public:
 private:
     void render_snake( const Snake& snake);
     void render_rabbit( const Rabbit& rabbit);
+    void draw_game_box();
+    void render_snake_status( const Snake& snake, Coordinate status_offset);
 
 public:
     static void clear_screen();
     static void go_to_xy( Coordinate x, Coordinate y);
     static void set_color( uint32_t rgb);
-    static void draw_box( Coordinate  x,
-                          Coordinate  y,
-                          Coordinate  width,
-                          Coordinate  height,
-                          const char *top_left,
-                          const char *left,
-                          const char *bottom_left,
-                          const char *bottom,
-                          const char *bottom_right,
-                          const char *right,
-                          const char *top_right,
-                          const char *top);
     static void draw_line( Coordinate  x1,
                            Coordinate  y1,
                            Coordinate  x2,
