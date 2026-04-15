@@ -6,6 +6,15 @@ namespace snake
 void
 Model::Tick()
 {
+    for ( Snake& snake : snakes_ )
+    {
+        if ( !snake.is_alive )
+        {
+            continue;
+        }
+        snake.ticker( *this, snake);
+    }
+
     tick_snake_positions_update();
     tick_snake_rabbit_collisions_check();
     tick_snake_snake_collisions_check();
@@ -55,6 +64,14 @@ Model::tick_snake_positions_update()
         }
 
         snake.points.emplace_back( next_head);
+        if ( (next_head.x < 0) ||
+             (next_head.x > width_) ||
+             (next_head.y < 0) ||
+             (next_head.y > height_) )
+        {
+            --snakes_number_;
+            snake.is_alive = false;
+        }
     }
 }
 
@@ -63,6 +80,10 @@ Model::tick_snake_rabbit_collisions_check()
 {
     for ( Snake& snake : snakes_ )
     {
+        if ( !snake.is_alive )
+        {
+            continue;
+        }
         const Point& head = snake.points.back();
         bool need_pop_front = true;
 
@@ -103,7 +124,7 @@ Model::tick_snake_snake_collisions_check()
                 continue;
             }
             auto it = concurent.points.cbegin();
-            for ( ; it != std::prev( concurent.points.cend()); it++ )
+            for ( ; it != std::prev( concurent.points.cend()); ++it )
             {
                 if ( *it == head )
                 {
@@ -113,17 +134,29 @@ Model::tick_snake_snake_collisions_check()
                 }
             }
 
-            if ( &snake != &concurent )
+            if ( (&snake != &concurent) &&
+                 (*it == head) )
             {
-                if ( (&snake != &concurent) &&
-                     (*it == head) )
-                {
-                    snakes_number_ -= 2;
-                    snake.is_alive = false;
-                    concurent.is_alive = false;
-                    break;
-                }
+                snakes_number_ -= 2;
+                snake.is_alive = false;
+                concurent.is_alive = false;
+                break;
             }
+        }
+    }
+}
+
+void
+Model::tick_check_rabbits()
+{
+    for ( Rabbit& rabbit : rabbits_ )
+    {
+        if ( (rabbit.point.x < 0) ||
+             (rabbit.point.x > width_) ||
+             (rabbit.point.y < 0) ||
+             (rabbit.point.y > height_) )
+        {
+            rabbit.is_alive = false;
         }
     }
 }

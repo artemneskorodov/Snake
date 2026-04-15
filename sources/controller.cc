@@ -2,7 +2,9 @@
 #include <thread>
 #include <chrono>
 
+#include "model.hh"
 #include "controller.hh"
+#include "bots.hh"
 
 namespace snake
 {
@@ -30,6 +32,8 @@ Controller::Run()
     SnakeID second_snake_id = model_.AddSnake( 20, 20, Direction::TOP);
     players_snakes_.emplace_back( first_snake_id);
     players_snakes_.emplace_back( second_snake_id);
+
+    model_.AddSnake( 30, 30, Direction::TOP, bots::TickDumbBot);
 
     int rabbits_counter     = 0;
     int next_rabbit_counter = rand_min_max( kMinRabbitsSpawnRate, kMaxRabbitsSpawnRate);

@@ -56,15 +56,22 @@ struct Point
 
 };
 
+class Model;
+struct Snake;
+
+using SnakeTicker = std::function<void( Model&, const Snake&)>;
+
 struct Snake
 {
-    Snake( Coordinate x,
-           Coordinate y,
-           Direction  direction,
-           SnakeID    id)
+    Snake( Coordinate  x,
+           Coordinate  y,
+           Direction   direction,
+           SnakeID     id,
+           SnakeTicker ticker)
      :  points    { {x, y}},
         direction { direction},
-        id        { id}
+        id        { id},
+        ticker    { std::move( ticker)}
     {
     }
 
@@ -72,6 +79,8 @@ struct Snake
     Direction        direction;
     SnakeID          id;
     bool             is_alive{ true};
+    SnakeTicker      ticker;
+
 };
 
 struct Rabbit
@@ -123,12 +132,13 @@ public:
     //
 
     SnakeID
-    AddSnake( Coordinate x,
-              Coordinate y,
-              Direction  direction)
+    AddSnake( Coordinate  x,
+              Coordinate  y,
+              Direction   direction,
+              SnakeTicker ticker = []( Model&, const Snake&) {})
     {
         SnakeID id = static_cast<SnakeID>( snakes_.size());
-        snakes_.emplace_back( x, y, direction, id);
+        snakes_.emplace_back( x, y, direction, id, ticker);
         ++snakes_number_;
         return id;
     }
@@ -178,6 +188,7 @@ private:
     void tick_snake_positions_update();
     void tick_snake_rabbit_collisions_check();
     void tick_snake_snake_collisions_check();
+    void tick_check_rabbits();
 
 private:
     Coordinate          width_;
