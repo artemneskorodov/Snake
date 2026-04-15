@@ -12,12 +12,12 @@ namespace snake
 void
 Controller::Run()
 {
-    SnakeID first_snake_id  = model_.AddSnake( 10, 10, Direction::TOP);
-    SnakeID second_snake_id = model_.AddSnake( 20, 20, Direction::TOP);
+    SnakeID first_snake_id  = model_.AddSnake();
+    SnakeID second_snake_id = model_.AddSnake();
     players_snakes_.emplace_back( first_snake_id);
     players_snakes_.emplace_back( second_snake_id);
 
-    model_.AddSnake( 30, 30, Direction::TOP, bots::TickDumbBot);
+    model_.AddSnake( bots::TickDumbBot);
 
     for ( ; ; )
     {
