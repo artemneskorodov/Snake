@@ -71,12 +71,12 @@ AsciiView::Render( const Model& model)
 
     for ( const Snake& snake : model.GetSnakes() )
     {
+        render_snake_status( snake, status_offset);
+        status_offset += pixels_per_snake;
         if ( !snake.is_alive )
         {
             continue;
         }
-        render_snake_status( snake, status_offset);
-        status_offset += pixels_per_snake;
         render_snake( snake);
     }
 
