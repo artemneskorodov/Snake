@@ -3,9 +3,15 @@
 ## Development plan
 
 [x] Create minimal compiling version with ascii view and human snakes.
+
 [ ] Add simple dumb bots which will go to closest rabbit
+
 [ ] Add bot which will go to closest accessible rabbit
+
 [ ] Add SFML graphics view
+
 [ ] Add dynamic rabbits
+
 [ ] TODO add more bots in this plan
+
 [ ] Get statistics with different runs
