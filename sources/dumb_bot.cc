@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "model.hh"
 #include "bots.hh"
 
@@ -6,9 +8,28 @@ namespace snake
 namespace bots
 {
 
+namespace
+{
+
+template<typename T>
+T
+random_of( std::initializer_list<T> list)
+{
+    std::size_t size = list.size();
+    auto it = list.begin();
+    std::size_t result = std::rand() % size;
+    for ( std::size_t i = 0; i != result; ++i )
+    {
+        ++it;
+    }
+    return *it;
+}
+
+} // ! anonymous namespace
+
 void
-TickDumbBot( const Model& model,
-             Snake& snake)
+TickDumbBot( Model&       model,
+             const Snake& snake)
 {
     const Point& head = snake.points.back();
 
@@ -38,16 +59,44 @@ TickDumbBot( const Model& model,
 
     if ( head.x < minimal_distance_x )
     {
-        snake.direction = Direction::RIGHT;
+        if ( snake.direction == Direction::LEFT )
+        {
+            model.SetSnakeDirection( snake.id,
+                                     random_of( {Direction::BOTTOM, Direction::TOP}));
+        } else
+        {
+            model.SetSnakeDirection( snake.id, Direction::RIGHT);
+        }
     } else if ( head.x > minimal_distance_x )
     {
-        snake.direction = Direction::LEFT;
+        if ( snake.direction == Direction::RIGHT )
+        {
+            model.SetSnakeDirection( snake.id,
+                                     random_of( {Direction::BOTTOM, Direction::TOP}));
+        } else
+        {
+            model.SetSnakeDirection( snake.id, Direction::LEFT);
+        }
     } else if ( head.y < minimal_distance_y )
     {
-        snake.direction = Direction::BOTTOM;
+        if ( snake.direction == Direction::TOP )
+        {
+            model.SetSnakeDirection( snake.id,
+                                     random_of( {Direction::LEFT, Direction::RIGHT}));
+        } else
+        {
+            model.SetSnakeDirection( snake.id, Direction::BOTTOM);
+        }
     } else if ( head.y > minimal_distance_y )
     {
-        snake.direction = Direction::TOP;
+        if ( snake.direction == Direction::BOTTOM )
+        {
+            model.SetSnakeDirection( snake.id,
+                                     random_of( {Direction::LEFT, Direction::RIGHT}));
+        } else
+        {
+            model.SetSnakeDirection( snake.id, Direction::TOP);
+        }
     }
 }
 

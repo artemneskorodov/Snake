@@ -59,7 +59,7 @@ struct Point
 class Model;
 struct Snake;
 
-using SnakeTicker = std::function<void( const Model&, Snake&)>;
+using SnakeTicker = std::function<void( Model&, const Snake&)>;
 
 struct Snake
 {
@@ -135,7 +135,7 @@ public:
     AddSnake( Coordinate  x,
               Coordinate  y,
               Direction   direction,
-              SnakeTicker ticker = []( const Model&, Snake&) {})
+              SnakeTicker ticker = []( Model&, const Snake&) {})
     {
         SnakeID id = static_cast<SnakeID>( snakes_.size());
         snakes_.emplace_back( x, y, direction, id, ticker);
