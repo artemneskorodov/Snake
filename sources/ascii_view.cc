@@ -71,6 +71,10 @@ AsciiView::Render( const Model& model)
 
     for ( const Snake& snake : model.GetSnakes() )
     {
+        if ( !snake.is_alive )
+        {
+            continue;
+        }
         render_snake( snake);
     }
 

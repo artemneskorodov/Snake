@@ -54,6 +54,41 @@ Model::Tick()
             snake.points.pop_front();
         }
     }
+
+    for ( Snake& snake : snakes_ )
+    {
+        const Point& head = snake.points.back();
+        for ( Snake& concurent : snakes_ )
+        {
+            auto it = concurent.points.cbegin();
+            for ( ; it != std::prev( concurent.points.cend()); it++ )
+            {
+                if ( *it == head )
+                {
+                    --snakes_number_;
+                    snake.is_alive = false;
+                    break;
+                }
+            }
+
+            if ( &snake != &concurent )
+            {
+                if ( (&snake != &concurent) &&
+                     (*it == head) )
+                {
+                    snakes_number_ -= 2;
+                    snake.is_alive = false;
+                    concurent.is_alive = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if ( snakes_number_ == 0 )
+    {
+        game_finished_ = true;
+    }
 }
 
 } // ! namespace snake

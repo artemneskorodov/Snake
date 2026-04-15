@@ -20,6 +20,16 @@ enum class Direction
     RIGHT,
 };
 
+inline bool
+is_opposite( Direction first,
+             Direction second)
+{
+    return (first == Direction::TOP    && second == Direction::BOTTOM) ||
+           (first == Direction::BOTTOM && second == Direction::TOP   ) ||
+           (first == Direction::LEFT   && second == Direction::RIGHT ) ||
+           (first == Direction::RIGHT  && second == Direction::LEFT  );
+}
+
 struct Point
 {
     Point( Coordinate x,
@@ -115,6 +125,7 @@ public:
               Direction  direction)
     {
         snakes_.emplace_back( x, y, direction);
+        ++snakes_number_;
         return static_cast<SnakeID>( snakes_.size() - 1);
     }
 
@@ -122,6 +133,11 @@ public:
     SetSnakeDirection( SnakeID   id,
                        Direction direction)
     {
+        if ( (snakes_[id].points.size() != 1) &&
+             is_opposite( direction, snakes_[id].direction) )
+        {
+            return ;
+        }
         snakes_[id].direction = direction;
     }
 
@@ -168,6 +184,7 @@ private:
     std::vector<Snake>  snakes_         {};
     std::vector<Rabbit> rabbits_        {};
     std::size_t         rabbits_number_ { 0};
+    std::size_t         snakes_number_  { 0};
 
 };
 
