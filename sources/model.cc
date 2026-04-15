@@ -1,5 +1,4 @@
 #include "model.hh"
-#include "logging.hh"
 
 namespace snake
 {
@@ -66,7 +65,7 @@ Model::Tick()
             {
                 if ( *it == head )
                 {
-                    DEBUG_INFO( "it->x = ", it->x, ", it->y = ", it->y, ", head.x = ", head.x, ", head.y = ", head.y);
+                    --snakes_number_;
                     snake.is_alive = false;
                     break;
                 }
@@ -74,15 +73,21 @@ Model::Tick()
 
             if ( &snake != &concurent )
             {
-                if ( *it == head )
+                if ( (&snake != &concurent) &&
+                     (*it == head) )
                 {
-                    DEBUG_INFO( "it->x = ", it->x, ", it->y = ", it->y, ", head.x = ", head.x, ", head.y = ", head.y);
+                    snakes_number_ -= 2;
                     snake.is_alive = false;
                     concurent.is_alive = false;
                     break;
                 }
             }
         }
+    }
+
+    if ( snakes_number_ == 0 )
+    {
+        game_finished_ = true;
     }
 }
 
