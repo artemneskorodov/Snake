@@ -5,6 +5,8 @@
 #include <vector>
 #include <list>
 
+#include "utils.hh"
+
 namespace snake
 {
 
@@ -171,17 +173,18 @@ public:
     // Rabbits control methods
     //
 
-    void
-    AddRabbit( Coordinate x,
-               Coordinate y)
-    {
-        rabbits_.emplace_back( x, y);
-    }
-
     const std::vector<Rabbit>&
     GetRabbits() const &
     {
         return rabbits_;
+    }
+
+private:
+    void
+    add_rabbit( Coordinate x,
+                Coordinate y)
+    {
+        rabbits_.emplace_back( x, y);
     }
 
 private:
@@ -191,12 +194,19 @@ private:
     void tick_check_rabbits();
 
 private:
+    static constexpr int kRabbitsSpawnRateAvg   = 25;
+    static constexpr int kRabbitsSpawnRateSigma = 5;
+
+private:
     Coordinate          width_;
     Coordinate          height_;
-    bool                game_finished_  { false};
-    std::vector<Snake>  snakes_         {};
-    std::vector<Rabbit> rabbits_        {};
-    std::size_t         snakes_number_  { 0};
+    bool                game_finished_       { false};
+    std::vector<Snake>  snakes_              {};
+    std::vector<Rabbit> rabbits_             {};
+    std::size_t         snakes_number_       { 0};
+    int                 rabbits_counter_     { 0};
+    int                 next_rabbit_counter_ { utils::random_normal( kRabbitsSpawnRateAvg,
+                                                                     kRabbitsSpawnRateSigma)};
 
 };
 

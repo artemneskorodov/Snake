@@ -23,6 +23,18 @@ Model::Tick()
     {
         game_finished_ = true;
     }
+
+    if ( rabbits_counter_ == next_rabbit_counter_ )
+    {
+        rabbits_counter_ = 0;
+        next_rabbit_counter_ = utils::random_normal( kRabbitsSpawnRateAvg,
+                                                     kRabbitsSpawnRateSigma);
+        add_rabbit( utils::random_min_max( 0, width_),
+                    utils::random_min_max( 0, height_));
+    } else
+    {
+        ++rabbits_counter_;
+    }
 }
 
 void
@@ -65,9 +77,9 @@ Model::tick_snake_positions_update()
 
         snake.points.emplace_back( next_head);
         if ( (next_head.x < 0) ||
-             (next_head.x > width_) ||
+             (next_head.x >= width_) ||
              (next_head.y < 0) ||
-             (next_head.y > height_) )
+             (next_head.y >= height_) )
         {
             --snakes_number_;
             snake.is_alive = false;
