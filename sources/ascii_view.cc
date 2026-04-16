@@ -122,10 +122,6 @@ AsciiView::render_snake( const Snake& snake)
         return ;
     }
 
-    go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
-    std::cout << "○";
-    ++it;
-
     for ( ; it != std::prev( snake.points.cend()); ++it )
     {
         go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
