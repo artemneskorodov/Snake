@@ -29,8 +29,8 @@ Model::Tick()
         rabbits_counter_ = 0;
         next_rabbit_counter_ = utils::random_normal( kRabbitsSpawnRateAvg,
                                                      kRabbitsSpawnRateSigma);
-        add_rabbit( utils::random_min_max( 0, width_),
-                    utils::random_min_max( 0, height_));
+        add_rabbit( utils::random_min_max( 0, width_ - 1),
+                    utils::random_min_max( 0, height_ - 1));
     } else
     {
         ++rabbits_counter_;
@@ -146,6 +146,11 @@ Model::tick_snake_snake_collisions_check()
                 }
             }
 
+            if ( !snake.is_alive )
+            {
+                break;
+            }
+
             if ( (&snake != &concurent) &&
                  (*it == head) )
             {
@@ -164,9 +169,9 @@ Model::tick_check_rabbits()
     for ( Rabbit& rabbit : rabbits_ )
     {
         if ( (rabbit.point.x < 0) ||
-             (rabbit.point.x > width_) ||
+             (rabbit.point.x >= width_) ||
              (rabbit.point.y < 0) ||
-             (rabbit.point.y > height_) )
+             (rabbit.point.y >= height_) )
         {
             rabbit.is_alive = false;
         }
