@@ -1,11 +1,12 @@
 #include "ascii_view.hh"
+#include "graphics_view.hh"
 #include "controller.hh"
 #include "model.hh"
 
 int
 main( void)
 {
-    snake::AsciiView view{};
+    snake::GraphicsView view{800, 600};
 
     view.RequestWindowSize();
     auto winsz = view.GetGameFieldSize();

@@ -31,9 +31,9 @@ SnakeDebugMsg(std::string_view level, Args... args)
 
 #ifdef SNAKE_DEBUG_ALL
 
-    #define DEBUG_INFO(...)    SnakeDebugMsg(    "[INFO] ", __VA_ARGS__)
-    #define DEBUG_WARNING(...) SnakeDebugMsg( "[WARNING] ", __VA_ARGS__)
-    #define DEBUG_ERROR(...)   SnakeDebugMsg(   "[ERROR] ", __VA_ARGS__)
+    #define DEBUG_INFO(...)    ::snake::SnakeDebugMsg(    "[INFO] ", __VA_ARGS__)
+    #define DEBUG_WARNING(...) ::snake::SnakeDebugMsg( "[WARNING] ", __VA_ARGS__)
+    #define DEBUG_ERROR(...)   ::snake::SnakeDebugMsg(   "[ERROR] ", __VA_ARGS__)
 
 #else // SNAKE_DEBUG_ALL
 
