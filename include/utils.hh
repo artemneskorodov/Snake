@@ -32,6 +32,24 @@ random_min_max( NumberT min, NumberT max)
     return distribution( gen);
 }
 
+template<typename NumberT>
+NumberT
+random_of( std::initializer_list<NumberT> list)
+{
+    std::random_device rd;
+    std::default_random_engine gen( rd());
+
+    std::uniform_int_distribution<std::size_t> distribution( 0, list.size() - 1);
+    std::size_t index = distribution( gen);
+
+    auto it = list.begin();
+    for ( std::size_t i = 0; i != index; ++i )
+    {
+        ++it;
+    }
+    return *it;
+}
+
 } // ! namespace utils
 } // ! namespace snake
 

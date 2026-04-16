@@ -29,8 +29,7 @@ Model::Tick()
         rabbits_counter_ = 0;
         next_rabbit_counter_ = utils::random_normal( kRabbitsSpawnRateAvg,
                                                      kRabbitsSpawnRateSigma);
-        add_rabbit( utils::random_min_max( 0, width_ - 1),
-                    utils::random_min_max( 0, height_ - 1));
+        add_rabbit();
     } else
     {
         ++rabbits_counter_;
@@ -76,6 +75,7 @@ Model::tick_snake_positions_update()
         }
 
         snake.points.emplace_back( next_head);
+        cells_[next_head] = CellType::SNAKE;
         if ( (next_head.x < 0) ||
              (next_head.x >= width_) ||
              (next_head.y < 0) ||
@@ -115,6 +115,8 @@ Model::tick_snake_rabbit_collisions_check()
         if ( need_pop_front )
         {
             snake.points.pop_front();
+            const Point& tail = snake.points.front();
+            cells_[tail] = CellType::EMPTY;
         }
     }
 }
@@ -140,8 +142,7 @@ Model::tick_snake_snake_collisions_check()
             {
                 if ( *it == head )
                 {
-                    --snakes_number_;
-                    snake.is_alive = false;
+                    remove_snake( snake);
                     break;
                 }
             }
@@ -154,9 +155,8 @@ Model::tick_snake_snake_collisions_check()
             if ( (&snake != &concurent) &&
                  (*it == head) )
             {
-                snakes_number_ -= 2;
-                snake.is_alive = false;
-                concurent.is_alive = false;
+                remove_snake( snake);
+                remove_snake( concurent);
                 break;
             }
         }
@@ -176,6 +176,100 @@ Model::tick_check_rabbits()
             rabbit.is_alive = false;
         }
     }
+}
+
+void
+Model::set_cells_after_resize()
+{
+    for ( Coordinate x = 0; x != width_; ++x )
+    {
+        for ( Coordinate y = 0; y != height_; ++y )
+        {
+            cells_[{ x, y}] = CellType::EMPTY;
+        }
+    }
+
+    for ( const Snake& snake : snakes_ )
+    {
+        if ( !snake.is_alive )
+        {
+            continue;
+        }
+        for ( const Point& point : snake.points )
+        {
+            cells_[point] = CellType::SNAKE;
+        }
+    }
+    for ( const Rabbit& rabbit : rabbits_ )
+    {
+        if ( !rabbit.is_alive )
+        {
+            continue;
+        }
+        cells_[rabbit.point] = CellType::RABBIT;
+    }
+}
+
+void
+Model::remove_snake( Snake& snake)
+{
+    snake.is_alive = false;
+    for ( const Point& point : snake.points )
+    {
+        cells_[point] = CellType::EMPTY;
+    }
+    --snakes_number_;
+}
+
+void
+Model::add_rabbit()
+{
+    Coordinate x;
+    Coordinate y;
+    int counter = 0;
+    for ( ; counter != 10; ++counter )
+    {
+        x = utils::random_min_max( 0, width_ - 1);
+        y = utils::random_min_max( 0, height_ - 1);
+        if ( cells_[{ x, y}] == CellType::EMPTY )
+        {
+            break;
+        }
+    }
+    if ( counter == 10 )
+    {
+        return ;
+    }
+    rabbits_.emplace_back( x, y);
+    cells_[{ x, y}] = CellType::RABBIT;
+}
+
+SnakeID
+Model::AddSnake( SnakeTicker ticker)
+{
+    SnakeID id = static_cast<SnakeID>( snakes_.size());
+    Direction dir = utils::random_of( { Direction::LEFT,
+                                       Direction::BOTTOM,
+                                       Direction::RIGHT,
+                                       Direction::TOP});
+
+    Coordinate x;
+    Coordinate y;
+
+    for ( ; ; )
+    {
+        x = utils::random_min_max( 0, width_ - 1);
+        y = utils::random_min_max( 0, height_ - 1);
+        if ( cells_[{ x, y}] == CellType::EMPTY )
+        {
+            break;
+        }
+    }
+    snakes_.emplace_back( x, y, dir, id, ticker);
+    cells_[{ x, y}] = CellType::SNAKE;
+    ++snakes_number_;
+
+    return id;
 }
 
 } // ! namespace snake

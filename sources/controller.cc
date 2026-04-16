@@ -18,6 +18,7 @@ Controller::Run()
     players_snakes_.emplace_back( second_snake_id);
 
     model_.AddSnake( bots::TickDumbBot);
+    model_.AddSnake( bots::TickSmartBot);
 
     for ( ; ; )
     {
