@@ -10,15 +10,21 @@ namespace snake
 {
 
 void
-Controller::Run()
+Controller::Run( const ProgramArguments& arguments)
 {
-    SnakeID first_snake_id  = model_.AddSnake();
-    SnakeID second_snake_id = model_.AddSnake();
-    players_snakes_.emplace_back( first_snake_id);
-    players_snakes_.emplace_back( second_snake_id);
-
-    model_.AddSnake( bots::TickDumbBot);
-    model_.AddSnake( bots::TickSmartBot);
+    for ( std::size_t player = 0; player != arguments.humans; ++player )
+    {
+        SnakeID snake_id = model_.AddSnake();
+        players_snakes_.emplace_back( snake_id);
+    }
+    for ( std::size_t dumb_bot = 0; dumb_bot != arguments.dumb_bots; ++dumb_bot )
+    {
+        model_.AddSnake( bots::TickDumbBot);
+    }
+    for ( std::size_t smart_bot = 0; smart_bot != arguments.smart_bots; ++smart_bot )
+    {
+        model_.AddSnake( bots::TickSmartBot);
+    }
 
     for ( ; ; )
     {

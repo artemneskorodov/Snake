@@ -3,6 +3,7 @@
 
 #include "model.hh"
 #include "view.hh"
+#include "arguments.hh"
 
 namespace snake
 {
@@ -16,7 +17,7 @@ public:
     {
     }
 
-    void Run();
+    void Run( const ProgramArguments& arguments);
 
 private:
     void handle_event( Event event);
