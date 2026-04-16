@@ -6,7 +6,7 @@
 
 [x] Add simple dumb bots which will go to closest rabbit
 
-[ ] Add bot which will go to closest accessible rabbit
+[x] Add bot which will go to closest accessible rabbit
 
 [ ] Add SFML graphics view
 
