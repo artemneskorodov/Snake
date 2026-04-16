@@ -9,6 +9,7 @@ namespace bots
 {
 
 void TickDumbBot( Model& model, const Snake& snake);
+void TickSmartBot( Model& model, const Snake& snake);
 
 } // ! namespace bots
 } // ! namespace snake

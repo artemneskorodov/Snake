@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 #include "utils.hh"
 
@@ -34,6 +35,8 @@ is_opposite( Direction first,
 
 struct Point
 {
+    Point() = default;
+
     Point( Coordinate x,
            Coordinate y)
      :  x{ x},
@@ -56,6 +59,15 @@ struct Point
     Coordinate x;
     Coordinate y;
 
+};
+
+struct PointHash
+{
+    std::size_t
+    operator()( const Point& point) const
+    {
+        return std::hash<int>()( point.x) ^ (std::hash<int>()( point.y) << 1);
+    }
 };
 
 class Model;
@@ -97,6 +109,13 @@ struct Rabbit
     bool  is_alive{ true};
 };
 
+enum class CellType
+{
+    EMPTY,
+    RABBIT,
+    SNAKE
+};
+
 class Model
 {
 public:
@@ -105,6 +124,7 @@ public:
      :  width_  { width},
         height_ { height}
     {
+        set_cells_after_resize();
     }
 
     bool
@@ -125,6 +145,7 @@ public:
     {
         width_ = width;
         height_ = height;
+        set_cells_after_resize();
     }
 
     void Tick();
@@ -133,19 +154,7 @@ public:
     // Snake control methods
     //
 
-    SnakeID
-    AddSnake( SnakeTicker ticker = []( Model&, const Snake&) {})
-    {
-        SnakeID id = static_cast<SnakeID>( snakes_.size());
-        Coordinate x = utils::random_min_max( 0, width_);
-        Coordinate y = utils::random_min_max( 0, height_);
-        int dir_value = utils::random_min_max( 1, 4);
-        Direction dir = static_cast<Direction>( dir_value);
-
-        snakes_.emplace_back( x, y, dir, id, ticker);
-        ++snakes_number_;
-        return id;
-    }
+    SnakeID AddSnake( SnakeTicker ticker = []( Model&, const Snake&) {});
 
     void
     SetSnakeDirection( SnakeID   id,
@@ -181,13 +190,22 @@ public:
         return rabbits_;
     }
 
-private:
-    void
-    add_rabbit( Coordinate x,
-                Coordinate y)
+    CellType
+    GetCellType( const Point& point) const
     {
-        rabbits_.emplace_back( x, y);
+        return cells_.at( point);
     }
+
+    CellType
+    GetCellType( Coordinate x, Coordinate y) const
+    {
+        return cells_.at( { x, y});
+    }
+
+private:
+    void add_rabbit();
+    void remove_snake( Snake& snake);
+    void set_cells_after_resize();
 
 private:
     void tick_snake_positions_update();
@@ -209,6 +227,7 @@ private:
     int                 rabbits_counter_     { 0};
     int                 next_rabbit_counter_ { utils::random_normal( kRabbitsSpawnRateAvg,
                                                                      kRabbitsSpawnRateSigma)};
+    std::unordered_map<Point, CellType, PointHash> cells_;
 
 };
 
