@@ -114,15 +114,17 @@ AsciiView::render_snake( const Snake& snake)
 
     set_color( snake_color( snake.id));
 
+    if ( snake.points.size() == 1 )
+    {
+        go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
+        std::cout << "●";
+        ++it;
+        return ;
+    }
+
     go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
     std::cout << "○";
     ++it;
-
-    // If body is 1 element length
-    if ( it == snake.points.cend() )
-    {
-        return ;
-    }
 
     for ( ; it != std::prev( snake.points.cend()); ++it )
     {
