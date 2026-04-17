@@ -18,10 +18,19 @@ using SnakeID = int;
 enum class Direction
 {
     TOP    = 1,
-    LEFT   = 2,
+    RIGHT  = 2,
     BOTTOM = 3,
-    RIGHT  = 4,
+    LEFT   = 4,
 };
+
+///
+/// @brief Get degrees needed to rotate clockwise to get direction
+///
+inline int
+DirectionToDegrees( Direction dir)
+{
+    return 90 * (static_cast<int>( dir) - 1);
+}
 
 inline bool
 is_opposite( Direction first,
