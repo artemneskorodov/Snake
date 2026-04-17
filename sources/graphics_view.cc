@@ -28,22 +28,20 @@ const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
 
 GraphicsView::GraphicsView( uint32_t width,
                             uint32_t height)
- :  window                  { sf::VideoMode{ sf::Vector2u{ width, height}}, "Snake"},
-    snake_texture_straight_ { sf::Texture( "resources/snake_texture_straight.png")},
-    snake_texture_turning_  { sf::Texture( "resources/snake_texture_turning.png")}
+ :  window_ { sf::VideoMode{ sf::Vector2u{ width, height}}, "Snake"}
 {
     current_window_size_ = { width, height};
 }
 
 GraphicsView::~GraphicsView()
 {
-    window.close();
+    window_.close();
 }
 
 void
 GraphicsView::Render( const Model& model)
 {
-    window.clear( sf::Color::Black);
+    window_.clear( sf::Color::Black);
     for ( const Snake& snake : model.GetSnakes() )
     {
         if ( !snake.is_alive )
@@ -60,7 +58,7 @@ GraphicsView::Render( const Model& model)
         }
         render_rabbit( rabbit);
     }
-    window.display();
+    window_.display();
 }
 
 std::pair<Coordinate, Coordinate>
@@ -74,7 +72,7 @@ GraphicsView::UpdateEvents()
 {
     for ( ; ; )
     {
-        std::optional event = window.pollEvent();
+        std::optional event = window_.pollEvent();
         if ( !event.has_value() )
         {
             break;
@@ -98,7 +96,7 @@ GraphicsView::UpdateEvents()
             sf::FloatRect visibleArea( { 0, 0},
                                        { static_cast<float>( resize->size.x),
                                          static_cast<float>( resize->size.y)});
-            window.setView( sf::View( visibleArea));
+            window_.setView( sf::View( visibleArea));
         }
     }
 }
@@ -113,7 +111,7 @@ GraphicsView::render_snake( const Snake& snake)
     sf::RectangleShape shape{ sf::Vector2f{ kCellSize, kCellSize}};
     shape.setPosition( sf::Vector2f{ it->x * kCellSize, it->y * kCellSize});
     shape.setFillColor( sf::Color::Yellow);
-    window.draw( shape);
+    window_.draw( shape);
 
     if ( it == end )
     {
@@ -134,7 +132,7 @@ GraphicsView::render_snake( const Snake& snake)
 
         if ( dir_from_prev == dir_to_next )
         {
-            texture = &snake_texture_straight_;
+            texture = &textures_.snake_texture_body_straight;
             if ( dir_from_prev.x == 1 )
             {
                 rotation = sf::degrees( 90);
@@ -150,7 +148,7 @@ GraphicsView::render_snake( const Snake& snake)
             }
         } else
         {
-            texture = &snake_texture_turning_;
+            texture = &textures_.snake_texture_body_turning;
             if ( dir_to_next == Point{1, 0} && dir_from_prev == Point{ 0, -1})
             {
                 rotation = sf::degrees( 0);
@@ -190,13 +188,13 @@ GraphicsView::render_snake( const Snake& snake)
         float flip_mult = need_flip ? -1.f : 1.f;
         sprite.setScale( { flip_mult * kCellSize / texture_size.x, kCellSize / texture_size.y});
         sprite.setRotation( rotation);
-        window.draw( sprite);
+        window_.draw( sprite);
     }
 
     // TODO head
     shape.setPosition( sf::Vector2f{ it->x * kCellSize, it->y * kCellSize});
     shape.setFillColor( sf::Color::Red);
-    window.draw( shape);
+    window_.draw( shape);
 }
 
 void
@@ -206,7 +204,7 @@ GraphicsView::render_rabbit( const Rabbit& rabbit)
     sf::RectangleShape shape{ sf::Vector2f{ kCellSize, kCellSize}};
     shape.setPosition( sf::Vector2f{ rabbit.point.x * kCellSize, rabbit.point.y * kCellSize});
     shape.setFillColor( sf::Color::Blue);
-    window.draw( shape);
+    window_.draw( shape);
 }
 
 } // ! namespace snake
