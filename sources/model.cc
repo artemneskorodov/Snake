@@ -217,7 +217,7 @@ void
 Model::remove_snake( Snake& snake)
 {
     snake.is_alive = false;
-    for ( Point& point : snake.points )
+    for ( const Point& point : snake.points )
     {
         bool spawn_bone = utils::random_true_false( kBoneSpawnProbability);
         if ( spawn_bone )
