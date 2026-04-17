@@ -56,6 +56,18 @@ struct Point
         return !((*this) == rhs);
     }
 
+    Point
+    operator+( const Point& rhs) const
+    {
+        return { x + rhs.x, y + rhs.y};
+    }
+
+    Point
+    operator-( const Point& rhs) const
+    {
+        return { x - rhs.x, y - rhs.y};
+    }
+
     Coordinate x;
     Coordinate y;
 
@@ -214,7 +226,7 @@ private:
     void tick_check_rabbits();
 
 private:
-    static constexpr int kRabbitsSpawnRateAvg   = 25;
+    static constexpr int kRabbitsSpawnRateAvg   = 10;
     static constexpr int kRabbitsSpawnRateSigma = 5;
 
 private:

@@ -21,6 +21,8 @@ public:
 
 private:
     sf::RenderWindow window;
+    sf::Texture forward_snake_texture_;
+    sf::Texture rotate_snake_texture_;
 };
 
 } // ! namespace snake

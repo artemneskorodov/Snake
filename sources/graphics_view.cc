@@ -7,9 +7,18 @@
 namespace snake
 {
 
+namespace
+{
+
+constexpr float kCellSize = 30.f;
+
+} // anonymous namespace
+
 GraphicsView::GraphicsView( uint32_t width,
                             uint32_t height)
- :  window{ sf::VideoMode{ sf::Vector2u{ width, height}}, "Snake"}
+ :  window{ sf::VideoMode{ sf::Vector2u{ width, height}}, "Snake"},
+    forward_snake_texture_{ sf::Texture( "forward.png")},
+    rotate_snake_texture_{ sf::Texture( "rotate.png")}
 {
     current_window_size_ = { width, height};
 }
@@ -29,13 +38,93 @@ GraphicsView::Render( const Model& model)
         {
             continue;
         }
-        for ( const Point& point : snake.points )
+        auto it  = snake.points.cbegin();
+        auto end = snake.points.cend();
+
+        sf::RectangleShape shape{ sf::Vector2f{ kCellSize, kCellSize}};
+        shape.setPosition( sf::Vector2f{ it->x * kCellSize, it->y * kCellSize});
+        shape.setFillColor( sf::Color::Yellow);
+        window.draw( shape);
+
+        if ( it == end )
         {
-            sf::RectangleShape shape{ sf::Vector2f{ 10.f, 10.f}};
-            shape.setPosition( sf::Vector2f{ point.x * 10.f, point.y * 10.f});
-            shape.setFillColor( sf::Color::Green);
-            window.draw( shape);
+            continue ;
         }
+
+        ++it;
+
+        for ( ; it != std::prev( end); ++it )
+        {
+            Point dir_from_prev = *it - *std::prev( it);
+            Point dir_to_next   = *std::next( it) - * it;
+
+            const sf::Texture *texture = nullptr;
+            sf::Angle rotation;
+            bool need_flip = false;
+
+            if ( dir_from_prev == dir_to_next )
+            {
+                texture = &forward_snake_texture_;
+                if ( dir_from_prev.x == 1 )
+                {
+                    rotation = sf::degrees( 90);
+                } else if ( dir_from_prev.x == -1 )
+                {
+                    rotation = sf::degrees( 270);
+                } else if ( dir_from_prev.y == 1 )
+                {
+                    rotation = sf::degrees( 0);
+                } else
+                {
+                    rotation = sf::degrees( 180);
+                }
+            } else
+            {
+                texture = &rotate_snake_texture_;
+                if ( dir_to_next == Point{1, 0} && dir_from_prev == Point{ 0, -1})
+                {
+                    rotation = sf::degrees( 0);
+                } else if ( dir_to_next == Point{ 0, 1} && dir_from_prev == Point{ -1, 0})
+                {
+                    rotation = sf::degrees( 0 - 90);
+                    need_flip = true;
+                } else if ( dir_to_next == Point{ 0, 1} && dir_from_prev == Point{ 1, 0})
+                {
+                    rotation = sf::degrees( 90);
+                } else if ( dir_to_next == Point{ -1, 0} && dir_from_prev == Point{ 0, -1})
+                {
+                    rotation = sf::degrees( 90 - 90);
+                    need_flip = true;
+                } else if ( dir_to_next == Point{ -1, 0} && dir_from_prev == Point{ 0, 1})
+                {
+                    rotation = sf::degrees( 180);
+                } else if ( dir_to_next == Point{ 0, -1} && dir_from_prev == Point{ 1, 0})
+                {
+                    rotation = sf::degrees( 180 - 90);
+                    need_flip = true;
+                } else if ( dir_to_next == Point{ 0, -1} && dir_from_prev == Point{ -1, 0})
+                {
+                    rotation = sf::degrees( 270);
+                } else if ( dir_to_next == Point{ 1, 0} && dir_from_prev == Point{ 0, 1})
+                {
+                    rotation = sf::degrees( 270 - 90);
+                    need_flip = true;
+                }
+            }
+
+            sf::Sprite sprite{ *texture};
+            auto texture_size = texture->getSize();
+            sprite.setOrigin( { texture_size.x / 2.f, texture_size.y / 2.f});
+            sprite.setPosition( sf::Vector2f{ it->x * kCellSize + kCellSize / 2.f,
+                                                        it->y * kCellSize + kCellSize / 2.f});
+            float flip_mult = need_flip ? -1.f : 1.f;
+            sprite.setScale( { flip_mult * kCellSize / texture_size.x, kCellSize / texture_size.y});
+            sprite.setRotation( rotation);
+            window.draw( sprite);
+        }
+        shape.setPosition( sf::Vector2f{ it->x * kCellSize, it->y * kCellSize});
+        shape.setFillColor( sf::Color::Red);
+        window.draw( shape);
     }
     for ( const Rabbit& rabbit : model.GetRabbits() )
     {
@@ -43,8 +132,8 @@ GraphicsView::Render( const Model& model)
         {
             continue;
         }
-        sf::RectangleShape shape{ sf::Vector2f{ 10.f, 10.f}};
-        shape.setPosition( sf::Vector2f{ rabbit.point.x * 10.f, rabbit.point.y * 10.f});
+        sf::RectangleShape shape{ sf::Vector2f{ kCellSize, kCellSize}};
+        shape.setPosition( sf::Vector2f{ rabbit.point.x * kCellSize, rabbit.point.y * kCellSize});
         shape.setFillColor( sf::Color::Blue);
         window.draw( shape);
     }
@@ -54,7 +143,7 @@ GraphicsView::Render( const Model& model)
 std::pair<Coordinate, Coordinate>
 GraphicsView::GetGameFieldSize() const
 {
-    return { current_window_size_.first * 0.85 / 10, current_window_size_.second * 0.85 / 10};
+    return { current_window_size_.first * 0.85 / kCellSize, current_window_size_.second * 0.85 / kCellSize};
 }
 
 void
