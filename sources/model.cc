@@ -18,6 +18,7 @@ Model::Tick()
     tick_snake_positions_update();
     tick_snake_rabbit_collisions_check();
     tick_snake_snake_collisions_check();
+    tick_check_bones_lifetime();
 
     if ( snakes_number_ == 0 )
     {
@@ -34,6 +35,8 @@ Model::Tick()
     {
         ++rabbits_counter_;
     }
+
+    ++tick_;
 }
 
 void
@@ -218,7 +221,8 @@ Model::remove_snake( Snake& snake)
         bool spawn_bone = utils::random_true_false( kBoneSpawnProbability);
         if ( spawn_bone )
         {
-            add_bone( point);
+            TickType lifetime = utils::random_normal( kBonesLifetimeAvg, kBonesLifetimeSigma);
+            add_bone( point, lifetime);
         } else
         {
             cells_[point] = CellType::EMPTY;
@@ -313,10 +317,23 @@ Model::AddSnake( SnakeTicker ticker)
 }
 
 void
-Model::add_bone( const Point& point)
+Model::add_bone( const Point& point,
+                 TickType     lifetime)
 {
     cells_[point] = CellType::BONE;
-    bones_.emplace_back( point.x, point.y);
+    bones_.emplace_back( point.x, point.y, lifetime + tick_);
+}
+
+void
+Model::tick_check_bones_lifetime()
+{
+    for ( Bone& bone : bones_ )
+    {
+        if ( tick_ == bone.death_tick )
+        {
+            bone.is_alive = false;
+        }
+    }
 }
 
 } // ! namespace snake

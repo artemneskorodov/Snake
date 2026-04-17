@@ -173,6 +173,10 @@ GraphicsView::Render( const Model& model)
     }
     for ( const Bone& bone : model.GetBones() )
     {
+        if ( !bone.is_alive )
+        {
+            continue;
+        }
         sf::RectangleShape shape{ sf::Vector2f{ 10.f, 10.f}};
         shape.setPosition( sf::Vector2f{ bone.point.x * 10.f, bone.point.y * 10.f});
         window_.draw( shape);

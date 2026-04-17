@@ -106,6 +106,10 @@ AsciiView::Render( const Model& model)
 
     for ( const Bone& bone : model.GetBones() )
     {
+        if ( !bone.is_alive )
+        {
+            continue;
+        }
         render_bone( bone);
     }
 

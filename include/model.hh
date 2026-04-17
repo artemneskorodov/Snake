@@ -15,6 +15,8 @@ using Coordinate = int;
 
 using SnakeID = int;
 
+using TickType = std::uint64_t;
+
 enum class Direction
 {
     TOP    = 1,
@@ -121,12 +123,16 @@ struct Snake
 struct Bone
 {
     Bone( Coordinate x,
-          Coordinate y)
-     :  point{ x, y}
+          Coordinate y,
+          TickType   death_tick)
+     :  point      { x, y},
+        death_tick { death_tick}
     {
     }
 
-    Point point;
+    Point    point;
+    TickType death_tick;
+    bool     is_alive{ true};
 
 };
 
@@ -246,18 +252,21 @@ private:
     void add_rabbit();
     void remove_snake( Snake& snake);
     void set_cells_after_resize();
-    void add_bone( const Point& point);
+    void add_bone( const Point& point, TickType lifetime);
 
 private:
     void tick_snake_positions_update();
     void tick_snake_rabbit_collisions_check();
     void tick_snake_snake_collisions_check();
     void tick_check_rabbits();
+    void tick_check_bones_lifetime();
 
 private:
     static constexpr int kRabbitsSpawnRateAvg   = 10;
     static constexpr int kRabbitsSpawnRateSigma = 5;
     static constexpr double kBoneSpawnProbability = 0.7;
+    static constexpr TickType kBonesLifetimeAvg = 50;
+    static constexpr TickType kBonesLifetimeSigma = 10;
 
 private:
     Coordinate          width_;
@@ -270,6 +279,7 @@ private:
     int                 rabbits_counter_     { 0};
     int                 next_rabbit_counter_ { utils::random_normal( kRabbitsSpawnRateAvg,
                                                                      kRabbitsSpawnRateSigma)};
+    TickType            tick_{ 0};
     std::unordered_map<Point, CellType, PointHash> cells_;
 
 };
