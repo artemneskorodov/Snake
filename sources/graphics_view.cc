@@ -28,9 +28,9 @@ const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
 
 GraphicsView::GraphicsView( uint32_t width,
                             uint32_t height)
- :  window{ sf::VideoMode{ sf::Vector2u{ width, height}}, "Snake"},
-    forward_snake_texture_{ sf::Texture( "resources/forward.png")},
-    rotate_snake_texture_{ sf::Texture( "resources/rotate.png")}
+ :  window                  { sf::VideoMode{ sf::Vector2u{ width, height}}, "Snake"},
+    snake_texture_straight_ { sf::Texture( "resources/snake_texture_straight.png")},
+    snake_texture_turning_  { sf::Texture( "resources/snake_texture_turning.png")}
 {
     current_window_size_ = { width, height};
 }
@@ -134,7 +134,7 @@ GraphicsView::render_snake( const Snake& snake)
 
         if ( dir_from_prev == dir_to_next )
         {
-            texture = &forward_snake_texture_;
+            texture = &snake_texture_straight_;
             if ( dir_from_prev.x == 1 )
             {
                 rotation = sf::degrees( 90);
@@ -150,7 +150,7 @@ GraphicsView::render_snake( const Snake& snake)
             }
         } else
         {
-            texture = &rotate_snake_texture_;
+            texture = &snake_texture_turning_;
             if ( dir_to_next == Point{1, 0} && dir_from_prev == Point{ 0, -1})
             {
                 rotation = sf::degrees( 0);

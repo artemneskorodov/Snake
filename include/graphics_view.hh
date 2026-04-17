@@ -24,8 +24,8 @@ private:
     void render_rabbit( const Rabbit& rabbit);
 private:
     sf::RenderWindow window;
-    sf::Texture forward_snake_texture_;
-    sf::Texture rotate_snake_texture_;
+    sf::Texture snake_texture_straight_;
+    sf::Texture snake_texture_turning_;
 };
 
 } // ! namespace snake
