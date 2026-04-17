@@ -171,6 +171,12 @@ GraphicsView::Render( const Model& model)
         }
         render_rabbit( rabbit);
     }
+    for ( const Bone& bone : model.GetBones() )
+    {
+        sf::RectangleShape shape{ sf::Vector2f{ 10.f, 10.f}};
+        shape.setPosition( sf::Vector2f{ bone.point.x * 10.f, bone.point.y * 10.f});
+        window_.draw( shape);
+    }
     window_.display();
 }
 
