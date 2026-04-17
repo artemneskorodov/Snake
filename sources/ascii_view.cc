@@ -339,7 +339,7 @@ AsciiView::render_snake_status( const Snake& snake,
 void
 AsciiView::render_bone( const Bone& bone)
 {
-    go_to_xy( bone.x + kGameFieldOffsetX, bone.y + kGameFieldOffsetY);
+    go_to_xy( bone.point.x + kGameFieldOffsetX, bone.point.y + kGameFieldOffsetY);
     set_color( "#ffffff");
     std::cout << "☠";
     set_color( "#000000");

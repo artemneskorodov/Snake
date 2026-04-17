@@ -122,13 +122,11 @@ struct Bone
 {
     Bone( Coordinate x,
           Coordinate y)
-     :  x { x},
-        y { y}
+     :  point{ x, y}
     {
     }
 
-    Coordinate x;
-    Coordinate y;
+    Point point;
 
 };
 
