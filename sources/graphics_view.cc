@@ -139,11 +139,4 @@ GraphicsView::UpdateEvents()
     }
 }
 
-void
-GraphicsView::RequestWindowSize()
-{
-    // TODO this is unused in sfml, as resize is in UpdateEvents
-    return ;
-}
-
 } // ! namespace snake

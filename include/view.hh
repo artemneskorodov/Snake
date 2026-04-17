@@ -51,7 +51,6 @@ public:
     virtual void                              Render( const Model& model) = 0;
     virtual std::pair<Coordinate, Coordinate> GetGameFieldSize() const    = 0;
     virtual void                              UpdateEvents()              = 0;
-    virtual void                              RequestWindowSize()         = 0;
 
 public:
     std::optional<Event>
@@ -66,9 +65,6 @@ public:
         events_.pop_back();
         return event;
     }
-
-protected:
-    void update_common_events();
 
 protected:
     std::vector<Event> events_{};

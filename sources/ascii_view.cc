@@ -64,7 +64,7 @@ AsciiView::AsciiView()
     cfmakeraw( &attr);
     tcsetattr( STDIN_FILENO, 0, &attr);
 
-    RequestWindowSize();
+    current_window_size_ = get_window_size();
 }
 
 AsciiView::~AsciiView()
@@ -149,12 +149,12 @@ AsciiView::GetGameFieldSize() const
             current_window_size_.second - (kGameFieldOffsetY + 1 + 1 + kStatusBarHeight)};
 }
 
-void
-AsciiView::RequestWindowSize()
+std::pair<Coordinate, Coordinate>
+AsciiView::get_window_size()
 {
     winsize winsz;
     ioctl( STDIN_FILENO, TIOCGWINSZ, &winsz);
-    current_window_size_ = { winsz.ws_col, winsz.ws_row};
+    return { winsz.ws_col, winsz.ws_row};
 }
 
 void
@@ -213,7 +213,12 @@ AsciiView::UpdateEvents()
         }
     }
 
-    update_common_events();
+    auto size = get_window_size();
+    if ( size != current_window_size_ )
+    {
+        current_window_size_ = size;
+        events_.emplace_back( Event::WINDOW_SIZE_CHANGED);
+    }
 }
 
 void
