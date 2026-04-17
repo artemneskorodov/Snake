@@ -15,7 +15,7 @@ using Coordinate = int;
 
 using SnakeID = int;
 
-using TickType = std::uint64_t;
+using TickType = std::int64_t;
 
 enum class Direction
 {
