@@ -108,10 +108,30 @@ GraphicsView::render_snake( const Snake& snake)
     auto end = snake.points.cend();
 
     // TODO tail
-    sf::RectangleShape shape{ sf::Vector2f{ kCellSize, kCellSize}};
-    shape.setPosition( sf::Vector2f{ it->x * kCellSize, it->y * kCellSize});
-    shape.setFillColor( sf::Color::Yellow);
-    window_.draw( shape);
+    Point dir_to_next = *std::next( it) - *it;
+    sf::Angle rotation;
+    if ( dir_to_next.x == 1 )
+    {
+        rotation = sf::degrees( 90);
+    } else if ( dir_to_next.x == -1 )
+    {
+        rotation = sf::degrees( 270);
+    } else if ( dir_to_next.y == 1 )
+    {
+        rotation = sf::degrees( 180);
+    } else if ( dir_to_next.y == -1 )
+    {
+        rotation = sf::degrees( 0);
+    }
+
+    sf::Sprite tail_sprite( textures_.snake_texture_tail);
+    auto texture_size = textures_.snake_texture_tail.getSize();
+    tail_sprite.setOrigin( { texture_size.x / 2.f, texture_size.y / 2.f});
+    tail_sprite.setPosition( sf::Vector2f{ it->x * kCellSize + kCellSize / 2.f,
+                                                     it->y * kCellSize + kCellSize / 2.f});
+    tail_sprite.setScale( { kCellSize / texture_size.x, kCellSize / texture_size.y});
+    tail_sprite.setRotation( rotation);
+    window_.draw( tail_sprite);
 
     if ( it == end )
     {
@@ -184,7 +204,7 @@ GraphicsView::render_snake( const Snake& snake)
         auto texture_size = texture->getSize();
         sprite.setOrigin( { texture_size.x / 2.f, texture_size.y / 2.f});
         sprite.setPosition( sf::Vector2f{ it->x * kCellSize + kCellSize / 2.f,
-                                                        it->y * kCellSize + kCellSize / 2.f});
+                                                    it->y * kCellSize + kCellSize / 2.f});
         float flip_mult = need_flip ? -1.f : 1.f;
         sprite.setScale( { flip_mult * kCellSize / texture_size.x, kCellSize / texture_size.y});
         sprite.setRotation( rotation);
@@ -192,6 +212,7 @@ GraphicsView::render_snake( const Snake& snake)
     }
 
     // TODO head
+    sf::RectangleShape shape{ {kCellSize, kCellSize}};
     shape.setPosition( sf::Vector2f{ it->x * kCellSize, it->y * kCellSize});
     shape.setFillColor( sf::Color::Red);
     window_.draw( shape);
