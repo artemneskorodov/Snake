@@ -17,8 +17,8 @@ constexpr float kCellSize = 30.f;
 GraphicsView::GraphicsView( uint32_t width,
                             uint32_t height)
  :  window{ sf::VideoMode{ sf::Vector2u{ width, height}}, "Snake"},
-    forward_snake_texture_{ sf::Texture( "forward.png")},
-    rotate_snake_texture_{ sf::Texture( "rotate.png")}
+    forward_snake_texture_{ sf::Texture( "resources/forward.png")},
+    rotate_snake_texture_{ sf::Texture( "resources/rotate.png")}
 {
     current_window_size_ = { width, height};
 }
