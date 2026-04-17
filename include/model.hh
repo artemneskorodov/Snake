@@ -118,6 +118,20 @@ struct Snake
 
 };
 
+struct Bone
+{
+    Bone( Coordinate x,
+          Coordinate y)
+     :  x { x},
+        y { y}
+    {
+    }
+
+    Coordinate x;
+    Coordinate y;
+
+};
+
 struct Rabbit
 {
     Rabbit( Coordinate x,
@@ -134,7 +148,8 @@ enum class CellType
 {
     EMPTY,
     RABBIT,
-    SNAKE
+    SNAKE,
+    BONE,
 };
 
 class Model
@@ -223,10 +238,17 @@ public:
         return cells_.at( { x, y});
     }
 
+    const std::vector<Bone>&
+    GetBones() const &
+    {
+        return bones_;
+    }
+
 private:
     void add_rabbit();
     void remove_snake( Snake& snake);
     void set_cells_after_resize();
+    void add_bone( const Point& point);
 
 private:
     void tick_snake_positions_update();
@@ -237,6 +259,7 @@ private:
 private:
     static constexpr int kRabbitsSpawnRateAvg   = 10;
     static constexpr int kRabbitsSpawnRateSigma = 5;
+    static constexpr double kBoneSpawnProbability = 0.7;
 
 private:
     Coordinate          width_;
@@ -244,6 +267,7 @@ private:
     bool                game_finished_       { false};
     std::vector<Snake>  snakes_              {};
     std::vector<Rabbit> rabbits_             {};
+    std::vector<Bone>   bones_               {};
     std::size_t         snakes_number_       { 0};
     int                 rabbits_counter_     { 0};
     int                 next_rabbit_counter_ { utils::random_normal( kRabbitsSpawnRateAvg,

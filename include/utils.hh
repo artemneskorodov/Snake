@@ -50,6 +50,17 @@ random_of( std::initializer_list<NumberT> list)
     return *it;
 }
 
+inline bool
+random_true_false( double p_of_true)
+{
+    std::random_device rd;
+    std::default_random_engine gen( rd());
+
+    std::bernoulli_distribution distribution( p_of_true);
+
+    return distribution( gen);
+}
+
 } // ! namespace utils
 } // ! namespace snake
 

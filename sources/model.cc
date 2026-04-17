@@ -81,8 +81,7 @@ Model::tick_snake_positions_update()
              (next_head.y < 0) ||
              (next_head.y >= height_) )
         {
-            --snakes_number_;
-            snake.is_alive = false;
+            remove_snake( snake);
         }
     }
 }
@@ -214,9 +213,16 @@ void
 Model::remove_snake( Snake& snake)
 {
     snake.is_alive = false;
-    for ( const Point& point : snake.points )
+    for ( Point& point : snake.points )
     {
-        cells_[point] = CellType::EMPTY;
+        bool spawn_bone = utils::random_true_false( kBoneSpawnProbability);
+        if ( spawn_bone )
+        {
+            add_bone( point);
+        } else
+        {
+            cells_[point] = CellType::EMPTY;
+        }
     }
     --snakes_number_;
 }
@@ -304,6 +310,13 @@ Model::AddSnake( SnakeTicker ticker)
     ++snakes_number_;
 
     return id;
+}
+
+void
+Model::add_bone( const Point& point)
+{
+    cells_[point] = CellType::BONE;
+    bones_.emplace_back( point.x, point.y);
 }
 
 } // ! namespace snake
