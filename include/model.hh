@@ -263,11 +263,11 @@ private:
     void tick_snake_bone_collisions_check();
 
 private:
-    static constexpr int kRabbitsSpawnRateAvg   = 10;
-    static constexpr int kRabbitsSpawnRateSigma = 5;
-    static constexpr double kBoneSpawnProbability = 0.7;
-    static constexpr TickType kBonesLifetimeAvg = 50;
-    static constexpr TickType kBonesLifetimeSigma = 10;
+    static constexpr int      kRabbitsSpawnRateAvg   = 25;
+    static constexpr int      kRabbitsSpawnRateSigma = 5;
+    static constexpr double   kBoneSpawnProbability  = 0.7;
+    static constexpr TickType kBonesLifetimeAvg      = 50;
+    static constexpr TickType kBonesLifetimeSigma    = 10;
 
 private:
     Coordinate          width_;
