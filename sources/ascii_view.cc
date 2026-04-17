@@ -104,6 +104,11 @@ AsciiView::Render( const Model& model)
         render_rabbit( rabbit);
     }
 
+    for ( const Bone& bone : model.GetBones() )
+    {
+        render_bone( bone);
+    }
+
     std::cout.flush();
 }
 
@@ -327,6 +332,16 @@ AsciiView::render_snake_status( const Snake& snake,
     std::cout << "Snake" << snake.id;
     go_to_xy( status_offset, height - kStatusBarHeight + 1);
     std::cout << (snake.is_alive ? "alive" : "dead");
+    set_color( "#000000");
+
+}
+
+void
+AsciiView::render_bone( const Bone& bone)
+{
+    go_to_xy( bone.x + kGameFieldOffsetX, bone.y + kGameFieldOffsetY);
+    set_color( "#ffffff");
+    std::cout << "☠";
     set_color( "#000000");
 
 }
