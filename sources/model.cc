@@ -333,6 +333,7 @@ Model::tick_check_bones_lifetime()
         if ( tick_ == bone.death_tick )
         {
             bone.is_alive = false;
+            cells_[bone.point] = CellType::EMPTY;
         }
     }
 }
