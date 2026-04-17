@@ -19,6 +19,7 @@ Model::Tick()
     tick_snake_rabbit_collisions_check();
     tick_snake_snake_collisions_check();
     tick_check_bones_lifetime();
+    tick_snake_bone_collisions_check();
 
     if ( snakes_number_ == 0 )
     {
@@ -332,6 +333,31 @@ Model::tick_check_bones_lifetime()
         if ( tick_ == bone.death_tick )
         {
             bone.is_alive = false;
+        }
+    }
+}
+
+void
+Model::tick_snake_bone_collisions_check()
+{
+    for ( Snake& snake : snakes_ )
+    {
+        if ( !snake.is_alive )
+        {
+            continue;
+        }
+        const Point& head = snake.points.back();
+        for ( const Bone& bone : bones_ )
+        {
+            if ( !bone.is_alive )
+            {
+                continue;
+            }
+            if ( head == bone.point )
+            {
+                remove_snake( snake);
+                break;
+            }
         }
     }
 }

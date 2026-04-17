@@ -260,6 +260,7 @@ private:
     void tick_snake_snake_collisions_check();
     void tick_check_rabbits();
     void tick_check_bones_lifetime();
+    void tick_snake_bone_collisions_check();
 
 private:
     static constexpr int kRabbitsSpawnRateAvg   = 10;
