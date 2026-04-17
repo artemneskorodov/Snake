@@ -20,6 +20,9 @@ public:
     void                              UpdateEvents()                    override;
 
 private:
+    void render_snake( const Snake& snake);
+    void render_rabbit( const Rabbit& rabbit);
+private:
     sf::RenderWindow window;
     sf::Texture forward_snake_texture_;
     sf::Texture rotate_snake_texture_;
