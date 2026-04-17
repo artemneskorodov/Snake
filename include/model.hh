@@ -266,8 +266,8 @@ private:
     static constexpr int      kRabbitsSpawnRateAvg   = 25;
     static constexpr int      kRabbitsSpawnRateSigma = 5;
     static constexpr double   kBoneSpawnProbability  = 0.7;
-    static constexpr TickType kBonesLifetimeAvg      = 50;
-    static constexpr TickType kBonesLifetimeSigma    = 10;
+    static constexpr TickType kBonesLifetimeAvg      = 100;
+    static constexpr TickType kBonesLifetimeSigma    = 20;
 
 private:
     Coordinate          width_;
