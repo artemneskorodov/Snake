@@ -19,7 +19,6 @@ public:
     void                              Render( const Model& model)       override;
     std::pair<Coordinate, Coordinate> GetGameFieldSize()          const override;
     void                              UpdateEvents()                    override;
-    void                              RequestWindowSize()               override;
 
 private:
     void render_snake( const Snake& snake);
@@ -36,6 +35,7 @@ public:
                            Coordinate  x2,
                            Coordinate  y2,
                            const char *symbol);
+    static std::pair<Coordinate, Coordinate> get_window_size();
 
 private:
     termios console_attr_saved_;
