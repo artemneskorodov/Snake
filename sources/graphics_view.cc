@@ -56,7 +56,7 @@ get_texture_sprite_info( Direction prev_curr,
             info.need_flip = false;
         } else if ( difference == 270 )
         {
-            info.rotation = sf::degrees( curr_next_degrees);
+            info.rotation = sf::degrees( curr_next_degrees + 90);
             info.need_flip = true;
         } else
         {
@@ -177,9 +177,7 @@ GraphicsView::Render( const Model& model)
         {
             continue;
         }
-        sf::RectangleShape shape{ sf::Vector2f{ 10.f, 10.f}};
-        shape.setPosition( sf::Vector2f{ bone.point.x * 10.f, bone.point.y * 10.f});
-        window_.draw( shape);
+        render_bone( bone);
     }
     window_.display();
 }
@@ -286,6 +284,16 @@ GraphicsView::render_rabbit( const Rabbit& rabbit)
     shape.setPosition( sf::Vector2f{ rabbit.point.x * kCellSize, rabbit.point.y * kCellSize});
     shape.setFillColor( sf::Color::Blue);
     window_.draw( shape);
+}
+
+void
+GraphicsView::render_bone( const Bone& bone)
+{
+    sf::Sprite sprite{ textures_.snake_bone_texture};
+    auto texture_size = textures_.snake_bone_texture.getSize();
+    sprite.setScale( { kCellSize / texture_size.x, kCellSize / texture_size.y});
+    sprite.setPosition( { bone.point.x * kCellSize, bone.point.y * kCellSize});
+    window_.draw( sprite);
 }
 
 } // ! namespace snake
