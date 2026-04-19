@@ -10,7 +10,8 @@ namespace snake
 namespace
 {
 
-constexpr float kCellSize = 30.f;
+constexpr float kCellSize     = 30.f;
+constexpr float kHeaderHeight = 80.f;
 
 const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
     {sf::Keyboard::Scancode::Left,  Event{ 0, Event::KEY_PRESSED_PLAYER_LEFT   }},
@@ -155,6 +156,7 @@ void
 GraphicsView::Render( const Model& model)
 {
     window_.clear( sf::Color::Black);
+    render_game_field();
     for ( const Snake& snake : model.GetSnakes() )
     {
         if ( !snake.is_alive )
@@ -294,6 +296,27 @@ GraphicsView::render_bone( const Bone& bone)
     sprite.setScale( { kCellSize / texture_size.x, kCellSize / texture_size.y});
     sprite.setPosition( { bone.point.x * kCellSize, bone.point.y * kCellSize});
     window_.draw( sprite);
+}
+
+void
+GraphicsView::render_game_field()
+{
+    float width  = static_cast<float>( current_window_size_.first);
+
+    // Drawing game header
+    sf::VertexArray header{ sf::PrimitiveType::TriangleFan, 4};
+
+    header[0].position = sf::Vector2f{     0,             0};
+    header[1].position = sf::Vector2f{ width,             0};
+    header[2].position = sf::Vector2f{ width, kHeaderHeight};
+    header[3].position = sf::Vector2f{     0, kHeaderHeight};
+
+    header[0].color = sf::Color{ 0x247a32ff}; // #247a32
+    header[1].color = sf::Color{ 0x247a32ff}; // #247a32
+    header[2].color = sf::Color{ 0x165320ff}; // #165320
+    header[3].color = sf::Color{ 0x165320ff}; // #165320
+
+    window_.draw( header);
 }
 
 } // ! namespace snake

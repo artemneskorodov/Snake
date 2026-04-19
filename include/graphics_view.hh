@@ -34,6 +34,7 @@ private:
     void render_snake( const Snake& snake);
     void render_rabbit( const Rabbit& rabbit);
     void render_bone( const Bone& bone);
+    void render_game_field();
 
 private:
     sf::RenderWindow window_;
