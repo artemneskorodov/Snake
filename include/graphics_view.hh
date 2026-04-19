@@ -15,6 +15,8 @@ struct Textures
     sf::Texture snake_texture_head_straight { "resources/snake_texture_head_straight.png"};
     sf::Texture snake_texture_head_turning  { "resources/snake_texture_head_turning.png"};
     sf::Texture snake_texture_tail          { "resources/snake_texture_tail.png"};
+    sf::Texture snake_bone_texture          { "resources/snake_bone_texture.png"};
+
 };
 
 class GraphicsView : public View
@@ -31,6 +33,8 @@ public:
 private:
     void render_snake( const Snake& snake);
     void render_rabbit( const Rabbit& rabbit);
+    void render_bone( const Bone& bone);
+
 private:
     sf::RenderWindow window_;
     Textures         textures_;

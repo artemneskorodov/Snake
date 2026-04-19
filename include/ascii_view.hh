@@ -25,6 +25,7 @@ private:
     void render_rabbit( const Rabbit& rabbit);
     void draw_game_box();
     void render_snake_status( const Snake& snake, Coordinate status_offset);
+    void render_bone( const Bone& bone);
 
 public:
     static void clear_screen();

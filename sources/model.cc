@@ -18,6 +18,8 @@ Model::Tick()
     tick_snake_positions_update();
     tick_snake_rabbit_collisions_check();
     tick_snake_snake_collisions_check();
+    tick_check_bones_lifetime();
+    tick_snake_bone_collisions_check();
 
     if ( snakes_number_ == 0 )
     {
@@ -34,6 +36,8 @@ Model::Tick()
     {
         ++rabbits_counter_;
     }
+
+    ++tick_;
 }
 
 void
@@ -81,8 +85,7 @@ Model::tick_snake_positions_update()
              (next_head.y < 0) ||
              (next_head.y >= height_) )
         {
-            --snakes_number_;
-            snake.is_alive = false;
+            remove_snake( snake);
         }
     }
 }
@@ -216,7 +219,15 @@ Model::remove_snake( Snake& snake)
     snake.is_alive = false;
     for ( const Point& point : snake.points )
     {
-        cells_[point] = CellType::EMPTY;
+        bool spawn_bone = utils::random_true_false( kBoneSpawnProbability);
+        if ( spawn_bone )
+        {
+            TickType lifetime = utils::random_normal( kBonesLifetimeAvg, kBonesLifetimeSigma);
+            add_bone( point, lifetime);
+        } else
+        {
+            cells_[point] = CellType::EMPTY;
+        }
     }
     --snakes_number_;
 }
@@ -304,6 +315,52 @@ Model::AddSnake( SnakeTicker ticker)
     ++snakes_number_;
 
     return id;
+}
+
+void
+Model::add_bone( const Point& point,
+                 TickType     lifetime)
+{
+    cells_[point] = CellType::BONE;
+    bones_.emplace_back( point.x, point.y, lifetime + tick_);
+}
+
+void
+Model::tick_check_bones_lifetime()
+{
+    for ( Bone& bone : bones_ )
+    {
+        if ( tick_ == bone.death_tick )
+        {
+            bone.is_alive = false;
+            cells_[bone.point] = CellType::EMPTY;
+        }
+    }
+}
+
+void
+Model::tick_snake_bone_collisions_check()
+{
+    for ( Snake& snake : snakes_ )
+    {
+        if ( !snake.is_alive )
+        {
+            continue;
+        }
+        const Point& head = snake.points.back();
+        for ( const Bone& bone : bones_ )
+        {
+            if ( !bone.is_alive )
+            {
+                continue;
+            }
+            if ( head == bone.point )
+            {
+                remove_snake( snake);
+                break;
+            }
+        }
+    }
 }
 
 } // ! namespace snake
