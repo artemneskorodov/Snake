@@ -266,7 +266,41 @@ Model::AddSnake( SnakeTicker ticker)
         }
     }
     snakes_.emplace_back( x, y, dir, id, ticker);
+
+    // Adding one more snake cell
+    Point head = snakes_.back().points.back();
+    switch ( dir )
+    {
+        case Direction::TOP:
+        {
+            head.y += 1;
+            break;
+        }
+        case Direction::LEFT:
+        {
+            head.x += 1;
+            break;
+        }
+        case Direction::BOTTOM:
+        {
+            head.y -= 1;
+            break;
+        }
+        case Direction::RIGHT:
+        {
+            head.x -= 1;
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error{ "Unexpected direction"};
+        }
+    }
+    snakes_.back().points.emplace_back( head);
+
     cells_[{ x, y}] = CellType::SNAKE;
+    cells_[head]    = CellType::SNAKE;
+
     ++snakes_number_;
 
     return id;

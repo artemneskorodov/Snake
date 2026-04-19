@@ -18,10 +18,19 @@ using SnakeID = int;
 enum class Direction
 {
     TOP    = 1,
-    LEFT   = 2,
+    RIGHT  = 2,
     BOTTOM = 3,
-    RIGHT  = 4,
+    LEFT   = 4,
 };
+
+///
+/// @brief Get degrees needed to rotate clockwise to get direction
+///
+inline int
+DirectionToDegrees( Direction dir)
+{
+    return 90 * (static_cast<int>( dir) - 1);
+}
 
 inline bool
 is_opposite( Direction first,
@@ -54,6 +63,18 @@ struct Point
     operator!=( const Point& rhs) const
     {
         return !((*this) == rhs);
+    }
+
+    Point
+    operator+( const Point& rhs) const
+    {
+        return { x + rhs.x, y + rhs.y};
+    }
+
+    Point
+    operator-( const Point& rhs) const
+    {
+        return { x - rhs.x, y - rhs.y};
     }
 
     Coordinate x;
@@ -214,7 +235,7 @@ private:
     void tick_check_rabbits();
 
 private:
-    static constexpr int kRabbitsSpawnRateAvg   = 25;
+    static constexpr int kRabbitsSpawnRateAvg   = 10;
     static constexpr int kRabbitsSpawnRateSigma = 5;
 
 private:
