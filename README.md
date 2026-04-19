@@ -8,7 +8,7 @@
 
 [x] Add bot which will go to closest accessible rabbit
 
-[ ] Add SFML graphics view
+[x] Add SFML graphics view
 
 [ ] Add dynamic rabbits
 
