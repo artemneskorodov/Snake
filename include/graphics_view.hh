@@ -17,6 +17,8 @@ struct Textures
     sf::Texture snake_texture_tail          { "resources/snake_texture_tail.png"};
     sf::Texture snake_bone_texture          { "resources/snake_bone_texture.png"};
 
+    sf::Font    snake_game_font             { "resources/HennyPenny-Regular.ttf"};
+
 };
 
 class GraphicsView : public View
@@ -34,6 +36,11 @@ private:
     void render_snake( const Snake& snake);
     void render_rabbit( const Rabbit& rabbit);
     void render_bone( const Bone& bone);
+    void render_game_field();
+
+private:
+    constexpr sf::Vector2f game_to_sfml( Coordinate x, Coordinate y);
+    constexpr sf::Vector2f game_to_sfml( const Point& point);
 
 private:
     sf::RenderWindow window_;
