@@ -5,6 +5,7 @@
 
 #include "view.hh"
 #include "ascii_view.hh"
+#include "colors.hh"
 
 #include "logging.hh"
 
@@ -37,21 +38,33 @@ constexpr Coordinate kStatusBarHeight = 4;
 constexpr Coordinate kGameFieldOffsetX = 1;
 constexpr Coordinate kGameFieldOffsetY = 1;
 
-inline std::string
+//
+// Colors constants
+//
+
+using colors::operator ""_c;
+
+constexpr colors::Color kColorGameBox = "#00ffe1"_c;
+constexpr colors::Color kColorRabbit = "#2f00ff"_c;
+constexpr colors::Color kColorBone = "#b1b1b1"_c;
+
+constexpr std::array<colors::Color, 9> kColorSnake{{
+    "#bf00ff"_c,
+    "#26ff00"_c,
+    "#d4f903"_c,
+    "#ff5b02"_c,
+    "#00ffd5"_c,
+    "#0091ff"_c,
+    "#8400ff"_c,
+    "#ff00d9"_c,
+    "#ff0000"_c,
+}};
+
+
+constexpr inline colors::Color
 snake_color( SnakeID id)
 {
-    constexpr std::array<std::string_view, 9> k_snake_colors = {{
-        "#bf00ff",
-        "#26ff00",
-        "#d4f903",
-        "#ff5b02",
-        "#00ffd5",
-        "#0091ff",
-        "#8400ff",
-        "#ff00d9",
-        "#ff0000",
-    }};
-    return std::string( k_snake_colors[id % k_snake_colors.size()]);
+    return kColorSnake[id % kColorSnake.size()];
 }
 
 } // ! anonymous namespace
@@ -139,16 +152,14 @@ AsciiView::render_snake( const Snake& snake)
 
     go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
     std::cout << "●";
-    set_color( "#000000");
 }
 
 void
 AsciiView::render_rabbit( const Rabbit& rabbit)
 {
     go_to_xy( rabbit.point.x + kGameFieldOffsetX, rabbit.point.y + kGameFieldOffsetY);
-    set_color( "#0a15eb");
+    set_color( kColorRabbit);
     std::cout << "♥";
-    set_color( "#000000");
 }
 
 std::pair<Coordinate, Coordinate>
@@ -244,19 +255,18 @@ AsciiView::go_to_xy( Coordinate x,
 }
 
 void
-AsciiView::set_color( const std::string& hex)
+AsciiView::set_color( const colors::Color& color)
 {
-    int rgb = std::stoi( hex.substr(1), nullptr, 16);
-    int r = (rgb & 0xff0000) >> (8 * 2);
-    int g = (rgb & 0x00ff00) >> (8 * 1);
-    int b = (rgb & 0x0000ff) >> (8 * 0);
-    std::cout << "\033[38;2;" << r << ";" << g << ";" << b << "m";
+    std::cout << "\033[38;2;"
+              << static_cast<unsigned>( color.Red())   << ";"
+              << static_cast<unsigned>( color.Green()) << ";"
+              << static_cast<unsigned>( color.Blue())  << "m";
 }
 
 void
 AsciiView::draw_game_box()
 {
-    set_color( "#00ffe1");
+    set_color( kColorGameBox);
 
     Coordinate width  = current_window_size_.first  - 1;
     Coordinate height = current_window_size_.second - 1;
@@ -283,8 +293,6 @@ AsciiView::draw_game_box()
 
     draw_line( 0, height - kStatusBarHeight, 0, height - 1, "║");
     draw_line( width, height - kStatusBarHeight, width, height - 1, "║");
-
-    set_color( "#000000");
 }
 
 void
@@ -336,18 +344,14 @@ AsciiView::render_snake_status( const Snake& snake,
     std::cout << "Snake" << snake.id;
     go_to_xy( status_offset, height - kStatusBarHeight + 1);
     std::cout << (snake.is_alive ? "alive" : "dead");
-    set_color( "#000000");
-
 }
 
 void
 AsciiView::render_bone( const Bone& bone)
 {
     go_to_xy( bone.point.x + kGameFieldOffsetX, bone.point.y + kGameFieldOffsetY);
-    set_color( "#ffffff");
+    set_color( kColorBone);
     std::cout << "☠";
-    set_color( "#000000");
-
 }
 
 } // ! namespace snake
