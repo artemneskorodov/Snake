@@ -17,6 +17,8 @@ struct Textures
     sf::Texture snake_texture_tail          { "resources/snake_texture_tail.png"};
     sf::Texture snake_bone_texture          { "resources/snake_bone_texture.png"};
 
+    sf::Font    snake_game_font             { "resources/HennyPenny-Regular.ttf"};
+
 };
 
 class GraphicsView : public View

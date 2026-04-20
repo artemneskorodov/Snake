@@ -11,7 +11,7 @@ namespace
 {
 
 constexpr float kCellSize         = 30.f;
-constexpr float kHeaderHeight     = 80.f;
+constexpr float kHeaderHeight     = 40.f;
 
 const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
     {sf::Keyboard::Scancode::Left,  Event{ 0, Event::KEY_PRESSED_PLAYER_LEFT   }},
@@ -295,6 +295,8 @@ void
 GraphicsView::render_game_field()
 {
     float width  = static_cast<float>( current_window_size_.first);
+    float game_field_size_x = width;
+    float game_field_size_y = static_cast<float>( current_window_size_.second) - kHeaderHeight;
 
     // Drawing game header
     sf::VertexArray header{ sf::PrimitiveType::TriangleFan, 4};
@@ -311,10 +313,15 @@ GraphicsView::render_game_field()
 
     window_.draw( header);
 
-    // Filling game field
-    float game_field_size_x = static_cast<float>( current_window_size_.first);
-    float game_field_size_y = static_cast<float>( current_window_size_.second) - kHeaderHeight;
+    // Drawing header text
+    sf::Text header_text{ textures_.snake_game_font, "Snake"};
+    sf::FloatRect text_size = header_text.getLocalBounds();
+    header_text.setOrigin( text_size.getCenter());
+    header_text.setPosition( sf::Vector2f{ width / 2.f, kHeaderHeight / 2.f});
+    header_text.setFillColor( sf::Color{ 0xa0a0a0ff});
+    window_.draw( header_text);
 
+    // Filling game field
     sf::RectangleShape game_field_filler{ sf::Vector2f{ game_field_size_x, game_field_size_y}};
     game_field_filler.setFillColor( sf::Color{ 0xa0a0a0ff});
     game_field_filler.setPosition( sf::Vector2f{ 0, kHeaderHeight});
