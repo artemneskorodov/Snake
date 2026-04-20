@@ -3,6 +3,7 @@
 #include "view.hh"
 #include "model.hh"
 #include "graphics_view.hh"
+#include "colors.hh"
 
 namespace snake
 {
@@ -133,6 +134,15 @@ get_textured_sprite( const TextureSpriteInfo& info,
 
     return sprite;
 }
+
+constexpr colors::Color kColorGameHeaderGradientTop    = std::string_view{ "#247a32"};
+constexpr colors::Color kColorGameHeaderGradientBottom = std::string_view{ "#165320"};
+constexpr colors::Color kColorGameHeaderText           = std::string_view{ "#a0a0a0"};
+constexpr colors::Color kColorGameFieldFirst           = std::string_view{ "#3bbb55"};
+constexpr colors::Color kColorGameFieldSecond          = std::string_view{ "#43d15f"};
+constexpr colors::Color kColorGameFieldPadding         = std::string_view{ "#a0a0a0"};
+constexpr colors::Color kColorGameFooterGradientTop    = std::string_view{ "#247a32"};
+constexpr colors::Color kColorGameFooterGradientBottom = std::string_view{ "#165320"};
 
 } // anonymous namespace
 
@@ -308,10 +318,10 @@ GraphicsView::render_game_field()
     header[2].position = sf::Vector2f{ width, kHeaderHeight};
     header[3].position = sf::Vector2f{     0, kHeaderHeight};
 
-    header[0].color = sf::Color{ 0x247a32ff}; // #247a32
-    header[1].color = sf::Color{ 0x247a32ff}; // #247a32
-    header[2].color = sf::Color{ 0x165320ff}; // #165320
-    header[3].color = sf::Color{ 0x165320ff}; // #165320
+    header[0].color = kColorGameHeaderGradientTop;
+    header[1].color = kColorGameHeaderGradientTop;
+    header[2].color = kColorGameHeaderGradientBottom;
+    header[3].color = kColorGameHeaderGradientBottom;
 
     window_.draw( header);
 
@@ -320,12 +330,12 @@ GraphicsView::render_game_field()
     sf::FloatRect text_size = header_text.getLocalBounds();
     header_text.setOrigin( text_size.getCenter());
     header_text.setPosition( sf::Vector2f{ width / 2.f, kHeaderHeight / 2.f});
-    header_text.setFillColor( sf::Color{ 0xa0a0a0ff});
+    header_text.setFillColor( kColorGameHeaderText);
     window_.draw( header_text);
 
     // Filling game field
     sf::RectangleShape game_field_filler{ sf::Vector2f{ game_field_size_x, game_field_size_y}};
-    game_field_filler.setFillColor( sf::Color{ 0xa0a0a0ff});
+    game_field_filler.setFillColor( kColorGameFieldPadding);
     game_field_filler.setPosition( sf::Vector2f{ 0, kHeaderHeight});
     window_.draw( game_field_filler);
 
@@ -357,8 +367,8 @@ GraphicsView::render_game_field()
             square[4].position = top_left + offset_bottom_left;
             square[5].position = top_left + offset_bottom_right;
 
-            sf::Color color = ((x + y) % 2 == 0) ? sf::Color{ 0x3bbb55ff}  // #3bbb55
-                                                 : sf::Color{ 0x43d15fff}; // #43d15f
+            sf::Color color = ((x + y) % 2 == 0) ? kColorGameFieldFirst
+                                                 : kColorGameFieldSecond;
             for ( int i = 0; i != 6; ++i )
             {
                 square[i].color = color;
@@ -376,10 +386,10 @@ GraphicsView::render_game_field()
     footer[2].position = sf::Vector2f{ width,                 height};
     footer[3].position = sf::Vector2f{     0,                 height};
 
-    footer[0].color = sf::Color{ 0x247a32ff}; // #247a32
-    footer[1].color = sf::Color{ 0x247a32ff}; // #247a32
-    footer[2].color = sf::Color{ 0x165320ff}; // #165320
-    footer[3].color = sf::Color{ 0x165320ff}; // #165320
+    footer[0].color = kColorGameFooterGradientTop;
+    footer[1].color = kColorGameFooterGradientTop;
+    footer[2].color = kColorGameFooterGradientBottom;
+    footer[3].color = kColorGameFooterGradientBottom;
 
     window_.draw( footer);
 }
