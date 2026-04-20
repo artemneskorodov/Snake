@@ -12,6 +12,7 @@ namespace
 
 constexpr float kCellSize         = 30.f;
 constexpr float kHeaderHeight     = 40.f;
+constexpr float kFooterHeight     = 80.f;
 
 const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
     {sf::Keyboard::Scancode::Left,  Event{ 0, Event::KEY_PRESSED_PLAYER_LEFT   }},
@@ -182,8 +183,8 @@ GraphicsView::Render( const Model& model)
 std::pair<Coordinate, Coordinate>
 GraphicsView::GetGameFieldSize() const
 {
-    return { (current_window_size_.first                 ) / kCellSize,
-             (current_window_size_.second - kHeaderHeight) / kCellSize};
+    return { (current_window_size_.first                                 ) / kCellSize,
+             (current_window_size_.second - kHeaderHeight - kFooterHeight) / kCellSize};
 }
 
 void
@@ -295,8 +296,9 @@ void
 GraphicsView::render_game_field()
 {
     float width  = static_cast<float>( current_window_size_.first);
+    float height = static_cast<float>( current_window_size_.second);
     float game_field_size_x = width;
-    float game_field_size_y = static_cast<float>( current_window_size_.second) - kHeaderHeight;
+    float game_field_size_y = height - kHeaderHeight;
 
     // Drawing game header
     sf::VertexArray header{ sf::PrimitiveType::TriangleFan, 4};
@@ -365,6 +367,21 @@ GraphicsView::render_game_field()
     }
 
     window_.draw( game_field);
+
+    // Drawing game footer
+    sf::VertexArray footer{ sf::PrimitiveType::TriangleFan, 4};
+
+    footer[0].position = sf::Vector2f{     0, height - kFooterHeight};
+    footer[1].position = sf::Vector2f{ width, height - kFooterHeight};
+    footer[2].position = sf::Vector2f{ width,                 height};
+    footer[3].position = sf::Vector2f{     0,                 height};
+
+    footer[0].color = sf::Color{ 0x247a32ff}; // #247a32
+    footer[1].color = sf::Color{ 0x247a32ff}; // #247a32
+    footer[2].color = sf::Color{ 0x165320ff}; // #165320
+    footer[3].color = sf::Color{ 0x165320ff}; // #165320
+
+    window_.draw( footer);
 }
 
 constexpr inline sf::Vector2f
@@ -373,7 +390,7 @@ GraphicsView::game_to_sfml( Coordinate x,
 {
     auto field_size = GetGameFieldSize();
     float game_padding_x = (current_window_size_.first  - field_size.first  * kCellSize) / 2.f;
-    float game_padding_y = (current_window_size_.second - kHeaderHeight -
+    float game_padding_y = (current_window_size_.second - kHeaderHeight - kFooterHeight -
                             field_size.second * kCellSize) / 2.f;
 
     return sf::Vector2f{ static_cast<float>( x) * kCellSize + game_padding_x,
