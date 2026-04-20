@@ -78,14 +78,18 @@ Model::tick_snake_positions_update()
             }
         }
 
-        snake.points.emplace_back( next_head);
-        cells_[next_head] = CellType::SNAKE;
         if ( (next_head.x < 0) ||
              (next_head.x >= width_) ||
              (next_head.y < 0) ||
              (next_head.y >= height_) )
         {
             remove_snake( snake);
+        }
+
+        if ( snake.is_alive )
+        {
+            snake.points.emplace_back( next_head);
+            cells_[next_head] = CellType::SNAKE;
         }
     }
 }
