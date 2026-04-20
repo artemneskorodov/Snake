@@ -10,8 +10,24 @@ namespace snake
 namespace
 {
 
-constexpr float kCellSize     = 30.f;
-constexpr float kHeaderHeight = 80.f;
+constexpr float kCellSize         = 30.f;
+constexpr float kHeaderHeight     = 80.f;
+constexpr float kGameFieldOffsetX = 0.f;
+constexpr float kGameFieldOffsetY = kHeaderHeight;
+
+constexpr inline sf::Vector2f
+game_to_sfml( Coordinate x,
+              Coordinate y)
+{
+    return sf::Vector2f{ static_cast<float>( x) * kCellSize + kGameFieldOffsetX,
+                         static_cast<float>( y) * kCellSize + kGameFieldOffsetY};
+}
+
+constexpr inline sf::Vector2f
+game_to_sfml( const Point& point)
+{
+    return game_to_sfml( point.x, point.y);
+}
 
 const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
     {sf::Keyboard::Scancode::Left,  Event{ 0, Event::KEY_PRESSED_PLAYER_LEFT   }},
@@ -114,8 +130,7 @@ sf::Sprite
 get_textured_sprite( const TextureSpriteInfo& info,
                      const sf::Texture&       straight,
                      const sf::Texture&       turning,
-                     Coordinate               x,
-                     Coordinate               y)
+                     const Point&             point)
 {
     const sf::Texture* texture = info.turning ? &turning
                                               : &straight;
@@ -132,8 +147,8 @@ get_textured_sprite( const TextureSpriteInfo& info,
 
     sprite.setRotation( info.rotation);
 
-    sprite.setPosition( { x * kCellSize + kCellSize / 2.f,
-                          y * kCellSize + kCellSize / 2.f});
+    sf::Vector2f position = game_to_sfml( point) + sf::Vector2f{ kCellSize / 2.f, kCellSize / 2.f};
+    sprite.setPosition( position);
 
     return sprite;
 }
@@ -187,8 +202,8 @@ GraphicsView::Render( const Model& model)
 std::pair<Coordinate, Coordinate>
 GraphicsView::GetGameFieldSize() const
 {
-    return { current_window_size_.first  * 0.85 / kCellSize,
-             current_window_size_.second * 0.85 / kCellSize};
+    return { (current_window_size_.first                 ) / kCellSize,
+             (current_window_size_.second - kHeaderHeight) / kCellSize};
 }
 
 void
@@ -242,8 +257,7 @@ GraphicsView::render_snake( const Snake& snake)
             info,
             textures_.snake_texture_tail,
             textures_.snake_texture_tail,
-            it->x,
-            it->y)
+            *it)
     );
     ++it;
 
@@ -259,8 +273,7 @@ GraphicsView::render_snake( const Snake& snake)
                 info,
                 textures_.snake_texture_body_straight,
                 textures_.snake_texture_body_turning,
-                it->x,
-                it->y)
+                *it)
         );
     }
 
@@ -273,8 +286,7 @@ GraphicsView::render_snake( const Snake& snake)
             info,
             textures_.snake_texture_head_straight,
             textures_.snake_texture_head_turning,
-            it->x,
-            it->y)
+            *it)
     );
 }
 
@@ -283,7 +295,7 @@ GraphicsView::render_rabbit( const Rabbit& rabbit)
 {
     // TODO add texture
     sf::RectangleShape shape{ sf::Vector2f{ kCellSize, kCellSize}};
-    shape.setPosition( sf::Vector2f{ rabbit.point.x * kCellSize, rabbit.point.y * kCellSize});
+    shape.setPosition( game_to_sfml( rabbit.point));
     shape.setFillColor( sf::Color::Blue);
     window_.draw( shape);
 }
@@ -317,6 +329,44 @@ GraphicsView::render_game_field()
     header[3].color = sf::Color{ 0x165320ff}; // #165320
 
     window_.draw( header);
+
+    auto field_size = GetGameFieldSize();
+    unsigned game_size_x = field_size.first;
+    unsigned game_size_y = field_size.second;
+
+    sf::VertexArray game_field{ sf::PrimitiveType::Triangles, game_size_x * game_size_y * 6};
+
+    sf::Vector2f offset_top_left     {       0.f,       0.f};
+    sf::Vector2f offset_top_right    { kCellSize,       0.f};
+    sf::Vector2f offset_bottom_left  {       0.f, kCellSize};
+    sf::Vector2f offset_bottom_right { kCellSize, kCellSize};
+
+    for ( unsigned x = 0; x != game_size_x; ++x )
+    {
+        for ( unsigned y = 0; y != game_size_y; ++y )
+        {
+            sf::Vertex* square = &game_field[(x + y * game_size_x) * 6];
+
+            sf::Vector2f top_left = game_to_sfml( x, y);
+
+            square[0].position = top_left + offset_top_left;
+            square[1].position = top_left + offset_top_right;
+            square[2].position = top_left + offset_bottom_left;
+
+            square[3].position = top_left + offset_top_right;
+            square[4].position = top_left + offset_bottom_left;
+            square[5].position = top_left + offset_bottom_right;
+
+            sf::Color color = ((x + y) % 2 == 0) ? sf::Color{ 0x3bbb55ff}  // #3bbb55
+                                                 : sf::Color{ 0x43d15fff}; // #43d15f
+            for ( int i = 0; i != 6; ++i )
+            {
+                square[i].color = color;
+            }
+        }
+    }
+
+    window_.draw( game_field);
 }
 
 } // ! namespace snake
