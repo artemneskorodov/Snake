@@ -12,22 +12,6 @@ namespace
 
 constexpr float kCellSize         = 30.f;
 constexpr float kHeaderHeight     = 80.f;
-constexpr float kGameFieldOffsetX = 0.f;
-constexpr float kGameFieldOffsetY = kHeaderHeight;
-
-constexpr inline sf::Vector2f
-game_to_sfml( Coordinate x,
-              Coordinate y)
-{
-    return sf::Vector2f{ static_cast<float>( x) * kCellSize + kGameFieldOffsetX,
-                         static_cast<float>( y) * kCellSize + kGameFieldOffsetY};
-}
-
-constexpr inline sf::Vector2f
-game_to_sfml( const Point& point)
-{
-    return game_to_sfml( point.x, point.y);
-}
 
 const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
     {sf::Keyboard::Scancode::Left,  Event{ 0, Event::KEY_PRESSED_PLAYER_LEFT   }},
@@ -129,8 +113,7 @@ vector_to_direction( Point point)
 sf::Sprite
 get_textured_sprite( const TextureSpriteInfo& info,
                      const sf::Texture&       straight,
-                     const sf::Texture&       turning,
-                     const Point&             point)
+                     const sf::Texture&       turning)
 {
     const sf::Texture* texture = info.turning ? &turning
                                               : &straight;
@@ -146,9 +129,6 @@ get_textured_sprite( const TextureSpriteInfo& info,
                        kCellSize / texture_size.y});
 
     sprite.setRotation( info.rotation);
-
-    sf::Vector2f position = game_to_sfml( point) + sf::Vector2f{ kCellSize / 2.f, kCellSize / 2.f};
-    sprite.setPosition( position);
 
     return sprite;
 }
@@ -252,13 +232,13 @@ GraphicsView::render_snake( const Snake& snake)
     dir_to_next = vector_to_direction( *std::next( it) - *it);
     TextureSpriteInfo info = get_texture_sprite_info( dir_to_next, dir_to_next);
 
-    window_.draw(
-        get_textured_sprite(
-            info,
-            textures_.snake_texture_tail,
-            textures_.snake_texture_tail,
-            *it)
-    );
+    sf::Sprite sprite = get_textured_sprite(
+        info,
+        textures_.snake_texture_tail,
+        textures_.snake_texture_tail);
+    sf::Vector2f position = game_to_sfml( *it) + sf::Vector2f{ kCellSize / 2.f, kCellSize / 2.f};
+    sprite.setPosition( position);
+    window_.draw( sprite);
     ++it;
 
     for ( ; it != std::prev( end); ++it )
@@ -268,26 +248,27 @@ GraphicsView::render_snake( const Snake& snake)
 
         info = get_texture_sprite_info( dir_from_prev, dir_to_next);
 
-        window_.draw(
-            get_textured_sprite(
-                info,
-                textures_.snake_texture_body_straight,
-                textures_.snake_texture_body_turning,
-                *it)
-        );
+        sprite = get_textured_sprite(
+            info,
+            textures_.snake_texture_body_straight,
+            textures_.snake_texture_body_turning);
+        position = game_to_sfml( *it) + sf::Vector2f{ kCellSize / 2.f, kCellSize / 2.f};
+        sprite.setPosition( position);
+        window_.draw( sprite);
     }
 
     dir_from_prev = vector_to_direction( *it - *std::prev( it));
     dir_to_next   = snake.direction;
 
     info = get_texture_sprite_info( dir_from_prev, dir_to_next);
-    window_.draw(
-        get_textured_sprite(
-            info,
-            textures_.snake_texture_head_straight,
-            textures_.snake_texture_head_turning,
-            *it)
-    );
+
+    sprite = get_textured_sprite(
+        info,
+        textures_.snake_texture_head_straight,
+        textures_.snake_texture_head_turning);
+    position = game_to_sfml( *it) + sf::Vector2f{ kCellSize / 2.f, kCellSize / 2.f};
+    sprite.setPosition( position);
+    window_.draw( sprite);
 }
 
 void
@@ -306,7 +287,7 @@ GraphicsView::render_bone( const Bone& bone)
     sf::Sprite sprite{ textures_.snake_bone_texture};
     auto texture_size = textures_.snake_bone_texture.getSize();
     sprite.setScale( { kCellSize / texture_size.x, kCellSize / texture_size.y});
-    sprite.setPosition( { bone.point.x * kCellSize, bone.point.y * kCellSize});
+    sprite.setPosition( game_to_sfml( bone.point));
     window_.draw( sprite);
 }
 
@@ -330,6 +311,16 @@ GraphicsView::render_game_field()
 
     window_.draw( header);
 
+    // Filling game field
+    float game_field_size_x = static_cast<float>( current_window_size_.first);
+    float game_field_size_y = static_cast<float>( current_window_size_.second) - kHeaderHeight;
+
+    sf::RectangleShape game_field_filler{ sf::Vector2f{ game_field_size_x, game_field_size_y}};
+    game_field_filler.setFillColor( sf::Color{ 0xa0a0a0ff});
+    game_field_filler.setPosition( sf::Vector2f{ 0, kHeaderHeight});
+    window_.draw( game_field_filler);
+
+    // Drawing game field
     auto field_size = GetGameFieldSize();
     unsigned game_size_x = field_size.first;
     unsigned game_size_y = field_size.second;
@@ -367,6 +358,25 @@ GraphicsView::render_game_field()
     }
 
     window_.draw( game_field);
+}
+
+constexpr inline sf::Vector2f
+GraphicsView::game_to_sfml( Coordinate x,
+                            Coordinate y)
+{
+    auto field_size = GetGameFieldSize();
+    float game_padding_x = (current_window_size_.first  - field_size.first  * kCellSize) / 2.f;
+    float game_padding_y = (current_window_size_.second - kHeaderHeight -
+                            field_size.second * kCellSize) / 2.f;
+
+    return sf::Vector2f{ static_cast<float>( x) * kCellSize + game_padding_x,
+                         static_cast<float>( y) * kCellSize + game_padding_y + kHeaderHeight};
+}
+
+constexpr inline sf::Vector2f
+GraphicsView::game_to_sfml( const Point& point)
+{
+    return game_to_sfml( point.x, point.y);
 }
 
 } // ! namespace snake

@@ -37,6 +37,10 @@ private:
     void render_game_field();
 
 private:
+    constexpr sf::Vector2f game_to_sfml( Coordinate x, Coordinate y);
+    constexpr sf::Vector2f game_to_sfml( const Point& point);
+
+private:
     sf::RenderWindow window_;
     Textures         textures_;
 
