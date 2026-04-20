@@ -59,6 +59,12 @@ private:
 
 };
 
+constexpr inline Color
+operator ""_c( const char *string, size_t size)
+{
+    return Color{ std::string_view{ string, size}};
+}
+
 } // ! namespace colors
 } // ! namespace snake
 

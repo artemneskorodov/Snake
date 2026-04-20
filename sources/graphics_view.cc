@@ -135,14 +135,20 @@ get_textured_sprite( const TextureSpriteInfo& info,
     return sprite;
 }
 
-constexpr colors::Color kColorGameHeaderGradientTop    = std::string_view{ "#247a32"};
-constexpr colors::Color kColorGameHeaderGradientBottom = std::string_view{ "#165320"};
-constexpr colors::Color kColorGameHeaderText           = std::string_view{ "#a0a0a0"};
-constexpr colors::Color kColorGameFieldFirst           = std::string_view{ "#3bbb55"};
-constexpr colors::Color kColorGameFieldSecond          = std::string_view{ "#43d15f"};
-constexpr colors::Color kColorGameFieldPadding         = std::string_view{ "#a0a0a0"};
-constexpr colors::Color kColorGameFooterGradientTop    = std::string_view{ "#247a32"};
-constexpr colors::Color kColorGameFooterGradientBottom = std::string_view{ "#165320"};
+//
+// Colors constants
+//
+
+using colors::operator ""_c;
+
+constexpr colors::Color kColorGameHeaderGradientTop    = "#247a32"_c;
+constexpr colors::Color kColorGameHeaderGradientBottom = "#165320"_c;
+constexpr colors::Color kColorGameHeaderText           = "#a0a0a0"_c;
+constexpr colors::Color kColorGameFieldFirst           = "#3bbb55"_c;
+constexpr colors::Color kColorGameFieldSecond          = "#43d15f"_c;
+constexpr colors::Color kColorGameFieldPadding         = "#a0a0a0"_c;
+constexpr colors::Color kColorGameFooterGradientTop    = "#247a32"_c;
+constexpr colors::Color kColorGameFooterGradientBottom = "#165320"_c;
 
 } // anonymous namespace
 
