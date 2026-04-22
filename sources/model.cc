@@ -121,9 +121,9 @@ Model::tick_snake_rabbit_collisions_check()
         }
         if ( need_pop_front )
         {
-            snake.points.pop_front();
             const Point& tail = snake.points.front();
             cells_[tail] = CellType::EMPTY;
+            snake.points.pop_front();g
         }
     }
 }
