@@ -21,7 +21,7 @@ struct ArgInfo
     std::function<void( ProgramArguments&)>                     default_setter;
 };
 
-const std::array<ArgInfo, 4> kArgsInfo
+const std::array<ArgInfo, 8> kArgsInfo
 {{
     { "--graphics", "-g",
       "Type of graphics: sfml or ascii. Usage: --graphics=<sfml/ascii>",
@@ -83,6 +83,53 @@ const std::array<ArgInfo, 4> kArgsInfo
         },
       []( ProgramArguments& )
         {
+        }
+    },
+
+    { "--simulate", "-sim",
+      "Run simulation without graphics to collect statistics. Usage: --help",
+      []( ProgramArguments& , const std::string& )
+        {
+        },
+      []( ProgramArguments& arguments)
+        {
+            arguments.simulate = false;
+        }
+    },
+
+    { "--simulate-dumb", "-sim-d",
+      "Number of dumb bots in simulation. Usage: --simulate-dumb=<number>",
+      []( ProgramArguments& arguments, const std::string& string)
+        {
+            arguments.simulation_dumb_bots = std::stoul( string.c_str() + 1, nullptr, 10);
+        },
+      []( ProgramArguments& arguments)
+        {
+            arguments.simulation_dumb_bots = 3;
+        }
+    },
+
+    { "--simulate-smart", "-sim-s",
+      "Number of smart bots in simulation. Usage: --simulate-smart=<number>",
+      []( ProgramArguments& arguments, const std::string& string)
+        {
+            arguments.simulation_smart_bots = std::stoul( string.c_str() + 1, nullptr, 10);
+        },
+      []( ProgramArguments& arguments)
+        {
+            arguments.simulation_smart_bots = 3;
+        }
+    },
+
+    { "--simulate-runs", "-sim-r",
+      "Number of runs to simulate. Usage: --simulate-runs=<number>",
+      []( ProgramArguments& arguments, const std::string& string)
+        {
+            arguments.simulation_runs = std::stoul( string.c_str() + 1, nullptr, 10);
+        },
+      []( ProgramArguments& arguments)
+        {
+            arguments.simulation_runs = 3;
         }
     }
 }};

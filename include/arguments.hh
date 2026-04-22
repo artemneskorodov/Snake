@@ -14,8 +14,12 @@ enum class GraphicsType
 
 struct ProgramArguments
 {
-    GraphicsType graphics_type;
+    GraphicsType                  graphics_type;
     std::pair<uint32_t, uint32_t> window_size;
+    bool                          simulate;
+    std::size_t                   simulation_smart_bots;
+    std::size_t                   simulation_dumb_bots;
+    std::size_t                   simulation_runs;
 };
 
 ProgramArguments GetProgramArguments( int argc, const char *argv[]);
