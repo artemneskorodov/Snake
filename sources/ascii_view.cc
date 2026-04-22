@@ -104,10 +104,17 @@ AsciiView::~AsciiView()
 void
 AsciiView::Render( const Model& model)
 {
-    clear_screen();
-
-    draw_game_box();
     render_game_statistics( model);
+}
+
+void
+AsciiView::RenderAll( const Model& model)
+{
+    set_color( "#ffffff"_c, false);
+    clear_screen();
+    draw_game_box();
+
+    Render( model);
 
     for ( const Snake& snake : model.GetSnakes() )
     {
@@ -135,8 +142,6 @@ AsciiView::Render( const Model& model)
         }
         render_bone( bone);
     }
-
-    std::cout.flush();
 }
 
 void
@@ -380,8 +385,6 @@ AsciiView::RenderMenu( const settings::Menu& settings)
             render_menu_snakes_list( menu_element, ctx);
         }
     }
-
-    std::cout.flush();
 }
 
 void
@@ -706,6 +709,51 @@ AsciiView::render_snake_status( const Snake& snake,
         }
     }
     std::cout << std::right << std::setw( kSnakeStatusLengthWidth) << snake.points.size();
+}
+
+ViewUpdateCallbacks
+AsciiView::GetCallbacks() const
+{
+    return ViewUpdateCallbacks{
+        // Removing point
+        []( const Point& point)
+        {
+            set_color( "#000000"_c);
+            go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
+            std::cout << " ";
+        },
+        // Adding snake head
+        []( const Snake& snake)
+        {
+            set_color( snake.color);
+            auto it = snake.points.rbegin();
+            go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
+            std::cout << "●";
+            ++it;
+            go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
+            std::cout << "○";
+        },
+        // Adding rabbit
+        []( const Point& point)
+        {
+            set_color( kColorRabbit);
+            go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
+            std::cout << "♥";
+        },
+        // Adding bone
+        []( const Point& point)
+        {
+            set_color( kColorBone);
+            go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
+            std::cout << "☠";
+        }
+    };
+}
+
+void
+AsciiView::Show()
+{
+    std::cout.flush();
 }
 
 } // ! namespace snake

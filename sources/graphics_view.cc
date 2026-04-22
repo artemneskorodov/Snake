@@ -229,7 +229,12 @@ GraphicsView::Render( const Model& model)
         }
         render_bone( bone);
     }
-    window_.display();
+}
+
+void
+GraphicsView::RenderAll( const Model& model)
+{
+    Render( model);
 }
 
 std::pair<Coordinate, Coordinate>
@@ -480,7 +485,6 @@ GraphicsView::RenderMenu( const settings::Menu& settings)
             render_menu_snakes_list( element, position);
         }
     }
-    window_.display();
 }
 
 void
@@ -859,6 +863,18 @@ GraphicsView::draw_snake_stats( const Snake& snake,
     text.setString( std::to_string( snake.points.size()));
     text.setPosition( { x + kSnakeStatsNameWidth + kSnakeStatsStatusWidth + kSnakeStatsGroupWidth, y});
     window_.draw( text);
+}
+
+ViewUpdateCallbacks
+GraphicsView::GetCallbacks() const
+{
+    return ViewUpdateCallbacks{ nullptr, nullptr, nullptr, nullptr};
+}
+
+void
+GraphicsView::Show()
+{
+    window_.display();
 }
 
 } // ! namespace snake

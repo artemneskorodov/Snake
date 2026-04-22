@@ -68,6 +68,9 @@ public:
     virtual std::pair<Coordinate, Coordinate> GetGameFieldSize() const                    = 0;
     virtual void                              UpdateEvents()                              = 0;
     virtual void                              UpdateMenuEvents()                          = 0;
+    virtual ViewUpdateCallbacks               GetCallbacks() const                        = 0;
+    virtual void                              RenderAll( const Model& model)              = 0;
+    virtual void                              Show()                                      = 0;
 
 public:
     std::optional<Event>
