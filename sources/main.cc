@@ -29,8 +29,7 @@ main( int         argc,
         throw std::runtime_error{ "Unexpected view type"};
     }
 
-    auto winsz = view->GetGameFieldSize();
-    snake::Model model{ winsz.first, winsz.second};
+    snake::Model model{};
 
     snake::Controller controller{ model, *view};
     controller.Run( arguments);

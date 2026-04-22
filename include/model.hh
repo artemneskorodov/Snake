@@ -159,14 +159,6 @@ enum class CellType
 class Model
 {
 public:
-    Model( Coordinate width,
-           Coordinate height)
-     :  width_  { width},
-        height_ { height}
-    {
-        set_cells_after_resize();
-    }
-
     bool
     GameFinished() const
     {
@@ -270,8 +262,8 @@ private:
     static constexpr TickType kBonesLifetimeSigma    = 20;
 
 private:
-    Coordinate          width_;
-    Coordinate          height_;
+    Coordinate          width_               { 0};
+    Coordinate          height_              { 0};
     bool                game_finished_       { false};
     std::vector<Snake>  snakes_              {};
     std::vector<Rabbit> rabbits_             {};
