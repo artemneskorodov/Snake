@@ -45,7 +45,7 @@ constexpr std::array<MenuKeyInfo, 7> kMenuKeysInfo{{
     { "\033[B", MenuEvent::KEY_PRESSED_ARROW_DOWN  },
     { "\033[D", MenuEvent::KEY_PRESSED_ARROW_LEFT  },
     { "\033[C", MenuEvent::KEY_PRESSED_ARROW_RIGHT },
-    {     "\b", MenuEvent::BACKSPACE               },
+    {   "\x7f", MenuEvent::BACKSPACE               },
     {     "\n", MenuEvent::KEY_PRESSED_ENTER       },
     {     "\r", MenuEvent::KEY_PRESSED_ENTER       }
 }};
