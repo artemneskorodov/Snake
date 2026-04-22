@@ -40,13 +40,14 @@ struct MenuKeyInfo
     MenuEvent event;
 };
 
-constexpr std::array<MenuKeyInfo, 6> kMenuKeysInfo{{
+constexpr std::array<MenuKeyInfo, 7> kMenuKeysInfo{{
     { "\033[A", MenuEvent::KEY_PRESSED_ARROW_UP    },
     { "\033[B", MenuEvent::KEY_PRESSED_ARROW_DOWN  },
     { "\033[D", MenuEvent::KEY_PRESSED_ARROW_LEFT  },
     { "\033[C", MenuEvent::KEY_PRESSED_ARROW_RIGHT },
     {     "\b", MenuEvent::BACKSPACE               },
-    {     "\n", MenuEvent::KEY_PRESSED_ENTER       }
+    {     "\n", MenuEvent::KEY_PRESSED_ENTER       },
+    {     "\r", MenuEvent::KEY_PRESSED_ENTER       }
 }};
 
 constexpr Coordinate kStatusBarHeight = 4;
@@ -422,6 +423,7 @@ AsciiView::UpdateMenuEvents()
                 match = true;
                 pos += length;
                 menu_events_.emplace_back( key_info.event);
+                DEBUG_INFO( "Got enum event: ", key_info.event);
             }
         }
         if ( !match )
@@ -429,6 +431,10 @@ AsciiView::UpdateMenuEvents()
             if ( std::isprint( *buffer_pos) )
             {
                 menu_events_.emplace_back( static_cast<MenuEvent>( *buffer_pos));
+                DEBUG_INFO( "Got char event: ", *buffer_pos);
+            } else
+            {
+                DEBUG_INFO( "No event symbol: ", static_cast<int>( *buffer_pos));
             }
             ++pos;
         }
