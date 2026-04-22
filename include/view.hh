@@ -59,17 +59,17 @@ public:
     {
         if ( events_.empty() )
         {
-            return  std::nullopt;
+            return std::nullopt;
         }
 
-        Event event = events_.back();
+        Event event = events_.front();
         events_.pop();
         return event;
     }
 
 protected:
-    std::queue<Event>                 events_{};
     std::pair<Coordinate, Coordinate> current_window_size_{};
+    std::queue<Event>                 events_{};
 
 };
 
