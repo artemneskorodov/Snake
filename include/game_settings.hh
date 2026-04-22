@@ -315,11 +315,27 @@ private:
         {
             active_ = 0;
             menu_[active_].is_active = true;
+            if ( std::holds_alternative<SnakesList>( menu_[active_].element) )
+            {
+                SnakesList& snakes_list = std::get<SnakesList>( menu_[active_].element);
+                if ( !snakes_list.snakes.empty() )
+                {
+                    snakes_list.snakes.back().is_active = true;
+                }
+            }
         } else if ( active_ != 0 )
         {
             menu_[active_].is_active = false;
             --active_;
             menu_[active_].is_active = true;
+            if ( std::holds_alternative<SnakesList>( menu_[active_].element) )
+            {
+                SnakesList& snakes_list = std::get<SnakesList>( menu_[active_].element);
+                if ( !snakes_list.snakes.empty() )
+                {
+                    snakes_list.snakes.back().is_active = true;
+                }
+            }
         }
     }
 
