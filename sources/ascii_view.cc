@@ -34,6 +34,21 @@ constexpr std::array<KeyInfo, 9> kKeysInfo{{
     {      "q", Event::KEY_PRESSED_EXIT,                     false},
 }};
 
+struct MenuKeyInfo
+{
+    std::string_view key;
+    MenuEvent event;
+};
+
+constexpr std::array<MenuKeyInfo, 6> kMenuKeysInfo{{
+    { "\033[A", MenuEvent::KEY_PRESSED_ARROW_UP    },
+    { "\033[B", MenuEvent::KEY_PRESSED_ARROW_DOWN  },
+    { "\033[D", MenuEvent::KEY_PRESSED_ARROW_LEFT  },
+    { "\033[C", MenuEvent::KEY_PRESSED_ARROW_RIGHT },
+    {     "\b", MenuEvent::BACKSPACE               },
+    {     "\n", MenuEvent::KEY_PRESSED_ENTER       }
+}};
+
 constexpr Coordinate kStatusBarHeight = 4;
 constexpr Coordinate kGameFieldOffsetX = 1;
 constexpr Coordinate kGameFieldOffsetY = 1;
@@ -364,7 +379,66 @@ AsciiView::RenderMenu( const settings::Menu& /*settings*/)
 void
 AsciiView::UpdateMenuEvents()
 {
+    fd_set read_fds;
+    FD_ZERO( &read_fds);
+    FD_SET( STDIN_FILENO, &read_fds);
 
+    timeval timeout{};
+
+    if ( select( 1, &read_fds, nullptr, nullptr, &timeout) == 0 )
+    {
+        return ;
+    }
+
+    char buffer[256];
+    ssize_t sz = read( STDIN_FILENO, buffer, 256);
+    if ( sz < 0 )
+    {
+        throw std::runtime_error( "Error while reading stdin: " +
+                                  std::string{ std::strerror( errno)});
+    } else if ( sz == 0 )
+    {
+        throw std::runtime_error( "Closed stdin");
+    }
+
+    for ( ssize_t pos = 0; pos != sz; )
+    {
+        ssize_t max_length = sz - pos;
+        bool match = false;
+        const char *buffer_pos = &buffer[pos];
+
+        for ( const MenuKeyInfo& key_info : kMenuKeysInfo )
+        {
+            ssize_t length  = key_info.key.length();
+            const char *str = key_info.key.data();
+
+            if ( length > max_length )
+            {
+                continue;
+            }
+
+            if ( strncmp( str, buffer_pos, length) == 0 )
+            {
+                match = true;
+                pos += length;
+                menu_events_.emplace_back( key_info.event);
+            }
+        }
+        if ( !match )
+        {
+            if ( std::isprint( *buffer_pos) )
+            {
+                menu_events_.emplace_back( static_cast<MenuEvent>( *buffer_pos));
+            }
+            ++pos;
+        }
+    }
+
+    auto size = get_window_size();
+    if ( size != current_window_size_ )
+    {
+        current_window_size_ = size;
+    }
 }
 
 } // ! namespace snake
