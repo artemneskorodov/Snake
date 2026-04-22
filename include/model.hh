@@ -8,105 +8,14 @@
 
 #include "utils.hh"
 #include "colors.hh"
+#include "game_coordinates.hh"
 
 namespace snake
 {
 
-using Coordinate = int;
-
 using SnakeID = int;
 
 using TickType = std::int64_t;
-
-enum class Direction
-{
-    TOP    = 1,
-    RIGHT  = 2,
-    BOTTOM = 3,
-    LEFT   = 4,
-};
-
-///
-/// @brief Get degrees needed to rotate clockwise to get direction
-///
-inline int
-DirectionToDegrees( Direction dir)
-{
-    return 90 * (static_cast<int>( dir) - 1);
-}
-
-inline bool
-is_opposite( Direction first,
-             Direction second)
-{
-    return (first == Direction::TOP    && second == Direction::BOTTOM) ||
-           (first == Direction::BOTTOM && second == Direction::TOP   ) ||
-           (first == Direction::LEFT   && second == Direction::RIGHT ) ||
-           (first == Direction::RIGHT  && second == Direction::LEFT  );
-}
-
-struct Point
-{
-    Point() = default;
-
-    Point( Coordinate x,
-           Coordinate y)
-     :  x{ x},
-        y{ y}
-    {
-    }
-
-    bool
-    operator==( const Point& rhs) const
-    {
-        return (x == rhs.x) && (y == rhs.y);
-    }
-
-    bool
-    operator!=( const Point& rhs) const
-    {
-        return !((*this) == rhs);
-    }
-
-    Point
-    operator+( const Point& rhs) const
-    {
-        return { x + rhs.x, y + rhs.y};
-    }
-
-    Point
-    operator-( const Point& rhs) const
-    {
-        return { x - rhs.x, y - rhs.y};
-    }
-
-    Coordinate x;
-    Coordinate y;
-
-};
-
-inline Point
-DirectionToVector( Direction dir)
-{
-    assert( (static_cast<int>( dir) >= 1) &&
-            (static_cast<int>( dir) <= 4));
-    std::array<Point, 4> hashtab{{
-        Point{  0, -1},
-        Point{  1,  0},
-        Point{  0,  1},
-        Point{ -1,  0}
-    }};
-    return hashtab[static_cast<int>( dir) - 1];
-}
-
-struct PointHash
-{
-    std::size_t
-    operator()( const Point& point) const
-    {
-        return std::hash<int>()( point.x) ^ (std::hash<int>()( point.y) << 1);
-    }
-};
 
 class Model;
 struct Snake;
@@ -245,7 +154,8 @@ public:
     {
         Statistics statistics{};
 
-        auto collect_group_statistics = [this]( SnakeGroupStatistics& stats, const std::vector<SnakeID>& group)
+        auto collect_group_statistics = [this]( SnakeGroupStatistics&       stats,
+                                                const std::vector<SnakeID>& group)
         {
             for ( SnakeID id : group )
             {
@@ -305,7 +215,7 @@ public:
                        Direction direction)
     {
         if ( (snakes_[id].points.size() != 1) &&
-             is_opposite( direction, snakes_[id].direction) )
+             IsOpposite( direction, snakes_[id].direction) )
         {
             return ;
         }
@@ -338,12 +248,6 @@ public:
     GetCellType( const Point& point) const
     {
         return cells_.at( point);
-    }
-
-    CellType
-    GetCellType( Coordinate x, Coordinate y) const
-    {
-        return cells_.at( { x, y});
     }
 
     const std::vector<Bone>&
