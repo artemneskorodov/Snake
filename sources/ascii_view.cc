@@ -85,6 +85,10 @@ snake_color( SnakeID id)
     return kColorSnake[id % kColorSnake.size()];
 }
 
+constexpr Coordinate kMenuElementHeight = 5;
+constexpr float      kMenuOffsetY       = 0.10;
+constexpr float      kMenuWidth         = 0.8;
+
 } // ! anonymous namespace
 
 AsciiView::AsciiView()
@@ -378,7 +382,38 @@ AsciiView::RenderMenu( const settings::Menu& settings)
 {
     menu_render_ctx_t ctx{};
 
+    ctx.offset_y = static_cast<Coordinate>( current_window_size_.second * kMenuOffsetY);
+
     clear_screen();
+
+    auto it = settings.GetMenu().begin();
+    std::size_t before_active = 0;
+    while ( !it->is_active )
+    {
+        if ( std::holds_alternative<settings::Button>( it->element) )
+        {
+            before_active++;
+        } else if ( std::holds_alternative<settings::SnakesList>( it->element) )
+        {
+            const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( it->element);
+            before_active += 1 + snakes_list.snakes.size();
+        }
+        ++it;
+    }
+    if ( std::holds_alternative<settings::SnakesList>( it->element) )
+    {
+        const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( it->element);
+        if ( snakes_list.active != snakes_list.kNoActive )
+        {
+            before_active += 1 + snakes_list.active;
+        }
+    }
+
+    while ( static_cast<Coordinate>( before_active) * kMenuElementHeight + ctx.offset_y >
+            current_window_size_.second - kMenuElementHeight)
+    {
+        --ctx.offset_y;
+    }
 
     for ( const settings::MenuElement& menu_element : settings.GetMenu() )
     {
@@ -398,47 +433,10 @@ void
 AsciiView::render_menu_button( const settings::MenuElement& menu_elem,
                                menu_render_ctx_t&           ctx)
 {
-    if ( menu_elem.is_active )
+    if ( (ctx.offset_y >= 0) &&
+         (ctx.offset_y + kMenuElementHeight <= current_window_size_.second) )
     {
-        set_color( kMenuActiveColor, true);
-    } else
-    {
-        set_color( kMenuInactiveColor);
-    }
-
-    draw_box( 5, ctx.offset_y, 50, 4);
-
-    go_to_xy( 5 + 2, ctx.offset_y + 2);
-    std::cout << menu_elem.name;
-
-    ctx.offset_y += 5;
-}
-
-void
-AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
-                                    menu_render_ctx_t&           ctx)
-{
-    const settings::SnakesList& snake_list = std::get<settings::SnakesList>( menu_elem.element);
-    bool is_active = (menu_elem.is_active) &&
-                     (snake_list.active == snake_list.kNoActive);
-    if ( is_active )
-    {
-        set_color( kMenuActiveColor, true);
-    } else
-    {
-        set_color( kMenuInactiveColor);
-    }
-
-    draw_box( 5, ctx.offset_y, 50, 4);
-
-    go_to_xy( 5 + 2, ctx.offset_y + 2);
-    std::cout << menu_elem.name;
-
-    ctx.offset_y += 5;
-
-    for ( const settings::SnakeSetting& snake : snake_list.snakes )
-    {
-        if ( snake.is_active )
+        if ( menu_elem.is_active )
         {
             set_color( kMenuActiveColor, true);
         } else
@@ -446,12 +444,78 @@ AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
             set_color( kMenuInactiveColor);
         }
 
-        draw_box( 5 + 2, ctx.offset_y, 50 - 2, 4);
+        Coordinate width = static_cast<Coordinate>( current_window_size_.first * kMenuWidth);
+        Coordinate x = (current_window_size_.first - width) / 2;
+        Coordinate y = ctx.offset_y;
+        Coordinate height = kMenuElementHeight - 1;
+        Coordinate text_offset_x = x + width / 5;
 
-        go_to_xy( 5 + 2 + 2, ctx.offset_y + 2);
-        std::cout << snake.name << snake.color;
-        ctx.offset_y += 5;
+        draw_box( x, y, width, height);
+
+        go_to_xy( text_offset_x, y + height / 2);
+        std::cout << menu_elem.name;
     }
+
+    ctx.offset_y += kMenuElementHeight;
+}
+
+void
+AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
+                                    menu_render_ctx_t&           ctx)
+{
+    const settings::SnakesList& snake_list = std::get<settings::SnakesList>( menu_elem.element);
+
+    Coordinate width = static_cast<Coordinate>( current_window_size_.first * kMenuWidth);
+    Coordinate x = (current_window_size_.first - width) / 2;
+    Coordinate y = ctx.offset_y;
+    Coordinate height = kMenuElementHeight - 1;
+    Coordinate text_offset_x = x + width / 5;
+
+    if ( (y >= 0) &&
+         (y + kMenuElementHeight <= current_window_size_.second) )
+    {
+        bool is_active = (menu_elem.is_active) &&
+                         (snake_list.active == snake_list.kNoActive);
+        if ( is_active )
+        {
+            set_color( kMenuActiveColor, true);
+        } else
+        {
+            set_color( kMenuInactiveColor);
+        }
+
+        draw_box( x, y, width, height);
+
+        go_to_xy( text_offset_x, y + height / 2);
+        std::cout << menu_elem.name;
+    }
+
+    y += kMenuElementHeight;
+    width -= 2;
+    x += 2;
+
+    for ( const settings::SnakeSetting& snake : snake_list.snakes )
+    {
+        if ( (y >= 0) &&
+             (y + kMenuElementHeight <= current_window_size_.second) )
+        {
+            if ( snake.is_active )
+            {
+                set_color( kMenuActiveColor, true);
+            } else
+            {
+                set_color( kMenuInactiveColor);
+            }
+
+            draw_box( x, y, width, height);
+
+            go_to_xy( text_offset_x, y + height / 2);
+            std::cout << snake.name << snake.color;
+        }
+        y += kMenuElementHeight;
+    }
+
+    ctx.offset_y = y;
 }
 
 void
