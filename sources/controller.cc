@@ -176,12 +176,12 @@ Controller::handle_menu_event( MenuEvent       event,
     {
         case MenuEvent::KEY_PRESSED_ARROW_UP:
         {
-            menu.InteractLeft();
+            menu.ActivePrev();
             break;
         }
         case MenuEvent::KEY_PRESSED_ARROW_LEFT:
         {
-            menu.ActivePrev();
+            menu.InteractLeft();
             break;
         }
         case MenuEvent::KEY_PRESSED_ARROW_DOWN:
