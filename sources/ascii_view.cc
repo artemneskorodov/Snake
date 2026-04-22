@@ -110,7 +110,7 @@ AsciiView::Render( const Model& model)
 void
 AsciiView::RenderAll( const Model& model)
 {
-    set_color( "#ffffff"_c, false);
+    set_color( "#ffffff"_c, false, "#000000"_c);
     clear_screen();
     draw_game_box();
 
@@ -161,20 +161,16 @@ AsciiView::render_snake( const Snake& snake)
 
     for ( ; it != std::prev( snake.points.cend()); ++it )
     {
-        go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
-        std::cout << "○";
+        write_game_symbol( *it, "○", snake.color);
     }
 
-    go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
-    std::cout << "●";
+    write_game_symbol( *it, "●", snake.color);
 }
 
 void
 AsciiView::render_rabbit( const Rabbit& rabbit)
 {
-    go_to_xy( rabbit.point.x + kGameFieldOffsetX, rabbit.point.y + kGameFieldOffsetY);
-    set_color( kColorRabbit);
-    std::cout << "♥";
+    write_game_symbol( rabbit.point, "♥", kColorRabbit);
 }
 
 std::pair<Coordinate, Coordinate>
@@ -271,12 +267,20 @@ AsciiView::go_to_xy( Coordinate x,
 
 void
 AsciiView::set_color( const colors::Color& color,
-                      bool                 bold)
+                      bool                 bold,
+                      const colors::Color& background)
 {
-    std::cout << "\033[" << (bold ? "1;" : "") << "38;2;"
-              << static_cast<unsigned>( color.Red())   << ";"
-              << static_cast<unsigned>( color.Green()) << ";"
-              << static_cast<unsigned>( color.Blue())  << "m";
+    std::cout << "\033["
+              << (bold ? "1;" : "")
+              << "38;2;"
+              << static_cast<unsigned>(color.Red())   << ";"
+              << static_cast<unsigned>(color.Green()) << ";"
+              << static_cast<unsigned>(color.Blue())  << ";"
+              << "48;2;"
+              << static_cast<unsigned>(background.Red())   << ";"
+              << static_cast<unsigned>(background.Green()) << ";"
+              << static_cast<unsigned>(background.Blue())
+              << "m";
 }
 
 void
@@ -353,9 +357,7 @@ AsciiView::draw_line( Coordinate  x1,
 void
 AsciiView::render_bone( const Bone& bone)
 {
-    go_to_xy( bone.point.x + kGameFieldOffsetX, bone.point.y + kGameFieldOffsetY);
-    set_color( kColorBone);
-    std::cout << "☠";
+    write_game_symbol( bone.point, "☠", kColorBone);
 }
 
 void
@@ -365,6 +367,7 @@ AsciiView::RenderMenu( const settings::Menu& settings)
 
     ctx.offset_y = static_cast<Coordinate>( current_window_size_.second * kMenuOffsetY);
 
+    set_color( "#ffffff"_c, false, "#000000"_c);
     clear_screen();
 
     std::size_t before_active = settings.GetNumberBeforeActive();
@@ -613,6 +616,8 @@ AsciiView::render_game_statistics( const Model& model)
 
     Coordinate snake_status_x = x;
 
+    set_color( kColorGameBox);
+
     while ( snake_status_x + kSnakeStatusWidth < width )
     {
         go_to_xy( snake_status_x + kSnakeStatusWidth + 1, y - 1);
@@ -653,6 +658,7 @@ AsciiView::draw_group_stats( const SnakeGroupStatistics& stats,
     {
         return x;
     }
+    set_color( "#ffffff"_c, false, "#000000"_c);
     go_to_xy( x, y);
     std::cout << name;
     go_to_xy( x, y + 1);
@@ -665,6 +671,7 @@ AsciiView::draw_group_stats( const SnakeGroupStatistics& stats,
     std::cout << std::setw( 16) << std::left << "Total length: "
               << std::setw( 4) << std::right << stats.total_length;
 
+    set_color( kColorGameBox);
     go_to_xy( x + 20, y - 1);
     std::cout << "╤";
     go_to_xy( x + 20, y + kStatusBarHeight);
@@ -711,41 +718,43 @@ AsciiView::render_snake_status( const Snake& snake,
     std::cout << std::right << std::setw( kSnakeStatusLengthWidth) << snake.points.size();
 }
 
+void
+AsciiView::write_game_symbol( const Point&         point,
+                              const char          *symbol,
+                              const colors::Color& color) const
+{
+    go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
+
+    set_color( color, false, "#000000"_c);
+    std::cout << symbol;
+}
+
 ViewUpdateCallbacks
 AsciiView::GetCallbacks() const
 {
     return ViewUpdateCallbacks{
         // Removing point
-        []( const Point& point)
+        [this]( const Point& point)
         {
-            set_color( "#000000"_c);
-            go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
-            std::cout << " ";
+            write_game_symbol( point, " ", "#ffffff"_c);
         },
         // Adding snake head
-        []( const Snake& snake)
+        [this]( const Snake& snake)
         {
-            set_color( snake.color);
             auto it = snake.points.rbegin();
-            go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
-            std::cout << "●";
+            write_game_symbol( *it, "●", snake.color);
             ++it;
-            go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
-            std::cout << "○";
+            write_game_symbol( *it, "○", snake.color);
         },
         // Adding rabbit
-        []( const Point& point)
+        [this]( const Point& point)
         {
-            set_color( kColorRabbit);
-            go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
-            std::cout << "♥";
+            write_game_symbol( point, "♥", kColorRabbit);
         },
         // Adding bone
-        []( const Point& point)
+        [this]( const Point& point)
         {
-            set_color( kColorBone);
-            go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
-            std::cout << "☠";
+            write_game_symbol( point, "☠", kColorBone);
         }
     };
 }
