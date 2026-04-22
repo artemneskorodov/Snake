@@ -31,7 +31,7 @@ private:
 public:
     static void clear_screen();
     static void go_to_xy( Coordinate x, Coordinate y);
-    static void set_color( const colors::Color& color);
+    static void set_color( const colors::Color& color, bool bold = false);
     static void draw_line( Coordinate  x1,
                            Coordinate  y1,
                            Coordinate  x2,
