@@ -255,9 +255,10 @@ AsciiView::go_to_xy( Coordinate x,
 }
 
 void
-AsciiView::set_color( const colors::Color& color)
+AsciiView::set_color( const colors::Color& color,
+                      bool                 bold)
 {
-    std::cout << "\033[38;2;"
+    std::cout << "\033[" << (bold ? "1;" : "") << "38;2;"
               << static_cast<unsigned>( color.Red())   << ";"
               << static_cast<unsigned>( color.Green()) << ";"
               << static_cast<unsigned>( color.Blue())  << "m";
