@@ -185,6 +185,15 @@ struct Statistics
 
 };
 
+struct ViewUpdateCallbacks
+{
+    std::function<void( const Point&)> removed_point_cb{};
+    std::function<void( const Snake&)> snake_head_push_cb{};
+    std::function<void( const Point&)> rabbit_add_cb{};
+    std::function<void( const Point&)> bone_add_cb{};
+
+};
+
 class Model
 {
 public:
@@ -323,6 +332,12 @@ public:
         return bones_;
     }
 
+    void
+    SetCallBacks( const ViewUpdateCallbacks& callbacks)
+    {
+        view_update_callbacks_ = callbacks;
+    }
+
 private:
     void add_rabbit();
     void remove_snake( Snake& snake);
@@ -361,6 +376,7 @@ private:
     std::vector<SnakeID> dumb_snakes_group_{};
     std::vector<SnakeID> smart_snakes_group_{};
 
+    ViewUpdateCallbacks  view_update_callbacks_{};
 };
 
 } // ! namespace snake

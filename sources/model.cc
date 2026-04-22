@@ -90,6 +90,10 @@ Model::tick_snake_positions_update()
         {
             snake.points.emplace_back( next_head);
             cells_[next_head] = CellType::SNAKE;
+            if ( view_update_callbacks_.snake_head_push_cb )
+            {
+                view_update_callbacks_.snake_head_push_cb( snake);
+            }
         }
     }
 }
@@ -123,7 +127,11 @@ Model::tick_snake_rabbit_collisions_check()
         {
             const Point& tail = snake.points.front();
             cells_[tail] = CellType::EMPTY;
-            snake.points.pop_front();g
+            if ( view_update_callbacks_.removed_point_cb )
+            {
+                view_update_callbacks_.removed_point_cb( tail);
+            }
+            snake.points.pop_front();
         }
     }
 }
@@ -181,6 +189,10 @@ Model::tick_check_rabbits()
              (rabbit.point.y >= height_) )
         {
             rabbit.is_alive = false;
+            if ( view_update_callbacks_.removed_point_cb )
+            {
+                view_update_callbacks_.removed_point_cb( rabbit.point);
+            }
         }
     }
 }
@@ -207,6 +219,7 @@ Model::set_cells_after_resize()
             cells_[point] = CellType::SNAKE;
         }
     }
+
     for ( const Rabbit& rabbit : rabbits_ )
     {
         if ( !rabbit.is_alive )
@@ -233,6 +246,13 @@ Model::remove_snake( Snake& snake)
             cells_[point] = CellType::EMPTY;
         }
     }
+    if ( view_update_callbacks_.removed_point_cb )
+    {
+        for ( const Point& point : snake.points )
+        {
+            view_update_callbacks_.removed_point_cb( point);
+        }
+    }
     --snakes_number_;
 }
 
@@ -257,6 +277,11 @@ Model::add_rabbit()
     }
     rabbits_.emplace_back( x, y);
     cells_[{ x, y}] = CellType::RABBIT;
+
+    if ( view_update_callbacks_.rabbit_add_cb )
+    {
+        view_update_callbacks_.rabbit_add_cb( { x, y});
+    }
 }
 
 SnakeID
@@ -291,22 +316,22 @@ Model::AddSnake( std::string   name,
     {
         case Direction::TOP:
         {
-            head.y += 1;
+            head.y -= 1;
             break;
         }
         case Direction::LEFT:
         {
-            head.x += 1;
+            head.x -= 1;
             break;
         }
         case Direction::BOTTOM:
         {
-            head.y -= 1;
+            head.y += 1;
             break;
         }
         case Direction::RIGHT:
         {
-            head.x -= 1;
+            head.x += 1;
             break;
         }
         default:
@@ -353,6 +378,10 @@ Model::add_bone( const Point& point,
 {
     cells_[point] = CellType::BONE;
     bones_.emplace_back( point.x, point.y, lifetime + tick_);
+    if ( view_update_callbacks_.bone_add_cb )
+    {
+        view_update_callbacks_.bone_add_cb( point);
+    }
 }
 
 void
@@ -364,6 +393,10 @@ Model::tick_check_bones_lifetime()
         {
             bone.is_alive = false;
             cells_[bone.point] = CellType::EMPTY;
+            if ( view_update_callbacks_.bone_add_cb )
+            {
+                view_update_callbacks_.removed_point_cb( bone.point);
+            }
         }
     }
 }

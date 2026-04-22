@@ -65,6 +65,7 @@ Controller::run_menu()
         }
 
         view_.RenderMenu( settings);
+        view_.Show();
 
         std::this_thread::sleep_for( std::chrono::milliseconds( 150));
     }
@@ -77,6 +78,7 @@ Controller::run_game( const settings::Menu& settings)
     // Resetting game
     auto winsz = view_.GetGameFieldSize();
     model_ = Model{};
+    model_.SetCallBacks( view_.GetCallbacks());
     model_.SetFieldSize( winsz.first, winsz.second);
     players_snakes_.clear();
 
@@ -101,6 +103,9 @@ Controller::run_game( const settings::Menu& settings)
         model_.AddSnake( snake.name, color, SnakeGroup::SMART, bots::TickSmartBot);
     }
 
+    view_.RenderAll( model_);
+    view_.Show();
+
     for ( ; ; )
     {
         view_.UpdateEvents();
@@ -122,6 +127,8 @@ Controller::run_game( const settings::Menu& settings)
         model_.Tick();
 
         view_.Render( model_);
+        view_.Show();
+
         if ( model_.GameFinished() )
         {
             break;
@@ -165,6 +172,8 @@ Controller::handle_game_event( Event event)
         {
             auto winsize = view_.GetGameFieldSize();
             model_.SetFieldSize( winsize.first, winsize.second);
+            view_.RenderAll( model_);
+            view_.Show();
             break;
         }
         default:

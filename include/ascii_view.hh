@@ -23,6 +23,9 @@ public:
     std::pair<Coordinate, Coordinate> GetGameFieldSize()                          const override;
     void                              UpdateEvents()                                    override;
     void                              UpdateMenuEvents()                                override;
+    ViewUpdateCallbacks               GetCallbacks()                              const override;
+    void                              RenderAll( const Model& model)                    override;
+    void                              Show()                                            override;
 
 private:
     void render_snake( const Snake& snake);
