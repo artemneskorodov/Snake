@@ -372,9 +372,58 @@ AsciiView::render_bone( const Bone& bone)
 }
 
 void
-AsciiView::RenderMenu( const settings::Menu& /*settings*/)
+AsciiView::RenderMenu( const settings::Menu& settings)
 {
+    menu_render_ctx_t ctx{};
 
+    clear_screen();
+
+    for ( const settings::MenuElement& menu_element : settings.GetMenu() )
+    {
+        if ( std::holds_alternative<settings::Button>( menu_element.element) )
+        {
+            render_menu_button( menu_element, ctx);
+        } else if ( std::holds_alternative<settings::SnakesList>( menu_element.element) )
+        {
+            render_menu_snakes_list( menu_element, ctx);
+        }
+    }
+
+    std::cout.flush();
+}
+
+void
+AsciiView::render_menu_button( const settings::MenuElement& menu_elem,
+                               menu_render_ctx_t&           ctx)
+{
+    draw_box( 5, ctx.offset_y, 50, 4);
+
+    go_to_xy( 5 + 2, ctx.offset_y + 2);
+    std::cout << menu_elem.name;
+
+    ctx.offset_y += 5;
+}
+
+void
+AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
+                                    menu_render_ctx_t&           ctx)
+{
+    draw_box( 5, ctx.offset_y, 50, 4);
+
+    go_to_xy( 5 + 2, ctx.offset_y + 2);
+    std::cout << menu_elem.name;
+
+    ctx.offset_y += 5;
+
+    const settings::SnakesList& snake_list = std::get<settings::SnakesList>( menu_elem.element);
+    for ( const settings::SnakeSetting& snake : snake_list.snakes )
+    {
+        draw_box( 5 + 2, ctx.offset_y, 50 - 2, 4);
+
+        go_to_xy( 5 + 2 + 2, ctx.offset_y + 2);
+        std::cout << snake.name << snake.color;
+        ctx.offset_y += 5;
+    }
 }
 
 void
@@ -445,6 +494,27 @@ AsciiView::UpdateMenuEvents()
     {
         current_window_size_ = size;
     }
+}
+
+void
+AsciiView::draw_box( Coordinate x,
+                     Coordinate y,
+                     Coordinate width,
+                     Coordinate height)
+{
+    go_to_xy( x, y);
+    std::cout << "┌";
+    go_to_xy( x + width, y);
+    std::cout << "┐";
+    go_to_xy( x, y + height);
+    std::cout << "└";
+    go_to_xy( x + width, y + height);
+    std::cout << "┘";
+
+    draw_line( x + 1, y, x + width - 1, y, "─");
+    draw_line( x + 1, y + height, x + width - 1, y + height, "─");
+    draw_line( x, y + 1, x, y + height - 1, "│");
+    draw_line( x + width, y + 1, x + width, y + height - 1, "│");
 }
 
 } // ! namespace snake

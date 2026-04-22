@@ -31,6 +31,15 @@ private:
     void render_snake_status( const Snake& snake, Coordinate status_offset);
     void render_bone( const Bone& bone);
 
+private:
+    struct menu_render_ctx_t
+    {
+        Coordinate offset_y;
+    };
+
+    void render_menu_button( const settings::MenuElement& button, menu_render_ctx_t& ctx);
+    void render_menu_snakes_list( const settings::MenuElement& snakes_list, menu_render_ctx_t& ctx);
+
 public:
     static void clear_screen();
     static void go_to_xy( Coordinate x, Coordinate y);
@@ -41,6 +50,7 @@ public:
                            Coordinate  y2,
                            const char *symbol);
     static std::pair<Coordinate, Coordinate> get_window_size();
+    static void draw_box( Coordinate x, Coordinate y, Coordinate width, Coordinate height);
 
 private:
     termios console_attr_saved_;
