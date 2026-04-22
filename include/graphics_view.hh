@@ -17,6 +17,7 @@ struct Textures
     sf::Texture snake_texture_head_turning  { "resources/snake_texture_head_turning.png"};
     sf::Texture snake_texture_tail          { "resources/snake_texture_tail.png"};
     sf::Texture snake_bone_texture          { "resources/snake_bone_texture.png"};
+    sf::Texture rabbit_texture              { "resources/rabbit_texture.png"};
 
     sf::Font    snake_game_font             { "resources/HennyPenny-Regular.ttf"};
     sf::Font    snake_game_text_font        { "resources/OpenSans-VariableFont_wdth,wght.ttf"};
