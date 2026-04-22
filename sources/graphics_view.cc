@@ -159,6 +159,10 @@ constexpr colors::Color kColorGameFieldPadding         = "#a0a0a0"_c;
 constexpr colors::Color kColorGameFooterGradientTop    = "#247a32"_c;
 constexpr colors::Color kColorGameFooterGradientBottom = "#165320"_c;
 
+constexpr float kMenuWidth = 0.8;
+constexpr float kMenuElementHeight = 50.f;
+constexpr float kMenuDefaultOffsetY = 0.1f;
+
 } // anonymous namespace
 
 GraphicsView::GraphicsView( uint32_t width,
@@ -431,36 +435,113 @@ GraphicsView::game_to_sfml( const Point& point)
 void
 GraphicsView::RenderMenu( const settings::Menu& settings)
 {
-    float position = 10.f;
+    float window_height = static_cast<float>( current_window_size_.second);
+    float position = window_height * kMenuDefaultOffsetY;
+
     window_.clear( sf::Color::Black);
     for ( const settings::MenuElement& element : settings.GetMenu() )
     {
-        sf::Text text{ textures_.snake_game_font, element.name};
-        text.setPosition( { 10.f, position});
-        window_.draw( text);
-
-        position += 50.f;
-
         if ( std::holds_alternative<settings::Button>( element.element) )
         {
-            // Do nothing
+            render_menu_button( element, position);
         } else if ( std::holds_alternative<settings::SnakesList>( element.element) )
         {
-            const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( element.element);
-            for ( const settings::SnakeSetting& snake : snakes_list.snakes )
-            {
-                sf::Text snake_text{ textures_.snake_game_font, snake.name};
-                sf::Text snake_color_text{ textures_.snake_game_font, snake.color};
-
-                snake_text.setPosition( { 10.f, position});
-                snake_color_text.setPosition( { 100.f, position});
-                window_.draw( snake_text);
-                window_.draw( snake_color_text);
-                position += 30.f;
-            }
+            render_menu_snakes_list( element, position);
         }
     }
     window_.display();
+}
+
+void
+GraphicsView::render_menu_button( const settings::MenuElement& menu_elem,
+                                  float&                       offset_y)
+{
+    float window_width  = static_cast<float>( current_window_size_.first);
+
+    float width = window_width * kMenuWidth;
+    float x = (window_width - width) / 2.f;
+    float y = offset_y;
+    float height = kMenuElementHeight;
+
+    float text_offset_x = x + width / 10.f;
+
+    sf::RectangleShape box{ {width, height}};
+    box.setPosition( { x, y});
+    box.setOutlineThickness( 1.f);
+    box.setOutlineColor( sf::Color::Blue);
+    box.setFillColor( sf::Color::Black);
+    window_.draw( box);
+
+    sf::Text text{ textures_.snake_game_font, menu_elem.name};
+    sf::FloatRect text_rect = text.getLocalBounds();
+    text.setOrigin( { 0, text_rect.size.y / 2.f});
+    text.setPosition( { text_offset_x, y + height / 2.f});
+    window_.draw( text);
+
+    offset_y += height;
+}
+
+void
+GraphicsView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
+                                       float&                       offset_y)
+{
+    float window_width  = static_cast<float>( current_window_size_.first);
+    const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( menu_elem.element);
+
+    float width = window_width * kMenuWidth;
+    float x = (window_width - width) / 2.f;
+    float y = offset_y;
+    float height = kMenuElementHeight;
+
+    float text_offset_x = x + width / 10.f;
+
+    sf::RectangleShape box{ {width, height}};
+    box.setPosition( { x, y});
+    box.setOutlineThickness( 1.f);
+    box.setOutlineColor( sf::Color::Blue);
+    box.setFillColor( sf::Color::Black);
+    window_.draw( box);
+
+    sf::Text text{ textures_.snake_game_font, menu_elem.name};
+    sf::FloatRect text_rect = text.getLocalBounds();
+    text.setOrigin( { 0, text_rect.size.y / 2.f});
+    text.setPosition( { text_offset_x, y + height / 2.f});
+    window_.draw( text);
+
+    y += height;
+
+    x += width / 10.f;
+    width *= 0.9f;
+
+    float text_offset_x_name = x + width / 10.f;
+    float text_offset_x_color = x + width * 0.75f;
+
+    box.setSize( { width, height});
+
+    for ( const settings::SnakeSetting& snake : snakes_list.snakes )
+    {
+        box.setPosition( { x, y});
+        box.setOutlineThickness( 1.f);
+        box.setOutlineColor( sf::Color::Blue);
+        box.setFillColor( sf::Color::Black);
+        window_.draw( box);
+
+        text.setString( "Name: " + snake.name);
+        text_rect = text.getLocalBounds();
+        text.setOrigin( { 0, text_rect.size.y / 2.f});
+        text.setPosition( { text_offset_x_name, y + height / 2.f});
+        window_.draw( text);
+
+        text.setString( "Color: " + snake.color);
+        text_rect = text.getLocalBounds();
+        text.setOrigin( { 0, text_rect.size.y / 2.f});
+        text.setPosition( { text_offset_x_color, y + height / 2.f});
+        window_.draw( text);
+
+        y += height;
+    }
+
+    offset_y = y;
 }
 
 void
