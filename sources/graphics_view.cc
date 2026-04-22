@@ -176,11 +176,11 @@ constexpr unsigned kStatsCharacterSize    = 13;
 constexpr float    kSnakeStatsNameWidth   = 80.f;
 constexpr float    kSnakeStatsStatusWidth = 45.f;
 constexpr float    kSnakeStatsGroupWidth  = 45.f;
-constexpr float    kSnakeStatsLengthWidth = 30.f;
+constexpr float    kSnakeStatsScoresWidth = 30.f;
 constexpr float    kSnakeStatsWidth       = kSnakeStatsNameWidth +
                                             kSnakeStatsStatusWidth +
                                             kSnakeStatsGroupWidth +
-                                            kSnakeStatsLengthWidth;
+                                            kSnakeStatsScoresWidth;
 constexpr float    kSnakeStatsHeight      = 20.f;
 
 constexpr unsigned kSnakeNameCharacterSize = 12;
@@ -860,7 +860,7 @@ GraphicsView::draw_snake_stats( const Snake& snake,
     text.setPosition( { x + kSnakeStatsNameWidth + kSnakeStatsStatusWidth, y});
     window_.draw( text);
 
-    text.setString( std::to_string( snake.points.size()));
+    text.setString( std::to_string( snake.GetScores()));
     text.setPosition( { x + kSnakeStatsNameWidth + kSnakeStatsStatusWidth + kSnakeStatsGroupWidth, y});
     window_.draw( text);
 }
