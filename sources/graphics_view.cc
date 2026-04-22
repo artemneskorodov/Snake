@@ -158,6 +158,7 @@ constexpr colors::Color kColorGameFieldSecond          = "#43d15f"_c;
 constexpr colors::Color kColorGameFieldPadding         = "#a0a0a0"_c;
 constexpr colors::Color kColorGameFooterGradientTop    = "#247a32"_c;
 constexpr colors::Color kColorGameFooterGradientBottom = "#165320"_c;
+constexpr colors::Color kColorFooterDivider            = "#0e3414"_c;
 
 constexpr float    kMenuWidth          = 0.8f;
 constexpr float    kMenuElementHeight  = 50.f;
@@ -169,6 +170,18 @@ constexpr colors::Color kColorMenuInactive       = "#b6c9b7"_c;
 constexpr colors::Color kColorMenuActiveString   = "#ffffff"_c;
 constexpr colors::Color kColorMenuInactiveString = "#c8c8c8"_c;
 constexpr colors::Color kColorInvalid            = "#676767"_c;
+
+constexpr float    kStatisticsOffsetX     = 10.f;
+constexpr unsigned kStatsCharacterSize    = 13;
+constexpr float    kSnakeStatsNameWidth   = 80.f;
+constexpr float    kSnakeStatsStatusWidth = 45.f;
+constexpr float    kSnakeStatsGroupWidth  = 45.f;
+constexpr float    kSnakeStatsLengthWidth = 30.f;
+constexpr float    kSnakeStatsWidth       = kSnakeStatsNameWidth +
+                                            kSnakeStatsStatusWidth +
+                                            kSnakeStatsGroupWidth +
+                                            kSnakeStatsLengthWidth;
+constexpr float    kSnakeStatsHeight      = 20.f;
 
 } // anonymous namespace
 
@@ -189,6 +202,7 @@ GraphicsView::Render( const Model& model)
 {
     window_.clear( sf::Color::Black);
     render_game_field();
+    render_game_statistics( model);
     for ( const Snake& snake : model.GetSnakes() )
     {
         if ( !snake.is_alive )
@@ -670,6 +684,171 @@ GraphicsView::UpdateMenuEvents()
             window_.setView( sf::View( visibleArea));
         }
     }
+}
+
+void
+GraphicsView::render_game_statistics( const Model& model)
+{
+    Statistics statistics = model.GetGameStatistics();
+
+    float width  = static_cast<float>( current_window_size_.first);
+    float height = static_cast<float>( current_window_size_.second);
+
+    float x = kStatisticsOffsetX;
+    float y = height - kFooterHeight;
+
+    x = draw_group_stats( statistics.human, x, y, "Human Snakes");
+    x = draw_group_stats( statistics.dumb,  x, y, "Dumb Snakes");
+    x = draw_group_stats( statistics.smart, x, y, "Smart Snakes");
+
+    float state_offset_x = x;
+    while ( state_offset_x + kSnakeStatsWidth < width )
+    {
+        state_offset_x += kSnakeStatsWidth;
+
+        sf::VertexArray divider{ sf::PrimitiveType::Lines, 2};
+        divider[0].position = sf::Vector2f{ state_offset_x, y};
+        divider[1].position = sf::Vector2f{ state_offset_x, y + kFooterHeight};
+        divider[0].color = kColorFooterDivider;
+        divider[1].color = kColorFooterDivider;
+        window_.draw( divider);
+    }
+
+    state_offset_x = x;
+    for ( const Snake& snake : model.GetSnakes() )
+    {
+        draw_snake_stats( snake, state_offset_x, y, model.GetSnakeGroup( snake.id));
+        state_offset_x += kSnakeStatsWidth;
+        if ( state_offset_x + kSnakeStatsWidth > width )
+        {
+            state_offset_x = x;
+            y += kSnakeStatsHeight;
+            if ( y > height )
+            {
+                break;
+            }
+        }
+    }
+}
+
+float
+GraphicsView::draw_group_stats( const SnakeGroupStatistics& stats,
+                                float                       x,
+                                float                       y,
+                                const std::string&          name)
+{
+    if ( stats.alive == 0 && stats.dead == 0 )
+    {
+        return x;
+    }
+
+    sf::Text text{ textures_.snake_game_text_font, name};
+    text.setPosition( { x, y});
+    text.setCharacterSize( kStatsCharacterSize);
+    window_.draw( text);
+
+    float text_height = text.getLocalBounds().size.y;
+    float text_offset_y = text_height * 1.5f;
+
+    text.setString( "Alive:");
+    text.setPosition( { x, y + text_offset_y});
+    window_.draw( text);
+
+    text.setString( "Dead:");
+    text.setPosition( { x, y + text_offset_y * 2.f});
+    window_.draw( text);
+
+    text.setString( "Total length: ");
+    text.setPosition( { x, y + text_offset_y * 3.f});
+    window_.draw( text);
+
+    float text_width = text.getLocalBounds().size.x;
+    float numbers_offset_x = text_width * 1.1f;
+
+    float max_x = 0.f;
+
+    text.setString( std::to_string( stats.alive));
+    text.setPosition( { x + numbers_offset_x, y + text_offset_y});
+    window_.draw( text);
+    float current_x = x + numbers_offset_x + text.getLocalBounds().size.x;
+    if ( current_x > max_x )
+    {
+        max_x = current_x;
+    }
+
+    text.setString( std::to_string( stats.dead));
+    text.setPosition( { x + numbers_offset_x, y + text_offset_y * 2.f});
+    window_.draw( text);
+    current_x = x + numbers_offset_x + text.getLocalBounds().size.x;
+    if ( current_x > max_x )
+    {
+        max_x = current_x;
+    }
+
+    text.setString( std::to_string( stats.total_length));
+    text.setPosition( { x + numbers_offset_x, y + text_offset_y * 3.f});
+    window_.draw( text);
+    current_x = x + numbers_offset_x + text.getLocalBounds().size.x;
+    if ( current_x > max_x )
+    {
+        max_x = current_x;
+    }
+
+    sf::VertexArray divider{ sf::PrimitiveType::Lines, 2};
+    divider[0].position = sf::Vector2f{ max_x + kStatisticsOffsetX / 2.f, y};
+    divider[1].position = sf::Vector2f{ max_x + kStatisticsOffsetX / 2.f, y + kFooterHeight};
+    divider[0].color = kColorFooterDivider;
+    divider[1].color = kColorFooterDivider;
+    window_.draw( divider);
+
+    return max_x + kStatisticsOffsetX;
+}
+
+void
+GraphicsView::draw_snake_stats( const Snake& snake,
+                                float        x,
+                                float        y,
+                                SnakeGroup   group)
+{
+    sf::Text text{ textures_.snake_game_text_font, snake.name};
+    text.setCharacterSize( kStatsCharacterSize);
+    text.setPosition( { x, y});
+    text.setFillColor( snake.color);
+    window_.draw( text);
+
+    text.setFillColor( "#ffffff"_c);
+    text.setString( snake.is_alive ? "(alive)" : "(dead)");
+    text.setPosition( { x + kSnakeStatsNameWidth, y});
+    window_.draw( text);
+
+    switch ( group )
+    {
+        case SnakeGroup::HUMAN:
+        {
+            text.setString( "human");
+            break;
+        }
+        case SnakeGroup::DUMB:
+        {
+            text.setString( "dumb");
+            break;
+        }
+        case SnakeGroup::SMART:
+        {
+            text.setString( "smart");
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error{ "Unexpected snake group"};
+        }
+    }
+    text.setPosition( { x + kSnakeStatsNameWidth + kSnakeStatsStatusWidth, y});
+    window_.draw( text);
+
+    text.setString( std::to_string( snake.points.size()));
+    text.setPosition( { x + kSnakeStatsNameWidth + kSnakeStatsStatusWidth + kSnakeStatsGroupWidth, y});
+    window_.draw( text);
 }
 
 } // ! namespace snake

@@ -43,6 +43,12 @@ private:
     void render_game_field();
     void render_menu_button( const settings::MenuElement& menu_elem, float& offset_y);
     void render_menu_snakes_list( const settings::MenuElement& menu_elem, float& offset_y);
+    void render_game_statistics( const Model& model);
+    float draw_group_stats( const SnakeGroupStatistics& stats,
+                            float                       x,
+                            float                       y,
+                            const std::string&          name);
+    void draw_snake_stats( const Snake& snake, float x, float y, SnakeGroup group);
 
 private:
     constexpr sf::Vector2f game_to_sfml( Coordinate x, Coordinate y);
