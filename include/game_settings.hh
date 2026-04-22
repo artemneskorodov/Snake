@@ -292,6 +292,35 @@ public:
         return menu_;
     }
 
+    std::size_t
+    GetNumberBeforeActive() const
+    {
+        std::size_t result = 0;
+        auto it = menu_.begin();
+
+        while ( !it->is_active )
+        {
+            if ( std::holds_alternative<Button>( it->element) )
+            {
+                ++result;
+            } else if ( std::holds_alternative<SnakesList>( it->element) )
+            {
+                const SnakesList& snakes_list = std::get<SnakesList>( it->element);
+                result += 1 + snakes_list.snakes.size();
+            }
+            ++it;
+        }
+        if ( std::holds_alternative<SnakesList>( it->element) )
+        {
+            const SnakesList& snakes_list = std::get<SnakesList>( it->element);
+            if ( snakes_list.active != snakes_list.kNoActive )
+            {
+                result += 1 + snakes_list.active;
+            }
+        }
+        return result;
+    }
+
 private:
     void
     active_global_next()

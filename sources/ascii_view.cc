@@ -389,28 +389,7 @@ AsciiView::RenderMenu( const settings::Menu& settings)
 
     clear_screen();
 
-    auto it = settings.GetMenu().begin();
-    std::size_t before_active = 0;
-    while ( !it->is_active )
-    {
-        if ( std::holds_alternative<settings::Button>( it->element) )
-        {
-            before_active++;
-        } else if ( std::holds_alternative<settings::SnakesList>( it->element) )
-        {
-            const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( it->element);
-            before_active += 1 + snakes_list.snakes.size();
-        }
-        ++it;
-    }
-    if ( std::holds_alternative<settings::SnakesList>( it->element) )
-    {
-        const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( it->element);
-        if ( snakes_list.active != snakes_list.kNoActive )
-        {
-            before_active += 1 + snakes_list.active;
-        }
-    }
+    std::size_t before_active = settings.GetNumberBeforeActive();
 
     while ( static_cast<Coordinate>( before_active) * kMenuElementHeight + ctx.offset_y >
             current_window_size_.second - kMenuElementHeight)
