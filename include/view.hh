@@ -91,15 +91,15 @@ public:
             return std::nullopt;
         }
 
-        MenuEvent event = menu_events_.back();
-        menu_events_.pop_back();
+        MenuEvent event = menu_events_.front();
+        menu_events_.pop();
         return event;
     }
 
 protected:
     std::pair<Coordinate, Coordinate> current_window_size_{};
     std::queue<Event>                 events_{};
-    std::vector<MenuEvent>            menu_events_{};
+    std::queue<MenuEvent>             menu_events_{};
 
 };
 

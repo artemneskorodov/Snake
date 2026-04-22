@@ -476,20 +476,20 @@ GraphicsView::UpdateMenuEvents()
 
         if ( event->is<sf::Event::Closed>() )
         {
-            menu_events_.emplace_back( MenuEvent::EXIT);
+            menu_events_.push( MenuEvent::EXIT);
         } else if ( event->is<sf::Event::TextEntered>() )
         {
             const sf::Event::TextEntered* text = event->getIf<sf::Event::TextEntered>();
             if ( std::isprint( text->unicode) )
             {
-                menu_events_.emplace_back( static_cast<MenuEvent>( text->unicode));
+                menu_events_.push( static_cast<MenuEvent>( text->unicode));
             }
         } else if ( event->is<sf::Event::KeyPressed>() )
         {
             const sf::Event::KeyPressed *key = event->getIf<sf::Event::KeyPressed>();
             if ( kMenuKeyInfo.find( key->scancode) != kMenuKeyInfo.end() )
             {
-                menu_events_.emplace_back( kMenuKeyInfo.at( key->scancode));
+                menu_events_.push( kMenuKeyInfo.at( key->scancode));
             }
         } else if ( event->is<sf::Event::Resized>() )
         {

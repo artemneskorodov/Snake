@@ -493,6 +493,8 @@ AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
     y += kMenuElementHeight;
     width -= 2;
     x += 2;
+    Coordinate text_offset_x_name  = x + 2;
+    Coordinate text_offset_x_color = x + width / 2;
 
     for ( const settings::SnakeSetting& snake : snake_list.snakes )
     {
@@ -563,7 +565,7 @@ AsciiView::UpdateMenuEvents()
             {
                 match = true;
                 pos += length;
-                menu_events_.emplace_back( key_info.event);
+                menu_events_.push( key_info.event);
                 DEBUG_INFO( "Got enum event: ", key_info.event);
             }
         }
@@ -571,7 +573,7 @@ AsciiView::UpdateMenuEvents()
         {
             if ( std::isprint( *buffer_pos) )
             {
-                menu_events_.emplace_back( static_cast<MenuEvent>( *buffer_pos));
+                menu_events_.push( static_cast<MenuEvent>( *buffer_pos));
                 DEBUG_INFO( "Got char event: ", *buffer_pos);
             } else
             {
