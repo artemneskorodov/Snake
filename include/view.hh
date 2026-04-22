@@ -2,6 +2,7 @@
 #define SNAKE_VIEW_HH__
 
 #include <optional>
+#include <queue>
 
 #include "model.hh"
 
@@ -62,12 +63,12 @@ public:
         }
 
         Event event = events_.back();
-        events_.pop_back();
+        events_.pop();
         return event;
     }
 
 protected:
-    std::vector<Event> events_{};
+    std::queue<Event>                 events_{};
     std::pair<Coordinate, Coordinate> current_window_size_{};
 
 };
