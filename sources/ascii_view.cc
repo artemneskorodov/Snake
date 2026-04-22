@@ -494,7 +494,7 @@ AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
     width -= 2;
     x += 2;
     Coordinate text_offset_x_name  = x + 2;
-    Coordinate text_offset_x_color = x + width / 2;
+    Coordinate text_offset_x_color = x + width * 3 / 4;
 
     for ( const settings::SnakeSetting& snake : snake_list.snakes )
     {
@@ -511,8 +511,10 @@ AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
 
             draw_box( x, y, width, height);
 
-            go_to_xy( text_offset_x, y + height / 2);
-            std::cout << snake.name << snake.color;
+            go_to_xy( text_offset_x_name, y + height / 2);
+            std::cout << "Snake name: " << snake.name;
+            go_to_xy( text_offset_x_color, y + height / 2);
+            std::cout << "Snake color: " << snake.color;
         }
         y += kMenuElementHeight;
     }
