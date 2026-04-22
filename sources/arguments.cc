@@ -21,7 +21,7 @@ struct ArgInfo
     std::function<void( ProgramArguments&)>                     default_setter;
 };
 
-const std::array<ArgInfo, 7> kArgsInfo
+const std::array<ArgInfo, 4> kArgsInfo
 {{
     { "--graphics", "-g",
       "Type of graphics: sfml or ascii. Usage: --graphics=<sfml/ascii>",
@@ -52,7 +52,7 @@ const std::array<ArgInfo, 7> kArgsInfo
         },
       []( ProgramArguments& arguments)
         {
-            arguments.window_size.first = 0;
+            arguments.window_size.first = 1500;
         }
     },
 
@@ -64,48 +64,7 @@ const std::array<ArgInfo, 7> kArgsInfo
         },
       []( ProgramArguments& arguments)
         {
-            arguments.window_size.second = 0;
-        }
-    },
-
-    { "--humans", "-hu",
-      "Number of human controlled snakes. Usage: --humans=<number>",
-      []( ProgramArguments& arguments, const std::string& string)
-        {
-            arguments.humans = std::stoul( string.c_str() + 1, nullptr, 10);
-            if ( arguments.humans > 2 )
-            {
-                throw std::runtime_error{ "Maximum number of humans is 2"};
-            }
-        },
-      []( ProgramArguments& arguments)
-        {
-            arguments.humans = 2;
-        }
-    },
-
-    { "--dumb-bots", "-db",
-      "Number of dumb bots. Usage: --dumb-bots=<number>",
-      []( ProgramArguments& arguments, const std::string& string)
-        {
-
-            arguments.dumb_bots = std::stoul( string.c_str() + 1, nullptr, 10);
-        },
-      []( ProgramArguments& arguments)
-        {
-            arguments.dumb_bots = 0;
-        }
-    },
-
-    { "--smart-bots", "-sb",
-      "Number of smart bots. Usage: --smart-bots=<number>",
-      []( ProgramArguments& arguments, const std::string& string)
-        {
-            arguments.smart_bots = std::stoul( string.c_str() + 1, nullptr, 10);
-        },
-      []( ProgramArguments& arguments)
-        {
-            arguments.smart_bots = 0;
+            arguments.window_size.second = 1000;
         }
     },
 

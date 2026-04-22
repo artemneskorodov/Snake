@@ -15,10 +15,7 @@ enum class GraphicsType
 struct ProgramArguments
 {
     GraphicsType graphics_type;
-    std::pair<uint32_t, uint32_t> window_size; // Used if only graphics type is GraphicsType::SFML
-    std::size_t humans;
-    std::size_t dumb_bots;
-    std::size_t smart_bots;
+    std::pair<uint32_t, uint32_t> window_size;
 };
 
 ProgramArguments GetProgramArguments( int argc, const char *argv[]);
