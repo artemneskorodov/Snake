@@ -316,22 +316,22 @@ Model::AddSnake( std::string   name,
     {
         case Direction::TOP:
         {
-            head.y += 1;
+            head.y -= 1;
             break;
         }
         case Direction::LEFT:
         {
-            head.x += 1;
+            head.x -= 1;
             break;
         }
         case Direction::BOTTOM:
         {
-            head.y -= 1;
+            head.y += 1;
             break;
         }
         case Direction::RIGHT:
         {
-            head.x -= 1;
+            head.x += 1;
             break;
         }
         default:
