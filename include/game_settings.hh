@@ -35,6 +35,7 @@ struct SnakeSetting
     std::string name;
     std::string color;
     Active active;
+    bool is_active{ false};
 };
 
 struct SnakesList
@@ -50,6 +51,8 @@ struct MenuElement
 {
     std::string name;
     std::variant<Button, SnakesList> element;
+    bool is_active{ false};
+
 };
 
 class Menu
@@ -83,13 +86,17 @@ public:
                     } else
                     {
                         snakes_list.active = 0;
+                        snakes_list.snakes[snakes_list.active].is_active = true;
                     }
                 } else if ( (snakes_list.active + 1 == snakes_list.snakes.size()) )
                 {
+                    snakes_list.snakes[snakes_list.active].is_active = false;
                     active_global_next();
                 } else
                 {
+                    snakes_list.snakes[snakes_list.active].is_active = false;
                     ++snakes_list.active;
+                    snakes_list.snakes[snakes_list.active].is_active = true;
                 }
             }
         }
@@ -114,10 +121,13 @@ public:
                     active_global_prev();
                 } else if ( snakes_list.active == 0 )
                 {
+                    snakes_list.snakes[snakes_list.active].is_active = false;
                     snakes_list.active = SnakesList::kNoActive;
                 } else
                 {
+                    snakes_list.snakes[snakes_list.active].is_active = false;
                     --snakes_list.active;
+                    snakes_list.snakes[snakes_list.active].is_active = true;
                 }
             }
         }
@@ -289,9 +299,12 @@ private:
         if ( active_ == kNoActive )
         {
             active_ = 0;
+            menu_[active_].is_active = true;
         } else if ( active_ + 1 != kMenuElementsNumber )
         {
+            menu_[active_].is_active = false;
             ++active_;
+            menu_[active_].is_active = true;
         }
     }
 
@@ -301,9 +314,12 @@ private:
         if ( active_ == kNoActive )
         {
             active_ = 0;
+            menu_[active_].is_active = true;
         } else if ( active_ != 0 )
         {
+            menu_[active_].is_active = false;
             --active_;
+            menu_[active_].is_active = true;
         }
     }
 
