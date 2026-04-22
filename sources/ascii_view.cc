@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <iomanip>
 
 #include "view.hh"
 #include "ascii_view.hh"
@@ -92,6 +93,15 @@ constexpr Coordinate kMenuElementHeight = 5;
 constexpr float      kMenuOffsetY       = 0.10;
 constexpr float      kMenuWidth         = 0.8;
 
+constexpr Coordinate kSnakeStatusNameWidth   = 10;
+constexpr Coordinate kSnakeStatusAliveWidth  = 7;
+constexpr Coordinate kSnakeStatusLengthWidth = 3;
+constexpr Coordinate kSnakeStatusGroupWidth  = 6;
+constexpr Coordinate kSnakeStatusWidth       = kSnakeStatusNameWidth +
+                                               kSnakeStatusAliveWidth +
+                                               kSnakeStatusGroupWidth +
+                                               kSnakeStatusLengthWidth;
+
 } // ! anonymous namespace
 
 AsciiView::AsciiView()
@@ -116,16 +126,10 @@ AsciiView::Render( const Model& model)
     clear_screen();
 
     draw_game_box();
-
-    Coordinate status_offset = 1;
-    Coordinate snakes_number = model.GetSnakes().size();
-    Coordinate width = current_window_size_.first;
-    Coordinate pixels_per_snake = width / snakes_number;
+    render_game_statistics( model);
 
     for ( const Snake& snake : model.GetSnakes() )
     {
-        render_snake_status( snake, status_offset);
-        status_offset += pixels_per_snake;
         if ( !snake.is_alive )
         {
             continue;
@@ -358,18 +362,6 @@ AsciiView::draw_line( Coordinate  x1,
             y1 += dir_y;
         }
     }
-}
-
-void
-AsciiView::render_snake_status( const Snake& snake,
-                                Coordinate status_offset)
-{
-    set_color( snake_color( snake.id));
-    Coordinate height = current_window_size_.second;
-    go_to_xy( status_offset, height - kStatusBarHeight);
-    std::cout << "Snake" << snake.id;
-    go_to_xy( status_offset, height - kStatusBarHeight + 1);
-    std::cout << (snake.is_alive ? "alive" : "dead");
 }
 
 void
@@ -619,6 +611,120 @@ AsciiView::draw_box( Coordinate x,
     draw_line( x + 1, y + height, x + width - 1, y + height, "─");
     draw_line( x, y + 1, x, y + height - 1, "│");
     draw_line( x + width, y + 1, x + width, y + height - 1, "│");
+}
+
+void
+AsciiView::render_game_statistics( const Model& model)
+{
+    Statistics statistics = model.GetGameStatistics();
+
+    Coordinate width  = current_window_size_.first;
+    Coordinate height = current_window_size_.second;
+
+    Coordinate x = 1;
+    Coordinate y = height - kStatusBarHeight - 1;
+    x = draw_group_stats( statistics.human, x, y, "Human Snakes");
+    x = draw_group_stats( statistics.dumb,  x, y, "Dumb Snakes");
+    x = draw_group_stats( statistics.smart, x, y, "Smart Snakes");
+
+    Coordinate snake_status_x = x;
+
+    while ( snake_status_x + kSnakeStatusWidth < width )
+    {
+        go_to_xy( snake_status_x + kSnakeStatusWidth + 1, y - 1);
+        std::cout << "╤";
+        go_to_xy( snake_status_x + kSnakeStatusWidth + 1, y + kStatusBarHeight);
+        std::cout << "╧";
+        draw_line( snake_status_x + kSnakeStatusWidth + 1, y,
+                   snake_status_x + kSnakeStatusWidth + 1, y + kStatusBarHeight - 1,
+                   "│");
+        snake_status_x += kSnakeStatusWidth + 2;
+    }
+
+    snake_status_x = x;
+
+    for ( const Snake& snake : model.GetSnakes() )
+    {
+        render_snake_status( snake, snake_status_x,  y, model.GetSnakeGroup( snake.id));
+        snake_status_x += kSnakeStatusWidth + 2;
+        if ( snake_status_x + kSnakeStatusWidth >= width )
+        {
+            snake_status_x = x;
+            y += 1;
+            if ( y > height - 1 )
+            {
+                break;
+            }
+        }
+    }
+}
+
+Coordinate
+AsciiView::draw_group_stats( const SnakeGroupStatistics& stats,
+                             Coordinate                  x,
+                             Coordinate                  y,
+                             const std::string&          name)
+{
+    if ( stats.alive == 0 && stats.dead == 0 )
+    {
+        return x;
+    }
+    go_to_xy( x, y);
+    std::cout << name;
+    go_to_xy( x, y + 1);
+    std::cout << std::setw( 16) << std::left << "Alive: "
+              << std::setw( 4) << std::right << stats.alive;
+    go_to_xy( x, y + 2);
+    std::cout << std::setw( 16) << std::left << "Dead: "
+              << std::setw( 4) << std::right << stats.dead;
+    go_to_xy( x, y + 3);
+    std::cout << std::setw( 16) << std::left << "Total length: "
+              << std::setw( 4) << std::right << stats.total_length;
+
+    go_to_xy( x + 20, y - 1);
+    std::cout << "╤";
+    go_to_xy( x + 20, y + kStatusBarHeight);
+    std::cout << "╧";
+    draw_line( x + 20, y, x + 20, y + kStatusBarHeight - 1, "│");
+
+    return x + 21;
+}
+
+void
+AsciiView::render_snake_status( const Snake& snake,
+                                Coordinate   x,
+                                Coordinate   y,
+                                SnakeGroup   group)
+{
+    set_color( snake.color);
+
+    go_to_xy( x, y);
+
+    std::cout << std::left  << std::setw( kSnakeStatusNameWidth)   << snake.name
+              << std::left  << std::setw( kSnakeStatusAliveWidth)  << (snake.is_alive ? "(alive)" : "(dead)");
+    switch ( group )
+    {
+        case SnakeGroup::HUMAN:
+        {
+            std::cout << std::left << std::setw( kSnakeStatusGroupWidth) << " human";
+            break;
+        }
+        case SnakeGroup::DUMB:
+        {
+            std::cout << std::left << std::setw( kSnakeStatusGroupWidth) << " dumb";
+            break;
+        }
+        case SnakeGroup::SMART:
+        {
+            std::cout << std::left << std::setw( kSnakeStatusGroupWidth) << " smart";
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error{ "Unexpected snake group"};
+        }
+    }
+    std::cout << std::right << std::setw( kSnakeStatusLengthWidth) << snake.points.size();
 }
 
 } // ! namespace snake
