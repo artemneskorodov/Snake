@@ -63,6 +63,8 @@ using colors::operator ""_c;
 constexpr colors::Color kColorGameBox = "#00ffe1"_c;
 constexpr colors::Color kColorRabbit = "#2f00ff"_c;
 constexpr colors::Color kColorBone = "#b1b1b1"_c;
+constexpr colors::Color kMenuActiveColor = "#bcffa4"_c;
+constexpr colors::Color kMenuInactiveColor = "#b6c9b7"_c;
 
 constexpr std::array<colors::Color, 9> kColorSnake{{
     "#bf00ff"_c,
@@ -396,6 +398,14 @@ void
 AsciiView::render_menu_button( const settings::MenuElement& menu_elem,
                                menu_render_ctx_t&           ctx)
 {
+    if ( menu_elem.is_active )
+    {
+        set_color( kMenuActiveColor, true);
+    } else
+    {
+        set_color( kMenuInactiveColor);
+    }
+
     draw_box( 5, ctx.offset_y, 50, 4);
 
     go_to_xy( 5 + 2, ctx.offset_y + 2);
@@ -408,6 +418,17 @@ void
 AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
                                     menu_render_ctx_t&           ctx)
 {
+    const settings::SnakesList& snake_list = std::get<settings::SnakesList>( menu_elem.element);
+    bool is_active = (menu_elem.is_active) &&
+                     (snake_list.active == snake_list.kNoActive);
+    if ( is_active )
+    {
+        set_color( kMenuActiveColor, true);
+    } else
+    {
+        set_color( kMenuInactiveColor);
+    }
+
     draw_box( 5, ctx.offset_y, 50, 4);
 
     go_to_xy( 5 + 2, ctx.offset_y + 2);
@@ -415,9 +436,16 @@ AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
 
     ctx.offset_y += 5;
 
-    const settings::SnakesList& snake_list = std::get<settings::SnakesList>( menu_elem.element);
     for ( const settings::SnakeSetting& snake : snake_list.snakes )
     {
+        if ( snake.is_active )
+        {
+            set_color( kMenuActiveColor, true);
+        } else
+        {
+            set_color( kMenuInactiveColor);
+        }
+
         draw_box( 5 + 2, ctx.offset_y, 50 - 2, 4);
 
         go_to_xy( 5 + 2 + 2, ctx.offset_y + 2);
