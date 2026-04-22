@@ -79,12 +79,12 @@ constexpr float      kMenuWidth         = 0.8;
 
 constexpr Coordinate kSnakeStatusNameWidth   = 10;
 constexpr Coordinate kSnakeStatusAliveWidth  = 7;
-constexpr Coordinate kSnakeStatusLengthWidth = 3;
+constexpr Coordinate kSnakeStatusScoresWidth = 3;
 constexpr Coordinate kSnakeStatusGroupWidth  = 6;
 constexpr Coordinate kSnakeStatusWidth       = kSnakeStatusNameWidth +
                                                kSnakeStatusAliveWidth +
                                                kSnakeStatusGroupWidth +
-                                               kSnakeStatusLengthWidth;
+                                               kSnakeStatusScoresWidth;
 
 } // ! anonymous namespace
 
@@ -738,7 +738,7 @@ AsciiView::render_snake_status( const Snake& snake,
             throw std::runtime_error{ "Unexpected snake group"};
         }
     }
-    std::cout << std::right << std::setw( kSnakeStatusLengthWidth) << snake.points.size();
+    std::cout << std::right << std::setw( kSnakeStatusScoresWidth) << snake.GetScores();
 }
 
 void
