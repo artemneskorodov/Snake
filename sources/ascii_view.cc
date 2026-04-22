@@ -69,6 +69,8 @@ constexpr colors::Color kMenuInactiveColor       = "#b6c9b7"_c;
 constexpr colors::Color kMenuActiveStringColor   = "#ffffff"_c;
 constexpr colors::Color kMenuInactiveStringColor = "#c8c8c8"_c;
 constexpr colors::Color kInvalidColor            = "#676767"_c;
+constexpr colors::Color kColorGameFieldFirst     = "#3bbb55"_c;
+constexpr colors::Color kColorGameFieldSecond    = "#43d15f"_c;
 
 constexpr Coordinate kMenuElementHeight = 5;
 constexpr float      kMenuOffsetY       = 0.10;
@@ -150,14 +152,6 @@ AsciiView::render_snake( const Snake& snake)
     auto it = snake.points.cbegin();
 
     set_color( snake.color);
-
-    if ( snake.points.size() == 1 )
-    {
-        go_to_xy( it->x + kGameFieldOffsetX, it->y + kGameFieldOffsetY);
-        std::cout << "○";
-        ++it;
-        return ;
-    }
 
     for ( ; it != std::prev( snake.points.cend()); ++it )
     {
@@ -313,6 +307,23 @@ AsciiView::draw_game_box()
 
     draw_line( 0, height - kStatusBarHeight, 0, height - 1, "║");
     draw_line( width, height - kStatusBarHeight, width, height - 1, "║");
+
+    Coordinate game_field_width  = width - 1;
+    Coordinate game_field_height = height - 2 - kStatusBarHeight;
+
+    for ( Coordinate x = 0; x != game_field_width; ++x )
+    {
+        for ( Coordinate y = 0; y != game_field_height; ++y )
+        {
+            if ( (x + y) % 2 == 0 )
+            {
+                write_game_symbol( { x, y}, " ", kColorGameFieldFirst);
+            } else
+            {
+                write_game_symbol( { x, y}, " ", kColorGameFieldSecond);
+            }
+        }
+    }
 }
 
 void
@@ -725,7 +736,12 @@ AsciiView::write_game_symbol( const Point&         point,
 {
     go_to_xy( point.x + kGameFieldOffsetX, point.y + kGameFieldOffsetY);
 
-    set_color( color, false, "#000000"_c);
+    colors::Color background = kColorGameFieldFirst;
+    if ( (point.x + point.y) % 2 == 1 )
+    {
+        background = kColorGameFieldSecond;
+    }
+    set_color( color, false, background);
     std::cout << symbol;
 }
 
