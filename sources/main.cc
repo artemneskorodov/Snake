@@ -16,12 +16,6 @@ main( int         argc,
         view = std::make_unique<snake::AsciiView>();
     } else if ( arguments.graphics_type == snake::GraphicsType::SFML )
     {
-        if ( (arguments.window_size.first == 0) ||
-             (arguments.window_size.second == 0) )
-        {
-            throw std::runtime_error{ "It is expected to get width and height of window with "
-                                      "--width=<number> and --height=<number> in graphics view"};
-        }
         view = std::make_unique<snake::GraphicsView>( arguments.window_size.first,
                                                       arguments.window_size.second);
     } else
