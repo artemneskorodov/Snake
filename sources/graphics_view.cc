@@ -164,6 +164,12 @@ constexpr float    kMenuElementHeight  = 50.f;
 constexpr float    kMenuDefaultOffsetY = 0.1f;
 constexpr unsigned kMenuCharacterSize  = 15;
 
+constexpr colors::Color kColorMenuActive         = "#bcffa4"_c;
+constexpr colors::Color kColorMenuInactive       = "#b6c9b7"_c;
+constexpr colors::Color kColorMenuActiveString   = "#ffffff"_c;
+constexpr colors::Color kColorMenuInactiveString = "#c8c8c8"_c;
+constexpr colors::Color kColorInvalid            = "#676767"_c;
+
 } // anonymous namespace
 
 GraphicsView::GraphicsView( uint32_t width,
@@ -462,25 +468,37 @@ GraphicsView::render_menu_button( const settings::MenuElement& menu_elem,
     float width = window_width * kMenuWidth;
     float x = (window_width - width) / 2.f;
     float y = offset_y;
-    float height = kMenuElementHeight;
+    float height = kMenuElementHeight * 0.9f;
 
     float text_offset_x = x + width / 10.f;
 
     sf::RectangleShape box{ {width, height}};
     box.setPosition( { x, y});
-    box.setOutlineThickness( 1.f);
-    box.setOutlineColor( sf::Color::Blue);
     box.setFillColor( sf::Color::Black);
-    window_.draw( box);
 
     sf::Text text{ textures_.snake_game_text_font, menu_elem.name, kMenuCharacterSize};
-
     sf::FloatRect text_rect = text.getLocalBounds();
     text.setOrigin( { 0, text_rect.size.y / 2.f});
     text.setPosition( { text_offset_x, y + height / 2.f});
+
+    if ( menu_elem.is_active )
+    {
+        box.setOutlineColor( kColorMenuActive);
+        box.setOutlineThickness( 3.f);
+        text.setFillColor( kColorMenuActive);
+        text.setStyle( text.Bold);
+    } else
+    {
+        box.setOutlineColor( kColorMenuInactive);
+        box.setOutlineThickness( 2.f);
+        text.setFillColor( kColorMenuInactive);
+        text.setStyle( text.Regular);
+    }
+
+    window_.draw( box);
     window_.draw( text);
 
-    offset_y += height;
+    offset_y += kMenuElementHeight;
 }
 
 void
@@ -493,7 +511,7 @@ GraphicsView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
     float width = window_width * kMenuWidth;
     float x = (window_width - width) / 2.f;
     float y = offset_y;
-    float height = kMenuElementHeight;
+    float height = kMenuElementHeight * 0.9f;
 
     float text_offset_x = x + width / 10.f;
 
@@ -502,15 +520,30 @@ GraphicsView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
     box.setOutlineThickness( 1.f);
     box.setOutlineColor( sf::Color::Blue);
     box.setFillColor( sf::Color::Black);
-    window_.draw( box);
 
     sf::Text text{ textures_.snake_game_text_font, menu_elem.name, kMenuCharacterSize};
     sf::FloatRect text_rect = text.getLocalBounds();
     text.setOrigin( { 0, text_rect.size.y / 2.f});
     text.setPosition( { text_offset_x, y + height / 2.f});
+
+    if ( menu_elem.is_active && snakes_list.active == snakes_list.kNoActive )
+    {
+        box.setOutlineColor( kColorMenuActive);
+        box.setOutlineThickness( 3.f);
+        text.setFillColor( kColorMenuActive);
+        text.setStyle( text.Bold);
+    } else
+    {
+        box.setOutlineColor( kColorMenuInactive);
+        box.setOutlineThickness( 2.f);
+        text.setFillColor( kColorMenuInactive);
+        text.setStyle( text.Regular);
+    }
+
+    window_.draw( box);
     window_.draw( text);
 
-    y += height;
+    y += kMenuElementHeight;
 
     x += width / 10.f;
     width *= 0.9f;
@@ -522,25 +555,78 @@ GraphicsView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
 
     for ( const settings::SnakeSetting& snake : snakes_list.snakes )
     {
+        if ( snake.is_active )
+        {
+            box.setOutlineColor( kColorMenuActive);
+            box.setOutlineThickness( 3.f);
+        } else
+        {
+            box.setOutlineColor( kColorMenuInactive);
+            box.setOutlineThickness( 2.f);
+        }
         box.setPosition( { x, y});
-        box.setOutlineThickness( 1.f);
-        box.setOutlineColor( sf::Color::Blue);
-        box.setFillColor( sf::Color::Black);
         window_.draw( box);
 
         text.setString( "Name: " + snake.name);
         text_rect = text.getLocalBounds();
         text.setOrigin( { 0, text_rect.size.y / 2.f});
         text.setPosition( { text_offset_x_name, y + height / 2.f});
+        if ( snake.is_active )
+        {
+            if ( snake.active == settings::SnakeSetting::Active::NAME )
+            {
+                text.setFillColor( kColorMenuActiveString);
+                text.setStyle( text.Bold);
+            } else
+            {
+                text.setFillColor( kColorMenuInactiveString);
+                text.setStyle( text.Regular);
+            }
+        } else
+        {
+            text.setFillColor( kColorMenuInactiveString);
+            text.setStyle( text.Regular);
+        }
         window_.draw( text);
 
-        text.setString( "Color: " + snake.color);
+        text.setString( "Color: ");
+        if ( snake.is_active )
+        {
+            if ( snake.active == settings::SnakeSetting::Active::COLOR )
+            {
+                text.setFillColor( kColorMenuActiveString);
+                text.setStyle( text.Bold);
+            } else
+            {
+                text.setFillColor( kColorMenuInactiveString);
+                text.setStyle( text.Regular);
+            }
+        } else
+        {
+            text.setFillColor( kColorMenuInactiveString);
+            text.setStyle( text.Regular);
+        }
         text_rect = text.getLocalBounds();
         text.setOrigin( { 0, text_rect.size.y / 2.f});
         text.setPosition( { text_offset_x_color, y + height / 2.f});
         window_.draw( text);
 
-        y += height;
+        float color_string_width = text_rect.size.x;
+        text.setString( snake.color);
+        text_rect = text.getLocalBounds();
+        text.setOrigin( { 0, text_rect.size.y / 2.f});
+        text.setPosition( { text_offset_x_color + color_string_width, y + height / 2.f});
+        if ( colors::IsValidColor( snake.color) )
+        {
+            text.setFillColor( colors::Color{ snake.color});
+        } else
+        {
+            text.setFillColor( kColorInvalid);
+        }
+        text.setStyle( text.Bold);
+        window_.draw( text);
+
+        y += kMenuElementHeight;
     }
 
     offset_y = y;
