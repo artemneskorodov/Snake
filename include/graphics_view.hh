@@ -19,6 +19,7 @@ struct Textures
     sf::Texture snake_bone_texture          { "resources/snake_bone_texture.png"};
 
     sf::Font    snake_game_font             { "resources/HennyPenny-Regular.ttf"};
+    sf::Font    snake_game_text_font        { "resources/OpenSans-VariableFont_wdth,wght.ttf"};
 
 };
 

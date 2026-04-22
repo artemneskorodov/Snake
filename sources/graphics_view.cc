@@ -159,9 +159,10 @@ constexpr colors::Color kColorGameFieldPadding         = "#a0a0a0"_c;
 constexpr colors::Color kColorGameFooterGradientTop    = "#247a32"_c;
 constexpr colors::Color kColorGameFooterGradientBottom = "#165320"_c;
 
-constexpr float kMenuWidth = 0.8;
-constexpr float kMenuElementHeight = 50.f;
-constexpr float kMenuDefaultOffsetY = 0.1f;
+constexpr float    kMenuWidth          = 0.8f;
+constexpr float    kMenuElementHeight  = 50.f;
+constexpr float    kMenuDefaultOffsetY = 0.1f;
+constexpr unsigned kMenuCharacterSize  = 15;
 
 } // anonymous namespace
 
@@ -472,7 +473,8 @@ GraphicsView::render_menu_button( const settings::MenuElement& menu_elem,
     box.setFillColor( sf::Color::Black);
     window_.draw( box);
 
-    sf::Text text{ textures_.snake_game_font, menu_elem.name};
+    sf::Text text{ textures_.snake_game_text_font, menu_elem.name, kMenuCharacterSize};
+
     sf::FloatRect text_rect = text.getLocalBounds();
     text.setOrigin( { 0, text_rect.size.y / 2.f});
     text.setPosition( { text_offset_x, y + height / 2.f});
@@ -502,7 +504,7 @@ GraphicsView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
     box.setFillColor( sf::Color::Black);
     window_.draw( box);
 
-    sf::Text text{ textures_.snake_game_font, menu_elem.name};
+    sf::Text text{ textures_.snake_game_text_font, menu_elem.name, kMenuCharacterSize};
     sf::FloatRect text_rect = text.getLocalBounds();
     text.setOrigin( { 0, text_rect.size.y / 2.f});
     text.setPosition( { text_offset_x, y + height / 2.f});
