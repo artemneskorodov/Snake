@@ -157,6 +157,7 @@ Model::tick_snake_snake_collisions_check()
             {
                 if ( *it == head )
                 {
+                    ++concurent.killed;
                     remove_snake( snake);
                     break;
                 }
