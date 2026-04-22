@@ -11,6 +11,24 @@ namespace snake
 namespace settings
 {
 
+namespace detail
+{
+
+static constexpr std::array<std::string_view, 9> kSnakesColors
+{{
+    "#bf00ff",
+    "#26ff00",
+    "#d4f903",
+    "#ff5b02",
+    "#00ffd5",
+    "#0091ff",
+    "#8400ff",
+    "#ff00d9",
+    "#ff0000",
+}};
+
+} // ! namespace detail
+
 struct Button
 {
     bool is_pressed;
@@ -174,8 +192,12 @@ public:
             SnakesList& snakes_list = std::get<SnakesList>( menu_[active_].element);
             if ( snakes_list.active == SnakesList::kNoActive )
             {
-                snakes_list.snakes.emplace_back( "Snake" + std::to_string( current_snake_id_++),
-                                                 "#3cef00");
+                std::string name = "Snake" + std::to_string( current_snake_id_);
+                std::size_t color_id = current_snake_id_ % detail::kSnakesColors.size();
+                std::string color = std::string{ detail::kSnakesColors[color_id]};
+                ++current_snake_id_;
+
+                snakes_list.snakes.emplace_back( name, color);
             } else
             {
                 SnakeSetting& snake = snakes_list.snakes[snakes_list.active];
