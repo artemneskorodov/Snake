@@ -65,6 +65,9 @@ constexpr colors::Color kColorRabbit = "#2f00ff"_c;
 constexpr colors::Color kColorBone = "#b1b1b1"_c;
 constexpr colors::Color kMenuActiveColor = "#bcffa4"_c;
 constexpr colors::Color kMenuInactiveColor = "#b6c9b7"_c;
+constexpr colors::Color kMenuActiveStringColor = "#ffffff"_c;
+constexpr colors::Color kMenuInactiveStringColor = "#c8c8c8"_c;
+constexpr colors::Color kInvalidColor = "#676767"_c;
 
 constexpr std::array<colors::Color, 9> kColorSnake{{
     "#bf00ff"_c,
@@ -511,10 +514,36 @@ AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
 
             draw_box( x, y, width, height);
 
+            if ( snake.active == settings::SnakeSetting::Active::NAME )
+            {
+                set_color( kMenuActiveStringColor, true);
+            } else
+            {
+                set_color( kMenuInactiveStringColor);
+            }
             go_to_xy( text_offset_x_name, y + height / 2);
             std::cout << "Snake name: " << snake.name;
+
+            if ( snake.active == settings::SnakeSetting::Active::COLOR )
+            {
+                set_color( kMenuActiveStringColor, true);
+            } else
+            {
+                set_color( kMenuInactiveStringColor);
+            }
             go_to_xy( text_offset_x_color, y + height / 2);
-            std::cout << "Snake color: " << snake.color;
+            std::cout << "Snake color: ";
+
+            if ( colors::IsValidColor( snake.color) )
+            {
+                colors::Color color{ snake.color};
+                set_color( color);
+            } else
+            {
+                set_color( kInvalidColor);
+            }
+
+            std::cout << snake.color;
         }
         y += kMenuElementHeight;
     }
