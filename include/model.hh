@@ -85,6 +85,20 @@ struct Point
 
 };
 
+inline Point
+DirectionToVector( Direction dir)
+{
+    assert( (static_cast<int>( dir) >= 1) &&
+            (static_cast<int>( dir) <= 4));
+    std::array<Point, 4> hashtab{{
+        Point{  0, -1},
+        Point{  1,  0},
+        Point{  0,  1},
+        Point{ -1,  0}
+    }};
+    return hashtab[static_cast<int>( dir) - 1];
+}
+
 struct PointHash
 {
     std::size_t
@@ -101,30 +115,25 @@ using SnakeTicker = std::function<void( Model&, const Snake&)>;
 
 struct Snake
 {
-    Snake( Coordinate    x,
-           Coordinate    y,
-           Direction     direction,
-           SnakeID       id,
+    Snake( SnakeID       id,
            SnakeTicker   ticker,
            std::string   name,
            colors::Color color)
-     :  points    { {x, y}},
-        direction { direction},
-        id        { id},
+     :  id        { id},
         ticker    { std::move( ticker)},
         name      { std::move( name)},
         color     { color}
     {
     }
 
-    std::list<Point> points;
-    Direction        direction;
+    std::list<Point> points    {};
+    Direction        direction {};
+    bool             is_alive  { true};
+    std::size_t      killed    { 0};
     SnakeID          id;
-    bool             is_alive{ true};
     SnakeTicker      ticker;
     std::string      name;
     colors::Color    color;
-    std::size_t      killed{ 0};
 
     static constexpr int kScoresPerLength = 1;
     static constexpr int kScoresPerKill   = 3;
@@ -369,6 +378,7 @@ private:
     static constexpr double   kBoneSpawnProbability  = 0.7;
     static constexpr TickType kBonesLifetimeAvg      = 100;
     static constexpr TickType kBonesLifetimeSigma    = 20;
+    static constexpr float    kMinSnakeOffset        = 0.2;
 
 private:
     Coordinate          width_               { 0};

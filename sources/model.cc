@@ -296,58 +296,47 @@ Model::AddSnake( std::string   name,
                  SnakeTicker   ticker)
 {
     SnakeID id = static_cast<SnakeID>( snakes_.size());
-    Direction dir = utils::random_of( { Direction::LEFT,
-                                       Direction::BOTTOM,
-                                       Direction::RIGHT,
-                                       Direction::TOP});
 
-    Coordinate x;
-    Coordinate y;
+    Direction dir;
+    Point tail;
+    Point head;
+
+    Coordinate min_x = static_cast<Coordinate>( std::round( width_ * kMinSnakeOffset));
+    Coordinate max_x = width_ - min_x;
+    Coordinate min_y = static_cast<Coordinate>( std::round( height_ * kMinSnakeOffset));
+    Coordinate max_y = height_ - min_y;
 
     for ( ; ; )
     {
-        x = utils::random_min_max( 0, width_ - 1);
-        y = utils::random_min_max( 0, height_ - 1);
-        if ( cells_[{ x, y}] == CellType::EMPTY )
+        tail.x = utils::random_min_max( min_x, max_x);
+        tail.y = utils::random_min_max( min_y, max_y);
+        if ( cells_[tail] != CellType::EMPTY )
         {
-            break;
+            continue;
         }
-    }
-    snakes_.emplace_back( x, y, dir, id, ticker, std::move( name), color);
 
-    // Adding one more snake cell
-    Point head = snakes_.back().points.back();
-    switch ( dir )
-    {
-        case Direction::TOP:
+        dir    = utils::random_of( { Direction::LEFT,
+                                           Direction::BOTTOM,
+                                           Direction::RIGHT,
+                                           Direction::TOP});
+        head = tail + DirectionToVector( dir);
+        if ( cells_[head] != CellType::EMPTY )
         {
-            head.y -= 1;
-            break;
+            continue;
         }
-        case Direction::LEFT:
-        {
-            head.x -= 1;
-            break;
-        }
-        case Direction::BOTTOM:
-        {
-            head.y += 1;
-            break;
-        }
-        case Direction::RIGHT:
-        {
-            head.x += 1;
-            break;
-        }
-        default:
-        {
-            throw std::runtime_error{ "Unexpected direction"};
-        }
-    }
-    snakes_.back().points.emplace_back( head);
 
-    cells_[{ x, y}] = CellType::SNAKE;
-    cells_[head]    = CellType::SNAKE;
+        break;
+    }
+
+    snakes_.emplace_back( id, ticker, std::move( name), color);
+    Snake& snake = snakes_.back();
+
+    snake.points.emplace_back( tail);
+    snake.points.emplace_back( head);
+    snake.direction = dir;
+
+    cells_[head] = CellType::SNAKE;
+    cells_[tail] = CellType::SNAKE;
 
     ++snakes_number_;
 
