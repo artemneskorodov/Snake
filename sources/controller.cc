@@ -87,18 +87,18 @@ Controller::run_game( const settings::Menu& settings)
     for ( const settings::SnakeSetting& snake : human.snakes )
     {
         colors::Color color{ snake.color};
-        SnakeID snake_id = model_.AddSnake( snake.name, color);
+        SnakeID snake_id = model_.AddSnake( snake.name, color, SnakeGroup::HUMAN);
         players_snakes_.emplace_back( snake_id);
     }
     for ( const settings::SnakeSetting& snake : dumb.snakes )
     {
         colors::Color color{ snake.color};
-        model_.AddSnake( snake.name, color, bots::TickDumbBot);
+        model_.AddSnake( snake.name, color, SnakeGroup::DUMB, bots::TickDumbBot);
     }
     for ( const settings::SnakeSetting& snake : smart.snakes )
     {
         colors::Color color{ snake.color};
-        model_.AddSnake( snake.name, color, bots::TickSmartBot);
+        model_.AddSnake( snake.name, color, SnakeGroup::SMART, bots::TickSmartBot);
     }
 
     for ( ; ; )
