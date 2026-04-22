@@ -1,28 +1,96 @@
 #include <optional>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 #include "model.hh"
 #include "controller.hh"
 #include "bots.hh"
+#include "game_settings.hh"
 
 namespace snake
 {
 
 void
-Controller::Run( const ProgramArguments& arguments)
+Controller::Run()
 {
-    for ( std::size_t player = 0; player != arguments.humans; ++player )
+    for ( ; ; )
     {
+        settings::Menu settings = run_menu();
+        if ( need_exit_ )
+        {
+            break;
+        }
+        run_game( settings);
+        need_go_to_menu_ = false;
+    }
+}
+
+settings::Menu
+Controller::run_menu()
+{
+    settings::Menu settings{};
+
+    for ( ; ; )
+    {
+        view_.UpdateMenuEvents();
+        for ( ; ; )
+        {
+            std::optional<MenuEvent> event = view_.PopMenuEvent();
+            if ( !event.has_value() )
+            {
+                break;
+            }
+
+            handle_menu_event( event.value(), settings);
+        }
+
+        const settings::Button& exit_button = settings.GetExitBtn();
+        if ( exit_button.is_pressed )
+        {
+            need_exit_ = true;
+            break;
+        }
+
+        const settings::Button& start_button = settings.GetStartGameBtn();
+        if ( start_button.is_pressed )
+        {
+            break;
+        }
+
+        view_.RenderMenu( settings);
+
+    }
+    return settings;
+}
+
+void
+Controller::run_game( const settings::Menu& settings)
+{
+    // Resetting game
+    auto winsz = view_.GetGameFieldSize();
+    model_ = Model{};
+    model_.SetFieldSize( winsz.first, winsz.second);
+    players_snakes_.clear();
+
+    const settings::SnakesList& human = settings.GetHumanSnakes();
+    const settings::SnakesList& dumb  = settings.GetDumbBotSnakes();
+    const settings::SnakesList& smart = settings.GetSmartBotSnakes();
+
+    for ( const settings::SnakeSetting& snake : human.snakes )
+    {
+        std::cout << snake.name;
         SnakeID snake_id = model_.AddSnake();
         players_snakes_.emplace_back( snake_id);
     }
-    for ( std::size_t dumb_bot = 0; dumb_bot != arguments.dumb_bots; ++dumb_bot )
+    for ( const settings::SnakeSetting& snake : dumb.snakes )
     {
+        std::cout << snake.name;
         model_.AddSnake( bots::TickDumbBot);
     }
-    for ( std::size_t smart_bot = 0; smart_bot != arguments.smart_bots; ++smart_bot )
+    for ( const settings::SnakeSetting& snake : smart.snakes )
     {
+        std::cout << snake.name;
         model_.AddSnake( bots::TickSmartBot);
     }
 
@@ -37,13 +105,9 @@ Controller::Run( const ProgramArguments& arguments)
                 break;
             }
 
-            handle_event( event.value());
-            if ( need_exit_ )
-            {
-                break;
-            }
+            handle_game_event( event.value());
         }
-        if ( need_exit_ )
+        if ( need_go_to_menu_ )
         {
             break;
         }
@@ -58,12 +122,10 @@ Controller::Run( const ProgramArguments& arguments)
 
         std::this_thread::sleep_for( std::chrono::milliseconds( 150));
     }
-
-    players_snakes_.clear();
 }
 
 void
-Controller::handle_event( Event event)
+Controller::handle_game_event( Event event)
 {
     switch ( event.event )
     {
@@ -89,7 +151,7 @@ Controller::handle_event( Event event)
         }
         case Event::KEY_PRESSED_EXIT:
         {
-            need_exit_ = true;
+            need_go_to_menu_ = true;
             break;
         }
         case Event::WINDOW_SIZE_CHANGED:
@@ -101,6 +163,55 @@ Controller::handle_event( Event event)
         default:
         {
             throw std::runtime_error{ "Unexpected event"};
+        }
+    }
+}
+
+void
+Controller::handle_menu_event( MenuEvent       event,
+                               settings::Menu& menu)
+{
+    switch ( event )
+    {
+        case MenuEvent::KEY_PRESSED_ARROW_UP:
+        {
+            menu.InteractLeft();
+            break;
+        }
+        case MenuEvent::KEY_PRESSED_ARROW_LEFT:
+        {
+            menu.ActivePrev();
+            break;
+        }
+        case MenuEvent::KEY_PRESSED_ARROW_DOWN:
+        {
+            menu.ActiveNext();
+            break;
+        }
+        case MenuEvent::KEY_PRESSED_ARROW_RIGHT:
+        {
+            menu.InteractRight();
+            break;
+        }
+        case MenuEvent::KEY_PRESSED_ENTER:
+        {
+            menu.InteractSelect();
+            break;
+        }
+        case MenuEvent::EXIT:
+        {
+            need_exit_ = true;
+            break;
+        }
+        case MenuEvent::BACKSPACE:
+        {
+            menu.InteractBackspace();
+            break;
+        }
+        default:
+        {
+            menu.InteractSymbol( static_cast<char>( event));
+            break;
         }
     }
 }
