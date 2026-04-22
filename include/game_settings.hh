@@ -136,7 +136,10 @@ public:
             SnakesList& snakes_list = std::get<SnakesList>( menu_[active_].element);
             if ( snakes_list.active == SnakesList::kNoActive )
             {
-                snakes_list.snakes.pop_back();
+                if ( !snakes_list.snakes.empty() )
+                {
+                    snakes_list.snakes.pop_back();
+                }
             } else
             {
                 SnakeSetting& snake = snakes_list.snakes[snakes_list.active];
