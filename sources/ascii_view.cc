@@ -71,6 +71,7 @@ constexpr colors::Color kMenuInactiveStringColor = "#c8c8c8"_c;
 constexpr colors::Color kInvalidColor            = "#676767"_c;
 constexpr colors::Color kColorGameFieldFirst     = "#3bbb55"_c;
 constexpr colors::Color kColorGameFieldSecond    = "#43d15f"_c;
+constexpr colors::Color kColorGameBackground     = "#a0a0a0"_c;
 
 constexpr Coordinate kMenuElementHeight = 5;
 constexpr float      kMenuOffsetY       = 0.10;
@@ -280,10 +281,21 @@ AsciiView::set_color( const colors::Color& color,
 void
 AsciiView::draw_game_box()
 {
-    set_color( kColorGameBox);
+    set_color( kColorGameBox, false, kColorGameBackground);
+
 
     Coordinate width  = current_window_size_.first  - 1;
     Coordinate height = current_window_size_.second - 1;
+
+    // Filling status with padding color
+    for ( Coordinate x = 0; x != width; ++x )
+    {
+        for ( Coordinate y = height - kStatusBarHeight - 1; y != height; ++y )
+        {
+            go_to_xy( x, y);
+            std::cout << " ";
+        }
+    }
 
     go_to_xy(0, 0);
     std::cout << "╔";
@@ -627,7 +639,7 @@ AsciiView::render_game_statistics( const Model& model)
 
     Coordinate snake_status_x = x;
 
-    set_color( kColorGameBox);
+    set_color( kColorGameBox, false, kColorGameBackground);
 
     while ( snake_status_x + kSnakeStatusWidth < width )
     {
@@ -669,7 +681,7 @@ AsciiView::draw_group_stats( const SnakeGroupStatistics& stats,
     {
         return x;
     }
-    set_color( "#ffffff"_c, false, "#000000"_c);
+    set_color( "#000000"_c, false, kColorGameBackground);
     go_to_xy( x, y);
     std::cout << name;
     go_to_xy( x, y + 1);
@@ -682,7 +694,7 @@ AsciiView::draw_group_stats( const SnakeGroupStatistics& stats,
     std::cout << std::setw( 16) << std::left << "Total length: "
               << std::setw( 4) << std::right << stats.total_length;
 
-    set_color( kColorGameBox);
+    set_color( kColorGameBox, false, kColorGameBackground);
     go_to_xy( x + 20, y - 1);
     std::cout << "╤";
     go_to_xy( x + 20, y + kStatusBarHeight);
@@ -698,7 +710,7 @@ AsciiView::render_snake_status( const Snake& snake,
                                 Coordinate   y,
                                 SnakeGroup   group)
 {
-    set_color( snake.color);
+    set_color( snake.color, false, kColorGameBackground);
 
     go_to_xy( x, y);
 
