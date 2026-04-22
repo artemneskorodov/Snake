@@ -6,8 +6,6 @@
 #include <array>
 #include <variant>
 
-#include "colors.hh"
-
 namespace snake
 {
 namespace settings
