@@ -32,6 +32,6 @@ main( int         argc,
 
     snake::Model model{};
 
-    snake::Controller controller{ model, view.get()};
+    snake::Controller controller{ model, *view};
     controller.Run();
 }

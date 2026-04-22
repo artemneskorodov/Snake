@@ -12,14 +12,13 @@ namespace snake
 class Controller final
 {
 public:
-    Controller( Model& model, View *view)
+    Controller( Model& model, View& view)
      :  model_{ model},
         view_{ view}
     {
     }
 
     void Run();
-    void RunSimulation();
 
 private:
     settings::Menu run_menu();
@@ -32,7 +31,7 @@ private:
 
 private:
     Model& model_;
-    View *view_;
+    View& view_;
     bool need_exit_                      { false};
     bool need_go_to_menu_                { false};
     std::vector<SnakeID> players_snakes_ {};

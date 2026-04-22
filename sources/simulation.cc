@@ -75,8 +75,14 @@ RunSimulation( const ProgramArguments& arguments)
                             snake::bots::TickSmartBot);
         }
 
-        snake::Controller controller{ model, nullptr};
-        controller.RunSimulation();
+        for ( ; ; )
+        {
+            model.Tick();
+            if ( model.GameFinished() )
+            {
+                break;
+            }
+        }
 
         write_simulation_results( "Simulation [" + std::to_string( i) + "]", model);
     }
