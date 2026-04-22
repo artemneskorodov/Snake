@@ -103,6 +103,8 @@ Controller::run_game( const settings::Menu& settings)
         model_.AddSnake( snake.name, color, SnakeGroup::SMART, bots::TickSmartBot);
     }
 
+    // Rendering all model once, this will run normal render for SFML view
+    // and run all render (game elements and statistics) for ASCII view
     view_.RenderAll( model_);
     view_.Show();
 
@@ -126,6 +128,8 @@ Controller::run_game( const settings::Menu& settings)
 
         model_.Tick();
 
+        // Calling view render, this will run normal render for SFML view
+        // and render statistics for ASCII view as all render in ASCII is made in callbacks
         view_.Render( model_);
         view_.Show();
 
@@ -172,6 +176,7 @@ Controller::handle_game_event( Event event)
         {
             auto winsize = view_.GetGameFieldSize();
             model_.SetFieldSize( winsize.first, winsize.second);
+            // Rendering all model after resize
             view_.RenderAll( model_);
             view_.Show();
             break;

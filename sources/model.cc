@@ -188,6 +188,10 @@ Model::tick_check_rabbits()
              (rabbit.point.y < 0) ||
              (rabbit.point.y >= height_) )
         {
+            if ( view_update_callbacks_.removed_point_cb )
+            {
+                view_update_callbacks_.removed_point_cb( rabbit.point);
+            }
             rabbit.is_alive = false;
             if ( view_update_callbacks_.removed_point_cb )
             {
