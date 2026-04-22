@@ -18,8 +18,8 @@ namespace
 struct KeyInfo
 {
     std::string_view key;
-    Event event;
-    bool case_sensitive;
+    Event            event;
+    bool             case_sensitive;
 };
 
 constexpr std::array<KeyInfo, 9> kKeysInfo{{
@@ -37,7 +37,7 @@ constexpr std::array<KeyInfo, 9> kKeysInfo{{
 struct MenuKeyInfo
 {
     std::string_view key;
-    MenuEvent event;
+    MenuEvent        event;
 };
 
 constexpr std::array<MenuKeyInfo, 7> kMenuKeysInfo{{
@@ -50,7 +50,7 @@ constexpr std::array<MenuKeyInfo, 7> kMenuKeysInfo{{
     {     "\r", MenuEvent::KEY_PRESSED_ENTER       }
 }};
 
-constexpr Coordinate kStatusBarHeight = 4;
+constexpr Coordinate kStatusBarHeight  = 4;
 constexpr Coordinate kGameFieldOffsetX = 1;
 constexpr Coordinate kGameFieldOffsetY = 1;
 
@@ -60,14 +60,14 @@ constexpr Coordinate kGameFieldOffsetY = 1;
 
 using colors::operator ""_c;
 
-constexpr colors::Color kColorGameBox = "#00ffe1"_c;
-constexpr colors::Color kColorRabbit = "#2f00ff"_c;
-constexpr colors::Color kColorBone = "#b1b1b1"_c;
-constexpr colors::Color kMenuActiveColor = "#bcffa4"_c;
-constexpr colors::Color kMenuInactiveColor = "#b6c9b7"_c;
-constexpr colors::Color kMenuActiveStringColor = "#ffffff"_c;
+constexpr colors::Color kColorGameBox            = "#00ffe1"_c;
+constexpr colors::Color kColorRabbit             = "#2f00ff"_c;
+constexpr colors::Color kColorBone               = "#b1b1b1"_c;
+constexpr colors::Color kMenuActiveColor         = "#bcffa4"_c;
+constexpr colors::Color kMenuInactiveColor       = "#b6c9b7"_c;
+constexpr colors::Color kMenuActiveStringColor   = "#ffffff"_c;
 constexpr colors::Color kMenuInactiveStringColor = "#c8c8c8"_c;
-constexpr colors::Color kInvalidColor = "#676767"_c;
+constexpr colors::Color kInvalidColor            = "#676767"_c;
 
 constexpr std::array<colors::Color, 9> kColorSnake{{
     "#bf00ff"_c,
