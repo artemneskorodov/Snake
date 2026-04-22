@@ -262,6 +262,7 @@ Model::add_rabbit()
 SnakeID
 Model::AddSnake( std::string   name,
                  colors::Color color,
+                 SnakeGroup    group,
                  SnakeTicker   ticker)
 {
     SnakeID id = static_cast<SnakeID>( snakes_.size());
@@ -319,6 +320,29 @@ Model::AddSnake( std::string   name,
     cells_[head]    = CellType::SNAKE;
 
     ++snakes_number_;
+
+    switch ( group )
+    {
+        case SnakeGroup::HUMAN:
+        {
+            humans_snakes_group_.emplace_back( id);
+            break;
+        }
+        case SnakeGroup::DUMB:
+        {
+            dumb_snakes_group_.emplace_back( id);
+            break;
+        }
+        case SnakeGroup::SMART:
+        {
+            smart_snakes_group_.emplace_back( id);
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error{ "Unexpected snakes group"};
+        }
+    }
 
     return id;
 }

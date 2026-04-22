@@ -163,6 +163,28 @@ enum class CellType
     BONE,
 };
 
+struct SnakeGroupStatistics
+{
+    std::size_t dead;
+    std::size_t alive;
+    std::size_t total_length;
+};
+
+enum class SnakeGroup
+{
+    HUMAN,
+    DUMB,
+    SMART,
+};
+
+struct Statistics
+{
+    SnakeGroupStatistics human;
+    SnakeGroupStatistics dumb;
+    SnakeGroupStatistics smart;
+
+};
+
 class Model
 {
 public:
@@ -189,12 +211,64 @@ public:
 
     void Tick();
 
+    Statistics
+    GetGameStatistics() const
+    {
+        Statistics statistics{};
+
+        auto collect_group_statistics = [this]( SnakeGroupStatistics& stats, const std::vector<SnakeID>& group)
+        {
+            for ( SnakeID id : group )
+            {
+                const Snake& snake = GetSnake( id);
+                if ( snake.is_alive )
+                {
+                    ++stats.alive;
+                    stats.total_length += snake.points.size();
+                } else
+                {
+                    ++stats.dead;
+                }
+            }
+        };
+        collect_group_statistics( statistics.human, humans_snakes_group_);
+        collect_group_statistics( statistics.dumb,  dumb_snakes_group_);
+        collect_group_statistics( statistics.smart, smart_snakes_group_);
+
+        return statistics;
+    }
+
+    SnakeGroup
+    GetSnakeGroup( SnakeID id) const
+    {
+        if ( std::find( humans_snakes_group_.begin(),
+                        humans_snakes_group_.end(),
+                        id) != humans_snakes_group_.end() )
+        {
+            return SnakeGroup::HUMAN;
+        }
+        if ( std::find( dumb_snakes_group_.begin(),
+                        dumb_snakes_group_.end(),
+                        id) != dumb_snakes_group_.end() )
+        {
+            return SnakeGroup::DUMB;
+        }
+        if ( std::find( smart_snakes_group_.begin(),
+                        smart_snakes_group_.end(),
+                        id) != smart_snakes_group_.end() )
+        {
+            return SnakeGroup::SMART;
+        }
+        return SnakeGroup{};
+    }
+
     //
     // Snake control methods
     //
 
     SnakeID AddSnake( std::string   name,
                       colors::Color color,
+                      SnakeGroup    group,
                       SnakeTicker   ticker = []( Model&, const Snake&) {});
 
     void
@@ -283,6 +357,9 @@ private:
                                                                      kRabbitsSpawnRateSigma)};
     TickType            tick_{ 0};
     std::unordered_map<Point, CellType, PointHash> cells_;
+    std::vector<SnakeID> humans_snakes_group_{};
+    std::vector<SnakeID> dumb_snakes_group_{};
+    std::vector<SnakeID> smart_snakes_group_{};
 
 };
 
