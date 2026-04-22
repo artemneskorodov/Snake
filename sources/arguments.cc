@@ -44,7 +44,7 @@ const std::array<ArgInfo, 4> kArgsInfo
         }
     },
 
-    { "--width", "-w",
+    { "--screen-width", "-sw",
       "Width of window, used if only graphics type is sfml. Usage: --width=<number>",
       []( ProgramArguments& arguments, const std::string& string)
         {
@@ -56,7 +56,7 @@ const std::array<ArgInfo, 4> kArgsInfo
         }
     },
 
-    { "--height", "-hg",
+    { "--screen-height", "-sh",
       "Height of window, used if only graphics type is sfml. Usage: --height=<number>",
       []( ProgramArguments& arguments, const std::string& string)
         {
