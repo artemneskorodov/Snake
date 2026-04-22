@@ -18,8 +18,8 @@ namespace
 struct KeyInfo
 {
     std::string_view key;
-    Event event;
-    bool case_sensitive;
+    Event            event;
+    bool             case_sensitive;
 };
 
 constexpr std::array<KeyInfo, 9> kKeysInfo{{
@@ -34,7 +34,23 @@ constexpr std::array<KeyInfo, 9> kKeysInfo{{
     {      "q", Event::KEY_PRESSED_EXIT,                     false},
 }};
 
-constexpr Coordinate kStatusBarHeight = 4;
+struct MenuKeyInfo
+{
+    std::string_view key;
+    MenuEvent        event;
+};
+
+constexpr std::array<MenuKeyInfo, 7> kMenuKeysInfo{{
+    { "\033[A", MenuEvent::KEY_PRESSED_ARROW_UP    },
+    { "\033[B", MenuEvent::KEY_PRESSED_ARROW_DOWN  },
+    { "\033[D", MenuEvent::KEY_PRESSED_ARROW_LEFT  },
+    { "\033[C", MenuEvent::KEY_PRESSED_ARROW_RIGHT },
+    {   "\x7f", MenuEvent::BACKSPACE               },
+    {     "\n", MenuEvent::KEY_PRESSED_ENTER       },
+    {     "\r", MenuEvent::KEY_PRESSED_ENTER       }
+}};
+
+constexpr Coordinate kStatusBarHeight  = 4;
 constexpr Coordinate kGameFieldOffsetX = 1;
 constexpr Coordinate kGameFieldOffsetY = 1;
 
@@ -44,9 +60,14 @@ constexpr Coordinate kGameFieldOffsetY = 1;
 
 using colors::operator ""_c;
 
-constexpr colors::Color kColorGameBox = "#00ffe1"_c;
-constexpr colors::Color kColorRabbit = "#2f00ff"_c;
-constexpr colors::Color kColorBone = "#b1b1b1"_c;
+constexpr colors::Color kColorGameBox            = "#00ffe1"_c;
+constexpr colors::Color kColorRabbit             = "#2f00ff"_c;
+constexpr colors::Color kColorBone               = "#b1b1b1"_c;
+constexpr colors::Color kMenuActiveColor         = "#bcffa4"_c;
+constexpr colors::Color kMenuInactiveColor       = "#b6c9b7"_c;
+constexpr colors::Color kMenuActiveStringColor   = "#ffffff"_c;
+constexpr colors::Color kMenuInactiveStringColor = "#c8c8c8"_c;
+constexpr colors::Color kInvalidColor            = "#676767"_c;
 
 constexpr std::array<colors::Color, 9> kColorSnake{{
     "#bf00ff"_c,
@@ -66,6 +87,10 @@ snake_color( SnakeID id)
 {
     return kColorSnake[id % kColorSnake.size()];
 }
+
+constexpr Coordinate kMenuElementHeight = 5;
+constexpr float      kMenuOffsetY       = 0.10;
+constexpr float      kMenuWidth         = 0.8;
 
 } // ! anonymous namespace
 
@@ -353,6 +378,247 @@ AsciiView::render_bone( const Bone& bone)
     go_to_xy( bone.point.x + kGameFieldOffsetX, bone.point.y + kGameFieldOffsetY);
     set_color( kColorBone);
     std::cout << "☠";
+}
+
+void
+AsciiView::RenderMenu( const settings::Menu& settings)
+{
+    menu_render_ctx_t ctx{};
+
+    ctx.offset_y = static_cast<Coordinate>( current_window_size_.second * kMenuOffsetY);
+
+    clear_screen();
+
+    std::size_t before_active = settings.GetNumberBeforeActive();
+
+    while ( static_cast<Coordinate>( before_active) * kMenuElementHeight + ctx.offset_y >
+            current_window_size_.second - kMenuElementHeight)
+    {
+        --ctx.offset_y;
+    }
+
+    for ( const settings::MenuElement& menu_element : settings.GetMenu() )
+    {
+        if ( std::holds_alternative<settings::Button>( menu_element.element) )
+        {
+            render_menu_button( menu_element, ctx);
+        } else if ( std::holds_alternative<settings::SnakesList>( menu_element.element) )
+        {
+            render_menu_snakes_list( menu_element, ctx);
+        }
+    }
+
+    std::cout.flush();
+}
+
+void
+AsciiView::render_menu_button( const settings::MenuElement& menu_elem,
+                               menu_render_ctx_t&           ctx)
+{
+    if ( (ctx.offset_y >= 0) &&
+         (ctx.offset_y + kMenuElementHeight <= current_window_size_.second) )
+    {
+        if ( menu_elem.is_active )
+        {
+            set_color( kMenuActiveColor, true);
+        } else
+        {
+            set_color( kMenuInactiveColor);
+        }
+
+        Coordinate width = static_cast<Coordinate>( current_window_size_.first * kMenuWidth);
+        Coordinate x = (current_window_size_.first - width) / 2;
+        Coordinate y = ctx.offset_y;
+        Coordinate height = kMenuElementHeight - 1;
+        Coordinate text_offset_x = x + width / 5;
+
+        draw_box( x, y, width, height);
+
+        go_to_xy( text_offset_x, y + height / 2);
+        std::cout << menu_elem.name;
+    }
+
+    ctx.offset_y += kMenuElementHeight;
+}
+
+void
+AsciiView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
+                                    menu_render_ctx_t&           ctx)
+{
+    const settings::SnakesList& snake_list = std::get<settings::SnakesList>( menu_elem.element);
+
+    Coordinate width = static_cast<Coordinate>( current_window_size_.first * kMenuWidth);
+    Coordinate x = (current_window_size_.first - width) / 2;
+    Coordinate y = ctx.offset_y;
+    Coordinate height = kMenuElementHeight - 1;
+    Coordinate text_offset_x = x + width / 5;
+
+    if ( (y >= 0) &&
+         (y + kMenuElementHeight <= current_window_size_.second) )
+    {
+        bool is_active = (menu_elem.is_active) &&
+                         (snake_list.active == snake_list.kNoActive);
+        if ( is_active )
+        {
+            set_color( kMenuActiveColor, true);
+        } else
+        {
+            set_color( kMenuInactiveColor);
+        }
+
+        draw_box( x, y, width, height);
+
+        go_to_xy( text_offset_x, y + height / 2);
+        std::cout << menu_elem.name;
+    }
+
+    y += kMenuElementHeight;
+    width -= 2;
+    x += 2;
+    Coordinate text_offset_x_name  = x + 2;
+    Coordinate text_offset_x_color = x + width * 3 / 4;
+
+    for ( const settings::SnakeSetting& snake : snake_list.snakes )
+    {
+        if ( (y >= 0) &&
+             (y + kMenuElementHeight <= current_window_size_.second) )
+        {
+            if ( snake.is_active )
+            {
+                set_color( kMenuActiveColor, true);
+            } else
+            {
+                set_color( kMenuInactiveColor);
+            }
+
+            draw_box( x, y, width, height);
+
+            if ( snake.active == settings::SnakeSetting::Active::NAME )
+            {
+                set_color( kMenuActiveStringColor, true);
+            } else
+            {
+                set_color( kMenuInactiveStringColor);
+            }
+            go_to_xy( text_offset_x_name, y + height / 2);
+            std::cout << "Snake name: " << snake.name;
+
+            if ( snake.active == settings::SnakeSetting::Active::COLOR )
+            {
+                set_color( kMenuActiveStringColor, true);
+            } else
+            {
+                set_color( kMenuInactiveStringColor);
+            }
+            go_to_xy( text_offset_x_color, y + height / 2);
+            std::cout << "Snake color: ";
+
+            if ( colors::IsValidColor( snake.color) )
+            {
+                colors::Color color{ snake.color};
+                set_color( color);
+            } else
+            {
+                set_color( kInvalidColor);
+            }
+
+            std::cout << snake.color;
+        }
+        y += kMenuElementHeight;
+    }
+
+    ctx.offset_y = y;
+}
+
+void
+AsciiView::UpdateMenuEvents()
+{
+    fd_set read_fds;
+    FD_ZERO( &read_fds);
+    FD_SET( STDIN_FILENO, &read_fds);
+
+    timeval timeout{};
+
+    if ( select( 1, &read_fds, nullptr, nullptr, &timeout) == 0 )
+    {
+        return ;
+    }
+
+    char buffer[256];
+    ssize_t sz = read( STDIN_FILENO, buffer, 256);
+    if ( sz < 0 )
+    {
+        throw std::runtime_error( "Error while reading stdin: " +
+                                  std::string{ std::strerror( errno)});
+    } else if ( sz == 0 )
+    {
+        throw std::runtime_error( "Closed stdin");
+    }
+
+    for ( ssize_t pos = 0; pos != sz; )
+    {
+        ssize_t max_length = sz - pos;
+        bool match = false;
+        const char *buffer_pos = &buffer[pos];
+
+        for ( const MenuKeyInfo& key_info : kMenuKeysInfo )
+        {
+            ssize_t length  = key_info.key.length();
+            const char *str = key_info.key.data();
+
+            if ( length > max_length )
+            {
+                continue;
+            }
+
+            if ( strncmp( str, buffer_pos, length) == 0 )
+            {
+                match = true;
+                pos += length;
+                menu_events_.push( key_info.event);
+                DEBUG_INFO( "Got enum event: ", key_info.event);
+            }
+        }
+        if ( !match )
+        {
+            if ( std::isprint( *buffer_pos) )
+            {
+                menu_events_.push( static_cast<MenuEvent>( *buffer_pos));
+                DEBUG_INFO( "Got char event: ", *buffer_pos);
+            } else
+            {
+                DEBUG_INFO( "No event symbol: ", static_cast<int>( *buffer_pos));
+            }
+            ++pos;
+        }
+    }
+
+    auto size = get_window_size();
+    if ( size != current_window_size_ )
+    {
+        current_window_size_ = size;
+    }
+}
+
+void
+AsciiView::draw_box( Coordinate x,
+                     Coordinate y,
+                     Coordinate width,
+                     Coordinate height)
+{
+    go_to_xy( x, y);
+    std::cout << "┌";
+    go_to_xy( x + width, y);
+    std::cout << "┐";
+    go_to_xy( x, y + height);
+    std::cout << "└";
+    go_to_xy( x + width, y + height);
+    std::cout << "┘";
+
+    draw_line( x + 1, y, x + width - 1, y, "─");
+    draw_line( x + 1, y + height, x + width - 1, y + height, "─");
+    draw_line( x, y + 1, x, y + height - 1, "│");
+    draw_line( x + width, y + 1, x + width, y + height - 1, "│");
 }
 
 } // ! namespace snake

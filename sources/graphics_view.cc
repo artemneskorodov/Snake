@@ -27,6 +27,15 @@ const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
     {sf::Keyboard::Scancode::Q,     Event::KEY_PRESSED_EXIT                     },
 };
 
+const std::unordered_map<sf::Keyboard::Scancode, MenuEvent> kMenuKeyInfo{
+    {sf::Keyboard::Scancode::Left,      MenuEvent::KEY_PRESSED_ARROW_LEFT  },
+    {sf::Keyboard::Scancode::Down,      MenuEvent::KEY_PRESSED_ARROW_DOWN  },
+    {sf::Keyboard::Scancode::Right,     MenuEvent::KEY_PRESSED_ARROW_RIGHT },
+    {sf::Keyboard::Scancode::Up,        MenuEvent::KEY_PRESSED_ARROW_UP    },
+    {sf::Keyboard::Scancode::Enter,     MenuEvent::KEY_PRESSED_ENTER       },
+    {sf::Keyboard::Scancode::Backspace, MenuEvent::BACKSPACE               },
+};
+
 struct TextureSpriteInfo
 {
     bool      turning;
@@ -149,6 +158,17 @@ constexpr colors::Color kColorGameFieldSecond          = "#43d15f"_c;
 constexpr colors::Color kColorGameFieldPadding         = "#a0a0a0"_c;
 constexpr colors::Color kColorGameFooterGradientTop    = "#247a32"_c;
 constexpr colors::Color kColorGameFooterGradientBottom = "#165320"_c;
+
+constexpr float    kMenuWidth          = 0.8f;
+constexpr float    kMenuElementHeight  = 50.f;
+constexpr float    kMenuDefaultOffsetY = 0.1f;
+constexpr unsigned kMenuCharacterSize  = 15;
+
+constexpr colors::Color kColorMenuActive         = "#bcffa4"_c;
+constexpr colors::Color kColorMenuInactive       = "#b6c9b7"_c;
+constexpr colors::Color kColorMenuActiveString   = "#ffffff"_c;
+constexpr colors::Color kColorMenuInactiveString = "#c8c8c8"_c;
+constexpr colors::Color kColorInvalid            = "#676767"_c;
 
 } // anonymous namespace
 
@@ -417,6 +437,239 @@ constexpr inline sf::Vector2f
 GraphicsView::game_to_sfml( const Point& point)
 {
     return game_to_sfml( point.x, point.y);
+}
+
+void
+GraphicsView::RenderMenu( const settings::Menu& settings)
+{
+    float window_height = static_cast<float>( current_window_size_.second);
+    float position = window_height * kMenuDefaultOffsetY;
+
+    window_.clear( sf::Color::Black);
+    for ( const settings::MenuElement& element : settings.GetMenu() )
+    {
+        if ( std::holds_alternative<settings::Button>( element.element) )
+        {
+            render_menu_button( element, position);
+        } else if ( std::holds_alternative<settings::SnakesList>( element.element) )
+        {
+            render_menu_snakes_list( element, position);
+        }
+    }
+    window_.display();
+}
+
+void
+GraphicsView::render_menu_button( const settings::MenuElement& menu_elem,
+                                  float&                       offset_y)
+{
+    float window_width  = static_cast<float>( current_window_size_.first);
+
+    float width = window_width * kMenuWidth;
+    float x = (window_width - width) / 2.f;
+    float y = offset_y;
+    float height = kMenuElementHeight * 0.9f;
+
+    float text_offset_x = x + width / 10.f;
+
+    sf::RectangleShape box{ {width, height}};
+    box.setPosition( { x, y});
+    box.setFillColor( sf::Color::Black);
+
+    sf::Text text{ textures_.snake_game_text_font, menu_elem.name, kMenuCharacterSize};
+    sf::FloatRect text_rect = text.getLocalBounds();
+    text.setOrigin( { 0, text_rect.size.y / 2.f});
+    text.setPosition( { text_offset_x, y + height / 2.f});
+
+    if ( menu_elem.is_active )
+    {
+        box.setOutlineColor( kColorMenuActive);
+        box.setOutlineThickness( 3.f);
+        text.setFillColor( kColorMenuActive);
+        text.setStyle( text.Bold);
+    } else
+    {
+        box.setOutlineColor( kColorMenuInactive);
+        box.setOutlineThickness( 2.f);
+        text.setFillColor( kColorMenuInactive);
+        text.setStyle( text.Regular);
+    }
+
+    window_.draw( box);
+    window_.draw( text);
+
+    offset_y += kMenuElementHeight;
+}
+
+void
+GraphicsView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
+                                       float&                       offset_y)
+{
+    float window_width  = static_cast<float>( current_window_size_.first);
+    const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( menu_elem.element);
+
+    float width = window_width * kMenuWidth;
+    float x = (window_width - width) / 2.f;
+    float y = offset_y;
+    float height = kMenuElementHeight * 0.9f;
+
+    float text_offset_x = x + width / 10.f;
+
+    sf::RectangleShape box{ {width, height}};
+    box.setPosition( { x, y});
+    box.setOutlineThickness( 1.f);
+    box.setOutlineColor( sf::Color::Blue);
+    box.setFillColor( sf::Color::Black);
+
+    sf::Text text{ textures_.snake_game_text_font, menu_elem.name, kMenuCharacterSize};
+    sf::FloatRect text_rect = text.getLocalBounds();
+    text.setOrigin( { 0, text_rect.size.y / 2.f});
+    text.setPosition( { text_offset_x, y + height / 2.f});
+
+    if ( menu_elem.is_active && snakes_list.active == snakes_list.kNoActive )
+    {
+        box.setOutlineColor( kColorMenuActive);
+        box.setOutlineThickness( 3.f);
+        text.setFillColor( kColorMenuActive);
+        text.setStyle( text.Bold);
+    } else
+    {
+        box.setOutlineColor( kColorMenuInactive);
+        box.setOutlineThickness( 2.f);
+        text.setFillColor( kColorMenuInactive);
+        text.setStyle( text.Regular);
+    }
+
+    window_.draw( box);
+    window_.draw( text);
+
+    y += kMenuElementHeight;
+
+    x += width / 10.f;
+    width *= 0.9f;
+
+    float text_offset_x_name = x + width / 10.f;
+    float text_offset_x_color = x + width * 0.75f;
+
+    box.setSize( { width, height});
+
+    for ( const settings::SnakeSetting& snake : snakes_list.snakes )
+    {
+        if ( snake.is_active )
+        {
+            box.setOutlineColor( kColorMenuActive);
+            box.setOutlineThickness( 3.f);
+        } else
+        {
+            box.setOutlineColor( kColorMenuInactive);
+            box.setOutlineThickness( 2.f);
+        }
+        box.setPosition( { x, y});
+        window_.draw( box);
+
+        text.setString( "Name: " + snake.name);
+        text_rect = text.getLocalBounds();
+        text.setOrigin( { 0, text_rect.size.y / 2.f});
+        text.setPosition( { text_offset_x_name, y + height / 2.f});
+        if ( snake.is_active )
+        {
+            if ( snake.active == settings::SnakeSetting::Active::NAME )
+            {
+                text.setFillColor( kColorMenuActiveString);
+                text.setStyle( text.Bold);
+            } else
+            {
+                text.setFillColor( kColorMenuInactiveString);
+                text.setStyle( text.Regular);
+            }
+        } else
+        {
+            text.setFillColor( kColorMenuInactiveString);
+            text.setStyle( text.Regular);
+        }
+        window_.draw( text);
+
+        text.setString( "Color: ");
+        if ( snake.is_active )
+        {
+            if ( snake.active == settings::SnakeSetting::Active::COLOR )
+            {
+                text.setFillColor( kColorMenuActiveString);
+                text.setStyle( text.Bold);
+            } else
+            {
+                text.setFillColor( kColorMenuInactiveString);
+                text.setStyle( text.Regular);
+            }
+        } else
+        {
+            text.setFillColor( kColorMenuInactiveString);
+            text.setStyle( text.Regular);
+        }
+        text_rect = text.getLocalBounds();
+        text.setOrigin( { 0, text_rect.size.y / 2.f});
+        text.setPosition( { text_offset_x_color, y + height / 2.f});
+        window_.draw( text);
+
+        float color_string_width = text_rect.size.x;
+        text.setString( snake.color);
+        text_rect = text.getLocalBounds();
+        text.setOrigin( { 0, text_rect.size.y / 2.f});
+        text.setPosition( { text_offset_x_color + color_string_width, y + height / 2.f});
+        if ( colors::IsValidColor( snake.color) )
+        {
+            text.setFillColor( colors::Color{ snake.color});
+        } else
+        {
+            text.setFillColor( kColorInvalid);
+        }
+        text.setStyle( text.Bold);
+        window_.draw( text);
+
+        y += kMenuElementHeight;
+    }
+
+    offset_y = y;
+}
+
+void
+GraphicsView::UpdateMenuEvents()
+{
+    for ( ; ; )
+    {
+        std::optional event = window_.pollEvent();
+        if ( !event.has_value() )
+        {
+            break;
+        }
+
+        if ( event->is<sf::Event::Closed>() )
+        {
+            menu_events_.push( MenuEvent::EXIT);
+        } else if ( event->is<sf::Event::TextEntered>() )
+        {
+            const sf::Event::TextEntered* text = event->getIf<sf::Event::TextEntered>();
+            if ( std::isprint( text->unicode) )
+            {
+                menu_events_.push( static_cast<MenuEvent>( text->unicode));
+            }
+        } else if ( event->is<sf::Event::KeyPressed>() )
+        {
+            const sf::Event::KeyPressed *key = event->getIf<sf::Event::KeyPressed>();
+            if ( kMenuKeyInfo.find( key->scancode) != kMenuKeyInfo.end() )
+            {
+                menu_events_.push( kMenuKeyInfo.at( key->scancode));
+            }
+        } else if ( event->is<sf::Event::Resized>() )
+        {
+            const sf::Event::Resized *resize = event->getIf<sf::Event::Resized>();
+            current_window_size_ = { resize->size.x, resize->size.y};
+            sf::FloatRect visibleArea( { 0, 0},
+                                       { static_cast<float>( resize->size.x),
+                                         static_cast<float>( resize->size.y)});
+            window_.setView( sf::View( visibleArea));
+        }
+    }
 }
 
 } // ! namespace snake

@@ -6,6 +6,7 @@
 
 #include "view.hh"
 #include "colors.hh"
+#include "game_settings.hh"
 
 namespace snake
 {
@@ -17,9 +18,11 @@ public:
     ~AsciiView();
 
 public:
-    void                              Render( const Model& model)       override;
-    std::pair<Coordinate, Coordinate> GetGameFieldSize()          const override;
-    void                              UpdateEvents()                    override;
+    void                              Render( const Model& model)                       override;
+    void                              RenderMenu( const settings::Menu& settings)       override;
+    std::pair<Coordinate, Coordinate> GetGameFieldSize()                          const override;
+    void                              UpdateEvents()                                    override;
+    void                              UpdateMenuEvents()                                override;
 
 private:
     void render_snake( const Snake& snake);
@@ -27,6 +30,15 @@ private:
     void draw_game_box();
     void render_snake_status( const Snake& snake, Coordinate status_offset);
     void render_bone( const Bone& bone);
+
+private:
+    struct menu_render_ctx_t
+    {
+        Coordinate offset_y;
+    };
+
+    void render_menu_button( const settings::MenuElement& button, menu_render_ctx_t& ctx);
+    void render_menu_snakes_list( const settings::MenuElement& snakes_list, menu_render_ctx_t& ctx);
 
 public:
     static void clear_screen();
@@ -38,6 +50,7 @@ public:
                            Coordinate  y2,
                            const char *symbol);
     static std::pair<Coordinate, Coordinate> get_window_size();
+    static void draw_box( Coordinate x, Coordinate y, Coordinate width, Coordinate height);
 
 private:
     termios console_attr_saved_;

@@ -4,6 +4,7 @@
 #include "model.hh"
 #include "view.hh"
 #include "arguments.hh"
+#include "game_settings.hh"
 
 namespace snake
 {
@@ -17,16 +18,20 @@ public:
     {
     }
 
-    void Run( const ProgramArguments& arguments);
+    void Run();
 
 private:
-    void handle_event( Event event);
+    settings::Menu run_menu();
+    void run_game( const settings::Menu& settings);
+    void handle_game_event( Event event);
+    void handle_menu_event( MenuEvent event, settings::Menu& menu);
 
 private:
     Model& model_;
     View& view_;
-    bool need_exit_{ false};
-    std::vector<SnakeID> players_snakes_;
+    bool need_exit_                      { false};
+    bool need_go_to_menu_                { false};
+    std::vector<SnakeID> players_snakes_ {};
 
 };
 
