@@ -52,7 +52,7 @@ const std::array<ArgInfo, 4> kArgsInfo
         },
       []( ProgramArguments& arguments)
         {
-            arguments.window_size.first = 1600;
+            arguments.window_size.first = 1500;
         }
     },
 
@@ -64,7 +64,7 @@ const std::array<ArgInfo, 4> kArgsInfo
         },
       []( ProgramArguments& arguments)
         {
-            arguments.window_size.second = 900;
+            arguments.window_size.second = 1000;
         }
     },
 
