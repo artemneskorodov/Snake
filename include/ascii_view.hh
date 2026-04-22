@@ -28,8 +28,8 @@ private:
     void render_snake( const Snake& snake);
     void render_rabbit( const Rabbit& rabbit);
     void draw_game_box();
-    void render_snake_status( const Snake& snake, Coordinate status_offset);
     void render_bone( const Bone& bone);
+    void render_game_statistics( const Model& model);
 
 private:
     struct menu_render_ctx_t
@@ -51,6 +51,11 @@ public:
                            const char *symbol);
     static std::pair<Coordinate, Coordinate> get_window_size();
     static void draw_box( Coordinate x, Coordinate y, Coordinate width, Coordinate height);
+    static Coordinate draw_group_stats( const SnakeGroupStatistics& stats,
+                                        Coordinate                  x,
+                                        Coordinate                  y,
+                                        const std::string&          name);
+    static void render_snake_status( const Snake& snake, Coordinate x, Coordinate y, SnakeGroup group);
 
 private:
     termios console_attr_saved_;
