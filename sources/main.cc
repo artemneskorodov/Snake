@@ -3,12 +3,19 @@
 #include "controller.hh"
 #include "model.hh"
 #include "arguments.hh"
+#include "simulation.hh"
 
 int
 main( int         argc,
       const char *argv[])
 {
     snake::ProgramArguments arguments = snake::GetProgramArguments( argc, argv);
+
+    if ( arguments.simulate )
+    {
+        snake::simulation::RunSimulation( arguments);
+        return EXIT_SUCCESS;
+    }
 
     std::unique_ptr<snake::View> view = nullptr;
     if ( arguments.graphics_type == snake::GraphicsType::ASCII )
