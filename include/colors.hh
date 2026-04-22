@@ -59,6 +59,38 @@ private:
 
 };
 
+inline bool
+IsValidColor( std::string str)
+{
+    if ( str.length() != 6 + 1 )
+    {
+        return false;
+    }
+
+    if ( str[0] != '#' )
+    {
+        return false;
+    }
+
+    for ( std::size_t i = 1; i != 6 + 1; ++i )
+    {
+        if ( str[i] >= '0' && str[i] <= '9' )
+        {
+            continue;
+        }
+        if ( str[i] >= 'a' && str[i] <= 'f' )
+        {
+            continue;
+        }
+        if ( str[i] >= 'A' && str[i] <= 'F' )
+        {
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
+
 constexpr inline Color
 operator ""_c( const char *string, size_t size)
 {
