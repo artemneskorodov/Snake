@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <cassert>
 
 namespace snake
 {
@@ -97,6 +98,21 @@ struct PointHash
 
 using Vector = Point;
 using VectorHash = PointHash;
+
+inline Vector
+DirectionToVector( Direction dir)
+{
+    assert( (static_cast<int>( dir) >= 1) &&
+            (static_cast<int>( dir) <= 4));
+
+    std::array<Vector, 4> hashtab{{
+        Vector{  0, -1},
+        Vector{  1,  0},
+        Vector{  0,  1},
+        Vector{ -1,  0}
+    }};
+    return hashtab[static_cast<int>( dir) - 1];
+}
 
 } // ! namespace snake
 
