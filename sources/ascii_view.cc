@@ -70,25 +70,6 @@ constexpr colors::Color kMenuActiveStringColor   = "#ffffff"_c;
 constexpr colors::Color kMenuInactiveStringColor = "#c8c8c8"_c;
 constexpr colors::Color kInvalidColor            = "#676767"_c;
 
-constexpr std::array<colors::Color, 9> kColorSnake{{
-    "#bf00ff"_c,
-    "#26ff00"_c,
-    "#d4f903"_c,
-    "#ff5b02"_c,
-    "#00ffd5"_c,
-    "#0091ff"_c,
-    "#8400ff"_c,
-    "#ff00d9"_c,
-    "#ff0000"_c,
-}};
-
-
-constexpr inline colors::Color
-snake_color( SnakeID id)
-{
-    return kColorSnake[id % kColorSnake.size()];
-}
-
 constexpr Coordinate kMenuElementHeight = 5;
 constexpr float      kMenuOffsetY       = 0.10;
 constexpr float      kMenuWidth         = 0.8;
@@ -163,7 +144,7 @@ AsciiView::render_snake( const Snake& snake)
 {
     auto it = snake.points.cbegin();
 
-    set_color( snake_color( snake.id));
+    set_color( snake.color);
 
     if ( snake.points.size() == 1 )
     {

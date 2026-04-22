@@ -183,6 +183,8 @@ constexpr float    kSnakeStatsWidth       = kSnakeStatsNameWidth +
                                             kSnakeStatsLengthWidth;
 constexpr float    kSnakeStatsHeight      = 20.f;
 
+constexpr unsigned kSnakeNameCharacterSize = 12;
+
 } // anonymous namespace
 
 GraphicsView::GraphicsView( uint32_t width,
@@ -320,6 +322,14 @@ GraphicsView::render_snake( const Snake& snake)
     position = game_to_sfml( *it) + sf::Vector2f{ kCellSize / 2.f, kCellSize / 2.f};
     sprite.setPosition( position);
     window_.draw( sprite);
+
+    sf::Text snake_name{ textures_.snake_game_text_font, snake.name};
+    sf::Color color = snake.color;
+    color.a = 255 * 3 / 4; // Transparency
+    snake_name.setFillColor( color);
+    snake_name.setCharacterSize( kSnakeNameCharacterSize);
+    snake_name.setPosition( position + sf::Vector2f{ kCellSize / 2.f, -kCellSize / 2.f});
+    window_.draw( snake_name);
 }
 
 void
