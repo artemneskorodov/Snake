@@ -377,6 +377,7 @@ private:
     std::vector<SnakeID> smart_snakes_group_{};
 
     ViewUpdateCallbacks  view_update_callbacks_{};
+
 };
 
 } // ! namespace snake
