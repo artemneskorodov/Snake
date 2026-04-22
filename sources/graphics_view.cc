@@ -335,11 +335,11 @@ GraphicsView::render_snake( const Snake& snake)
 void
 GraphicsView::render_rabbit( const Rabbit& rabbit)
 {
-    // TODO add texture
-    sf::RectangleShape shape{ sf::Vector2f{ kCellSize, kCellSize}};
-    shape.setPosition( game_to_sfml( rabbit.point));
-    shape.setFillColor( sf::Color::Blue);
-    window_.draw( shape);
+    sf::Sprite rabbit_sprite{ textures_.rabbit_texture};
+    auto texture_size = textures_.rabbit_texture.getSize();
+    rabbit_sprite.setScale( { kCellSize / texture_size.x, kCellSize / texture_size.y});
+    rabbit_sprite.setPosition( game_to_sfml( rabbit.point));
+    window_.draw( rabbit_sprite);
 }
 
 void
