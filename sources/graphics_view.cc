@@ -27,6 +27,15 @@ const std::unordered_map<sf::Keyboard::Scancode, Event> kKeyInfo{
     {sf::Keyboard::Scancode::Q,     Event::KEY_PRESSED_EXIT                     },
 };
 
+const std::unordered_map<sf::Keyboard::Scancode, MenuEvent> kMenuKeyInfo{
+    {sf::Keyboard::Scancode::Left,      MenuEvent::KEY_PRESSED_ARROW_LEFT  },
+    {sf::Keyboard::Scancode::Down,      MenuEvent::KEY_PRESSED_ARROW_DOWN  },
+    {sf::Keyboard::Scancode::Right,     MenuEvent::KEY_PRESSED_ARROW_RIGHT },
+    {sf::Keyboard::Scancode::Up,        MenuEvent::KEY_PRESSED_ARROW_UP    },
+    {sf::Keyboard::Scancode::Enter,     MenuEvent::KEY_PRESSED_ENTER       },
+    {sf::Keyboard::Scancode::Backspace, MenuEvent::BACKSPACE               },
+};
+
 struct TextureSpriteInfo
 {
     bool      turning;
@@ -422,13 +431,76 @@ GraphicsView::game_to_sfml( const Point& point)
 void
 GraphicsView::RenderMenu( const settings::Menu& settings)
 {
+    float position = 10.f;
+    window_.clear( sf::Color::Black);
+    for ( const settings::MenuElement& element : settings.GetMenu() )
+    {
+        sf::Text text{ textures_.snake_game_font, element.name};
+        text.setPosition( { 10.f, position});
+        window_.draw( text);
 
+        position += 50.f;
+
+        if ( std::holds_alternative<settings::Button>( element.element) )
+        {
+            // Do nothing
+        } else if ( std::holds_alternative<settings::SnakesList>( element.element) )
+        {
+            const settings::SnakesList& snakes_list = std::get<settings::SnakesList>( element.element);
+            for ( const settings::SnakeSetting& snake : snakes_list.snakes )
+            {
+                sf::Text snake_text{ textures_.snake_game_font, snake.name};
+                sf::Text snake_color_text{ textures_.snake_game_font, snake.color};
+
+                snake_text.setPosition( { 10.f, position});
+                snake_color_text.setPosition( { 100.f, position});
+                window_.draw( snake_text);
+                window_.draw( snake_color_text);
+                position += 30.f;
+            }
+        }
+    }
+    window_.display();
 }
 
 void
 GraphicsView::UpdateMenuEvents()
 {
+    for ( ; ; )
+    {
+        std::optional event = window_.pollEvent();
+        if ( !event.has_value() )
+        {
+            break;
+        }
 
+        if ( event->is<sf::Event::Closed>() )
+        {
+            menu_events_.emplace_back( MenuEvent::EXIT);
+        } else if ( event->is<sf::Event::TextEntered>() )
+        {
+            const sf::Event::TextEntered* text = event->getIf<sf::Event::TextEntered>();
+            if ( std::isprint( text->unicode) )
+            {
+                menu_events_.emplace_back( static_cast<MenuEvent>( text->unicode));
+            }
+        } else if ( event->is<sf::Event::KeyPressed>() )
+        {
+            const sf::Event::KeyPressed *key = event->getIf<sf::Event::KeyPressed>();
+            if ( kMenuKeyInfo.find( key->scancode) != kMenuKeyInfo.end() )
+            {
+                menu_events_.emplace_back( kMenuKeyInfo.at( key->scancode));
+            }
+        } else if ( event->is<sf::Event::Resized>() )
+        {
+            const sf::Event::Resized *resize = event->getIf<sf::Event::Resized>();
+            current_window_size_ = { resize->size.x, resize->size.y};
+            sf::FloatRect visibleArea( { 0, 0},
+                                       { static_cast<float>( resize->size.x),
+                                         static_cast<float>( resize->size.y)});
+            window_.setView( sf::View( visibleArea));
+        }
+    }
 }
 
 } // ! namespace snake
