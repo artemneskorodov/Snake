@@ -52,10 +52,16 @@ Controller::run_menu()
             break;
         }
 
-        const settings::Button& start_button = settings.GetStartGameBtn();
+        settings::Button& start_button = settings.GetStartGameBtn();
         if ( start_button.is_pressed )
         {
-            break;
+            if ( !validate_snakes_colors( settings) )
+            {
+                start_button.is_pressed = false;
+            } else
+            {
+                break;
+            }
         }
 
         view_.RenderMenu( settings);
@@ -80,19 +86,19 @@ Controller::run_game( const settings::Menu& settings)
 
     for ( const settings::SnakeSetting& snake : human.snakes )
     {
-        std::cout << snake.name;
-        SnakeID snake_id = model_.AddSnake();
+        colors::Color color{ snake.color};
+        SnakeID snake_id = model_.AddSnake( snake.name, color);
         players_snakes_.emplace_back( snake_id);
     }
     for ( const settings::SnakeSetting& snake : dumb.snakes )
     {
-        std::cout << snake.name;
-        model_.AddSnake( bots::TickDumbBot);
+        colors::Color color{ snake.color};
+        model_.AddSnake( snake.name, color, bots::TickDumbBot);
     }
     for ( const settings::SnakeSetting& snake : smart.snakes )
     {
-        std::cout << snake.name;
-        model_.AddSnake( bots::TickSmartBot);
+        colors::Color color{ snake.color};
+        model_.AddSnake( snake.name, color, bots::TickSmartBot);
     }
 
     for ( ; ; )
@@ -215,6 +221,37 @@ Controller::handle_menu_event( MenuEvent       event,
             break;
         }
     }
+}
+
+bool
+Controller::validate_snakes_colors( const settings::Menu& settings)
+{
+    const settings::SnakesList& human = settings.GetHumanSnakes();
+    const settings::SnakesList& dumb  = settings.GetDumbBotSnakes();
+    const settings::SnakesList& smart = settings.GetSmartBotSnakes();
+
+    for ( const settings::SnakeSetting& snake : human.snakes )
+    {
+        if ( !colors::IsValidColor( snake.color) )
+        {
+            return false;
+        }
+    }
+    for ( const settings::SnakeSetting& snake : dumb.snakes )
+    {
+        if ( !colors::IsValidColor( snake.color) )
+        {
+            return false;
+        }
+    }
+    for ( const settings::SnakeSetting& snake : smart.snakes )
+    {
+        if ( !colors::IsValidColor( snake.color) )
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // ! namespace snake

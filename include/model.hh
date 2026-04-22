@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "utils.hh"
+#include "colors.hh"
 
 namespace snake
 {
@@ -100,15 +101,19 @@ using SnakeTicker = std::function<void( Model&, const Snake&)>;
 
 struct Snake
 {
-    Snake( Coordinate  x,
-           Coordinate  y,
-           Direction   direction,
-           SnakeID     id,
-           SnakeTicker ticker)
+    Snake( Coordinate    x,
+           Coordinate    y,
+           Direction     direction,
+           SnakeID       id,
+           SnakeTicker   ticker,
+           std::string   name,
+           colors::Color color)
      :  points    { {x, y}},
         direction { direction},
         id        { id},
-        ticker    { std::move( ticker)}
+        ticker    { std::move( ticker)},
+        name      { std::move( name)},
+        color     { color}
     {
     }
 
@@ -117,6 +122,8 @@ struct Snake
     SnakeID          id;
     bool             is_alive{ true};
     SnakeTicker      ticker;
+    std::string      name;
+    colors::Color    color;
 
 };
 
@@ -186,7 +193,9 @@ public:
     // Snake control methods
     //
 
-    SnakeID AddSnake( SnakeTicker ticker = []( Model&, const Snake&) {});
+    SnakeID AddSnake( std::string   name,
+                      colors::Color color,
+                      SnakeTicker   ticker = []( Model&, const Snake&) {});
 
     void
     SetSnakeDirection( SnakeID   id,

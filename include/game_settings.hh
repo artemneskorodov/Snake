@@ -292,6 +292,42 @@ public:
         return menu_;
     }
 
+    Button&
+    GetExitBtn() &
+    {
+        return std::get<Button>( menu_[0].element);
+    }
+
+    SnakesList&
+    GetHumanSnakes() &
+    {
+        return std::get<SnakesList>( menu_[1].element);
+    }
+
+    SnakesList&
+    GetDumbBotSnakes() &
+    {
+        return std::get<SnakesList>( menu_[2].element);
+    }
+
+    SnakesList&
+    GetSmartBotSnakes() &
+    {
+        return std::get<SnakesList>( menu_[3].element);
+    }
+
+    Button&
+    GetStartGameBtn() &
+    {
+        return std::get<Button>( menu_[4].element);
+    }
+
+    MenuT&
+    GetMenu() &
+    {
+        return menu_;
+    }
+
     std::size_t
     GetNumberBeforeActive() const
     {

@@ -27,6 +27,9 @@ private:
     void handle_menu_event( MenuEvent event, settings::Menu& menu);
 
 private:
+    static bool validate_snakes_colors( const settings::Menu& settings);
+
+private:
     Model& model_;
     View& view_;
     bool need_exit_                      { false};
