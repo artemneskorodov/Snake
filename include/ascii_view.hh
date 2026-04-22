@@ -11,6 +11,8 @@
 namespace snake
 {
 
+using colors::operator ""_c;
+
 class AsciiView final : public View
 {
 public:
@@ -42,11 +44,14 @@ private:
 
     void render_menu_button( const settings::MenuElement& button, menu_render_ctx_t& ctx);
     void render_menu_snakes_list( const settings::MenuElement& snakes_list, menu_render_ctx_t& ctx);
+    void write_game_symbol( const Point& point, const char *symbol, const colors::Color& color) const;
 
 public:
     static void clear_screen();
     static void go_to_xy( Coordinate x, Coordinate y);
-    static void set_color( const colors::Color& color, bool bold = false);
+    static void set_color( const colors::Color& color,
+                           bool                 bold = false,
+                           const colors::Color& background = "#000000"_c);
     static void draw_line( Coordinate  x1,
                            Coordinate  y1,
                            Coordinate  x2,
