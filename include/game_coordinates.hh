@@ -49,8 +49,10 @@ IsOpposite( Direction first,
 //
 struct Point
 {
+    constexpr
     Point() = default;
 
+    constexpr
     Point( Coordinate x,
            Coordinate y)
      :  x{ x},
@@ -58,32 +60,32 @@ struct Point
     {
     }
 
-    bool
+    constexpr bool
     operator==( const Point& rhs) const
     {
         return (x == rhs.x) && (y == rhs.y);
     }
 
-    bool
+    constexpr bool
     operator!=( const Point& rhs) const
     {
         return !((*this) == rhs);
     }
 
-    Point
+    constexpr Point
     operator+( const Point& rhs) const
     {
         return { x + rhs.x, y + rhs.y};
     }
 
-    Point
+    constexpr Point
     operator-( const Point& rhs) const
     {
         return { x - rhs.x, y - rhs.y};
     }
 
-    Coordinate x;
-    Coordinate y;
+    Coordinate x{};
+    Coordinate y{};
 
 };
 
@@ -99,19 +101,44 @@ struct PointHash
 using Vector = Point;
 using VectorHash = PointHash;
 
+namespace game_coordinates_detail
+{
+
+constexpr std::array<Vector, 4> kVectorDirectionHashtab{{
+    Vector{  0, -1},
+    Vector{  1,  0},
+    Vector{  0,  1},
+    Vector{ -1,  0}
+}};
+
+} // ! namespace detail
+
 inline Vector
-DirectionToVector( Direction dir)
+DirectionToVector( Direction dir) noexcept
 {
     assert( (static_cast<int>( dir) >= 1) &&
             (static_cast<int>( dir) <= 4));
 
-    std::array<Vector, 4> hashtab{{
-        Vector{  0, -1},
-        Vector{  1,  0},
-        Vector{  0,  1},
-        Vector{ -1,  0}
-    }};
-    return hashtab[static_cast<int>( dir) - 1];
+    return game_coordinates_detail::kVectorDirectionHashtab[static_cast<int>( dir) - 1];
+}
+
+inline Direction
+VectorToDirection( Vector vector) noexcept
+{
+    assert( (vector.x ==  1 && vector.y ==  0) ||
+            (vector.x == -1 && vector.y ==  0) ||
+            (vector.x ==  0 && vector.y ==  1) ||
+            (vector.x ==  0 && vector.y == -1));
+
+    for ( int i = 0; i != 4; ++i )
+    {
+        if ( game_coordinates_detail::kVectorDirectionHashtab[i] == vector )
+        {
+            return static_cast<Direction>( i + 1);
+        }
+    }
+
+    return Direction{};
 }
 
 } // ! namespace snake

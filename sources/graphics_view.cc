@@ -79,48 +79,6 @@ get_texture_sprite_info( Direction prev_curr,
     return info;
 }
 
-Direction
-vector_to_direction( Point point)
-{
-    bool is_valid = true;
-    if ( point.x == 1 || point.x == -1 )
-    {
-        if ( point.y != 0 )
-        {
-            is_valid = false;
-        }
-    } else
-    {
-        if ( point.x != 0 )
-        {
-            is_valid = false;
-        }
-        if ( point.y != 1 && point.y != -1 )
-        {
-            is_valid = false;
-        }
-    }
-    if ( !is_valid )
-    {
-        throw std::runtime_error{ "Expected to call " + std::string( __FUNCTION__) + " only for "
-                                  "difference of neighbour points"};
-    }
-
-    if ( point.x == 1 )
-    {
-        return Direction::RIGHT;
-    } else if ( point.x == -1 )
-    {
-        return Direction::LEFT;
-    } else if ( point.y == 1 )
-    {
-        return Direction::BOTTOM;
-    } else
-    {
-        return Direction::TOP;
-    }
-}
-
 sf::Sprite
 get_textured_sprite( const TextureSpriteInfo& info,
                      const sf::Texture&       straight,
@@ -287,7 +245,7 @@ GraphicsView::render_snake( const Snake& snake)
     Direction dir_from_prev;
     Direction dir_to_next;
 
-    dir_to_next = vector_to_direction( *std::next( it) - *it);
+    dir_to_next = VectorToDirection( *std::next( it) - *it);
     TextureSpriteInfo info = get_texture_sprite_info( dir_to_next, dir_to_next);
 
     sf::Sprite sprite = get_textured_sprite(
@@ -301,8 +259,8 @@ GraphicsView::render_snake( const Snake& snake)
 
     for ( ; it != std::prev( end); ++it )
     {
-        dir_from_prev = vector_to_direction( *it - *std::prev( it));
-        dir_to_next   = vector_to_direction( *std::next( it) - *it);
+        dir_from_prev = VectorToDirection( *it - *std::prev( it));
+        dir_to_next   = VectorToDirection( *std::next( it) - *it);
 
         info = get_texture_sprite_info( dir_from_prev, dir_to_next);
 
@@ -315,7 +273,7 @@ GraphicsView::render_snake( const Snake& snake)
         window_.draw( sprite);
     }
 
-    dir_from_prev = vector_to_direction( *it - *std::prev( it));
+    dir_from_prev = VectorToDirection( *it - *std::prev( it));
     dir_to_next   = snake.direction;
 
     info = get_texture_sprite_info( dir_from_prev, dir_to_next);
