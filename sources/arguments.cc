@@ -86,17 +86,6 @@ const std::array<ArgInfo, 8> kArgsInfo
         }
     },
 
-    { "--simulate", "-sim",
-      "Run simulation without graphics to collect statistics. Usage: --help",
-      []( ProgramArguments& , const std::string& )
-        {
-        },
-      []( ProgramArguments& arguments)
-        {
-            arguments.simulate = false;
-        }
-    },
-
     { "--simulate-dumb", "-sim-d",
       "Number of dumb bots in simulation. Usage: --simulate-dumb=<number>",
       []( ProgramArguments& arguments, const std::string& string)
@@ -130,6 +119,18 @@ const std::array<ArgInfo, 8> kArgsInfo
       []( ProgramArguments& arguments)
         {
             arguments.simulation_runs = 3;
+        }
+    },
+
+    { "--simulate", "-sim",
+      "Run simulation without graphics to collect statistics. Usage: --help",
+      []( ProgramArguments& arguments, const std::string& )
+        {
+            arguments.simulate = true;
+        },
+      []( ProgramArguments& arguments)
+        {
+            arguments.simulate = false;
         }
     }
 }};

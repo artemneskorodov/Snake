@@ -14,6 +14,8 @@ namespace snake
 void
 Controller::Run()
 {
+    assert( view_ != nullptr);
+
     for ( ; ; )
     {
         settings::Menu settings = run_menu();
@@ -26,6 +28,21 @@ Controller::Run()
     }
 }
 
+void
+Controller::RunSimulation()
+{
+    assert( view_ == nullptr);
+
+    for ( ; ; )
+    {
+        model_.Tick();
+        if ( model_.GameFinished() )
+        {
+            break;
+        }
+    }
+}
+
 settings::Menu
 Controller::run_menu()
 {
@@ -33,10 +50,10 @@ Controller::run_menu()
 
     for ( ; ; )
     {
-        view_.UpdateMenuEvents();
+        view_->UpdateMenuEvents();
         for ( ; ; )
         {
-            std::optional<MenuEvent> event = view_.PopMenuEvent();
+            std::optional<MenuEvent> event = view_->PopMenuEvent();
             if ( !event.has_value() )
             {
                 break;
@@ -64,8 +81,8 @@ Controller::run_menu()
             }
         }
 
-        view_.RenderMenu( settings);
-        view_.Show();
+        view_->RenderMenu( settings);
+        view_->Show();
 
         std::this_thread::sleep_for( std::chrono::milliseconds( 150));
     }
@@ -76,9 +93,9 @@ void
 Controller::run_game( const settings::Menu& settings)
 {
     // Resetting game
-    auto winsz = view_.GetGameFieldSize();
+    auto winsz = view_->GetGameFieldSize();
     model_ = Model{};
-    model_.SetCallBacks( view_.GetCallbacks());
+    model_.SetCallBacks( view_->GetCallbacks());
     model_.SetFieldSize( winsz.first, winsz.second);
     players_snakes_.clear();
 
@@ -105,15 +122,15 @@ Controller::run_game( const settings::Menu& settings)
 
     // Rendering all model once, this will run normal render for SFML view
     // and run all render (game elements and statistics) for ASCII view
-    view_.RenderAll( model_);
-    view_.Show();
+    view_->RenderAll( model_);
+    view_->Show();
 
     for ( ; ; )
     {
-        view_.UpdateEvents();
+        view_->UpdateEvents();
         for ( ; ; )
         {
-            std::optional<Event> event = view_.PopEvent();
+            std::optional<Event> event = view_->PopEvent();
             if ( !event.has_value() )
             {
                 break;
@@ -130,8 +147,8 @@ Controller::run_game( const settings::Menu& settings)
 
         // Calling view render, this will run normal render for SFML view
         // and render statistics for ASCII view as all render in ASCII is made in callbacks
-        view_.Render( model_);
-        view_.Show();
+        view_->Render( model_);
+        view_->Show();
 
         if ( model_.GameFinished() )
         {
@@ -174,11 +191,11 @@ Controller::handle_game_event( Event event)
         }
         case Event::WINDOW_SIZE_CHANGED:
         {
-            auto winsize = view_.GetGameFieldSize();
+            auto winsize = view_->GetGameFieldSize();
             model_.SetFieldSize( winsize.first, winsize.second);
             // Rendering all model after resize
-            view_.RenderAll( model_);
-            view_.Show();
+            view_->RenderAll( model_);
+            view_->Show();
             break;
         }
         default:
