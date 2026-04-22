@@ -224,7 +224,7 @@ AsciiView::UpdateEvents()
                 DEBUG_INFO( "Got event: ", key_info.key);
                 match = true;
                 pos += length;
-                events_.emplace_back( key_info.event);
+                events_.push( key_info.event);
             }
         }
         if ( !match )
@@ -237,7 +237,7 @@ AsciiView::UpdateEvents()
     if ( size != current_window_size_ )
     {
         current_window_size_ = size;
-        events_.emplace_back( Event::WINDOW_SIZE_CHANGED);
+        events_.push( Event::WINDOW_SIZE_CHANGED);
     }
 }
 

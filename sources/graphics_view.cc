@@ -216,18 +216,18 @@ GraphicsView::UpdateEvents()
 
         if ( event->is<sf::Event::Closed>() )
         {
-            events_.emplace_back( Event::KEY_PRESSED_EXIT);
+            events_.push( Event::KEY_PRESSED_EXIT);
         } else if ( event->is<sf::Event::KeyPressed>() )
         {
             const sf::Event::KeyPressed *key = event->getIf<sf::Event::KeyPressed>();
             if ( kKeyInfo.find( key->scancode) != kKeyInfo.end() )
             {
-                events_.emplace_back( kKeyInfo.at( key->scancode));
+                events_.push( kKeyInfo.at( key->scancode));
             }
         } else if ( event->is<sf::Event::Resized>() )
         {
             const sf::Event::Resized *resize = event->getIf<sf::Event::Resized>();
-            events_.emplace_back( Event::WINDOW_SIZE_CHANGED);
+            events_.push( Event::WINDOW_SIZE_CHANGED);
             current_window_size_ = { resize->size.x, resize->size.y};
             sf::FloatRect visibleArea( { 0, 0},
                                        { static_cast<float>( resize->size.x),
