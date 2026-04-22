@@ -124,6 +124,17 @@ struct Snake
     SnakeTicker      ticker;
     std::string      name;
     colors::Color    color;
+    std::size_t      killed{ 0};
+
+    static constexpr int kScoresPerLength = 1;
+    static constexpr int kScoresPerKill   = 3;
+
+    int
+    GetScores() const
+    {
+        return kScoresPerLength * points.size() +
+               kScoresPerKill   * killed;
+    }
 
 };
 
