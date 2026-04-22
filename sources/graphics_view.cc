@@ -419,4 +419,16 @@ GraphicsView::game_to_sfml( const Point& point)
     return game_to_sfml( point.x, point.y);
 }
 
+void
+GraphicsView::RenderMenu( const settings::Menu& settings)
+{
+
+}
+
+void
+GraphicsView::UpdateMenuEvents()
+{
+
+}
+
 } // ! namespace snake

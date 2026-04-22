@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "view.hh"
+#include "game_settings.hh"
 
 namespace snake
 {
@@ -28,9 +29,11 @@ public:
     ~GraphicsView();
 
 public:
-    void                              Render( const Model& model)       override;
-    std::pair<Coordinate, Coordinate> GetGameFieldSize()          const override;
-    void                              UpdateEvents()                    override;
+    void                              Render( const Model& model)                       override;
+    void                              RenderMenu( const settings::Menu& settings)       override;
+    std::pair<Coordinate, Coordinate> GetGameFieldSize()                          const override;
+    void                              UpdateEvents()                                    override;
+    void                              UpdateMenuEvents()                                override;
 
 private:
     void render_snake( const Snake& snake);

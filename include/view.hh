@@ -5,6 +5,7 @@
 #include <queue>
 
 #include "model.hh"
+#include "game_settings.hh"
 
 namespace snake
 {
@@ -43,15 +44,30 @@ struct Event
 
 };
 
+enum MenuEvent
+{
+    KEY_PRESSED_ARROW_UP    = 1,
+    KEY_PRESSED_ARROW_LEFT  = 2,
+    KEY_PRESSED_ARROW_DOWN  = 3,
+    KEY_PRESSED_ARROW_RIGHT = 4,
+    KEY_PRESSED_ENTER       = 5,
+    EXIT                    = 6,
+    BACKSPACE               = 7,
+
+    // TODO check that this enums are less than printed symbols
+};
+
 class View
 {
 public:
     virtual ~View() = default;
 
 public:
-    virtual void                              Render( const Model& model) = 0;
-    virtual std::pair<Coordinate, Coordinate> GetGameFieldSize() const    = 0;
-    virtual void                              UpdateEvents()              = 0;
+    virtual void                              Render( const Model& model)                 = 0;
+    virtual void                              RenderMenu( const settings::Menu& settings) = 0;
+    virtual std::pair<Coordinate, Coordinate> GetGameFieldSize() const                    = 0;
+    virtual void                              UpdateEvents()                              = 0;
+    virtual void                              UpdateMenuEvents()                          = 0;
 
 public:
     std::optional<Event>
@@ -67,9 +83,23 @@ public:
         return event;
     }
 
+    std::optional<MenuEvent>
+    PopMenuEvent()
+    {
+        if ( menu_events_.empty() )
+        {
+            return std::nullopt;
+        }
+
+        MenuEvent event = menu_events_.back();
+        menu_events_.pop_back();
+        return event;
+    }
+
 protected:
     std::pair<Coordinate, Coordinate> current_window_size_{};
     std::queue<Event>                 events_{};
+    std::vector<MenuEvent>            menu_events_{};
 
 };
 

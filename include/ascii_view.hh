@@ -6,6 +6,7 @@
 
 #include "view.hh"
 #include "colors.hh"
+#include "game_settings.hh"
 
 namespace snake
 {
@@ -17,9 +18,11 @@ public:
     ~AsciiView();
 
 public:
-    void                              Render( const Model& model)       override;
-    std::pair<Coordinate, Coordinate> GetGameFieldSize()          const override;
-    void                              UpdateEvents()                    override;
+    void                              Render( const Model& model)                       override;
+    void                              RenderMenu( const settings::Menu& settings)       override;
+    std::pair<Coordinate, Coordinate> GetGameFieldSize()                          const override;
+    void                              UpdateEvents()                                    override;
+    void                              UpdateMenuEvents()                                override;
 
 private:
     void render_snake( const Snake& snake);

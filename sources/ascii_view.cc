@@ -355,4 +355,16 @@ AsciiView::render_bone( const Bone& bone)
     std::cout << "☠";
 }
 
+void
+AsciiView::RenderMenu( const settings::Menu& /*settings*/)
+{
+
+}
+
+void
+AsciiView::UpdateMenuEvents()
+{
+
+}
+
 } // ! namespace snake
