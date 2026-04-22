@@ -260,7 +260,9 @@ Model::add_rabbit()
 }
 
 SnakeID
-Model::AddSnake( SnakeTicker ticker)
+Model::AddSnake( std::string   name,
+                 colors::Color color,
+                 SnakeTicker   ticker)
 {
     SnakeID id = static_cast<SnakeID>( snakes_.size());
     Direction dir = utils::random_of( { Direction::LEFT,
@@ -280,7 +282,7 @@ Model::AddSnake( SnakeTicker ticker)
             break;
         }
     }
-    snakes_.emplace_back( x, y, dir, id, ticker);
+    snakes_.emplace_back( x, y, dir, id, ticker, std::move( name), color);
 
     // Adding one more snake cell
     Point head = snakes_.back().points.back();
