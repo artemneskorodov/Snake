@@ -41,6 +41,17 @@ run_pve_simulation( SnakeTicker ticker)
     return model;
 }
 
+struct SnakeBotInfo
+{
+    std::string_view name;
+    SnakeTicker ticker;
+};
+
+const std::array<SnakeBotInfo, 2> kSnakeBots{{
+    { "Dumb", bots::TickDumbBot},
+    { "Smart", bots::TickSmartBot}
+}};
+
 } // ! anonymous namespace
 
 void
@@ -48,18 +59,23 @@ RunSimulation( const ProgramArguments& arguments)
 {
     std::size_t runs_number = arguments.simulation_runs;
     // PvE: bots alone on field eating rabbits
+
     for ( std::size_t run = 0; run != runs_number; ++run )
     {
-        std::uint32_t seed = std::hash<std::uint32_t>{}( run);
-
+        // Setting simulation seed
+        uint32_t seed = run;
         utils::random::SetSeed( seed);
 
-        Model model_dumb = run_pve_simulation( snake::bots::TickDumbBot);
-        Model model_smart = run_pve_simulation( snake::bots::TickSmartBot);
+        std::cout << "Simulation [" << run << "] (seed = " << seed << "):" << std::endl;
 
-        std::cout << "Simulation [" << run << "] (width seed = " << seed << "):" << std::endl;
-        std::cout << "Dumb:  " << model_dumb.GetSnake( 0).GetScores() << std::endl;
-        std::cout << "Smart: " << model_smart.GetSnake( 0).GetScores() << std::endl;
+        for ( const SnakeBotInfo& info : kSnakeBots )
+        {
+            Model model = run_pve_simulation( info.ticker);
+            std::cout << "    "
+                      << std::setw( 10) << std::left << info.name
+                      << std::setw( 10) << std::right << model.GetSnakes().back().GetScores()
+                      << std::endl;
+        }
     }
 }
 
