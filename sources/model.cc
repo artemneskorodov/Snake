@@ -46,34 +46,8 @@ Model::tick_snake_positions_update()
         {
             continue;
         }
-        Point next_head = snake.points.back();
-        switch ( snake.direction )
-        {
-            case Direction::TOP:
-            {
-                --next_head.y;
-                break;
-            }
-            case Direction::LEFT:
-            {
-                --next_head.x;
-                break;
-            }
-            case Direction::BOTTOM:
-            {
-                ++next_head.y;
-                break;
-            }
-            case Direction::RIGHT:
-            {
-                ++next_head.x;
-                break;
-            }
-            default:
-            {
-                throw std::runtime_error{ "Unexpected snake direction"};
-            }
-        }
+        Point head = snake.points.back();
+        Point next_head = head + DirectionToVector( snake.direction);
 
         if ( (next_head.x < 0) ||
              (next_head.x >= width_) ||
@@ -115,7 +89,7 @@ Model::tick_snake_rabbit_collisions_check()
             }
             if ( head == rabbit.point )
             {
-                remove_rabbit( rabbit);
+                remove_rabbit( rabbit, true);
                 need_pop_front = false;
                 break;
             }
@@ -190,7 +164,7 @@ Model::tick_check_rabbits()
              (rabbit.point.y < 0) ||
              (rabbit.point.y >= height_) )
         {
-            remove_rabbit( rabbit);
+            remove_rabbit( rabbit, false);
         }
     }
 }
@@ -226,6 +200,15 @@ Model::set_cells_after_resize()
         }
         cells_[rabbit.point] = CellType::RABBIT;
     }
+
+    for ( const Bone& bone : bones_ )
+    {
+        if ( !bone.is_alive )
+        {
+            continue;
+        }
+        cells_[bone.point] = CellType::BONE;
+    }
 }
 
 void
@@ -256,8 +239,8 @@ Model::add_rabbit()
 {
     Coordinate x;
     Coordinate y;
-    int counter = 0;
-    for ( ; counter != 10; ++counter )
+
+    for ( int counter = 0; counter != 10; ++counter )
     {
         x = utils::random_min_max( 0, width_ - 1);
         y = utils::random_min_max( 0, height_ - 1);
@@ -266,7 +249,7 @@ Model::add_rabbit()
             break;
         }
     }
-    if ( counter == 10 )
+    if ( cells_[{ x, y}] != CellType::EMPTY )
     {
         return ;
     }
@@ -374,6 +357,10 @@ Model::tick_check_bones_lifetime()
 {
     for ( Bone& bone : bones_ )
     {
+        if ( !bone.is_alive )
+        {
+            continue;
+        }
         if ( tick_ == bone.death_tick )
         {
             bone.is_alive = false;
@@ -412,10 +399,14 @@ Model::tick_snake_bone_collisions_check()
 }
 
 void
-Model::remove_rabbit( Rabbit& rabbit)
+Model::remove_rabbit( Rabbit& rabbit,
+                      bool    is_eaten)
 {
     rabbit.is_alive = false;
-    cells_[rabbit.point] = CellType::EMPTY;
+    if ( !is_eaten )
+    {
+        cells_[rabbit.point] = CellType::EMPTY;
+    }
     if ( view_update_callbacks_.removed_point_cb )
     {
         view_update_callbacks_.removed_point_cb( rabbit.point);

@@ -354,19 +354,20 @@ GraphicsView::render_game_field()
 
     // Drawing game field
     auto field_size = GetGameFieldSize();
-    unsigned game_size_x = field_size.first;
-    unsigned game_size_y = field_size.second;
+    Coordinate game_size_x = field_size.first;
+    Coordinate game_size_y = field_size.second;
 
-    sf::VertexArray game_field{ sf::PrimitiveType::Triangles, game_size_x * game_size_y * 6};
+    sf::VertexArray game_field{ sf::PrimitiveType::Triangles,
+                                static_cast<std::size_t>( game_size_x * game_size_y * 6)};
 
     sf::Vector2f offset_top_left     {       0.f,       0.f};
     sf::Vector2f offset_top_right    { kCellSize,       0.f};
     sf::Vector2f offset_bottom_left  {       0.f, kCellSize};
     sf::Vector2f offset_bottom_right { kCellSize, kCellSize};
 
-    for ( unsigned x = 0; x != game_size_x; ++x )
+    for ( Coordinate x = 0; x != game_size_x; ++x )
     {
-        for ( unsigned y = 0; y != game_size_y; ++y )
+        for ( Coordinate y = 0; y != game_size_y; ++y )
         {
             sf::Vertex* square = &game_field[(x + y * game_size_x) * 6];
 
@@ -380,8 +381,10 @@ GraphicsView::render_game_field()
             square[4].position = top_left + offset_bottom_left;
             square[5].position = top_left + offset_bottom_right;
 
+
             sf::Color color = ((x + y) % 2 == 0) ? kColorGameFieldFirst
                                                  : kColorGameFieldSecond;
+
             for ( int i = 0; i != 6; ++i )
             {
                 square[i].color = color;
