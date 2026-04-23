@@ -268,7 +268,7 @@ private:
     void remove_snake( Snake& snake);
     void set_cells_after_resize();
     void add_bone( const Point& point, TickType lifetime);
-    void remove_rabbit( Rabbit& rabbit);
+    void remove_rabbit( Rabbit& rabbit, bool is_eaten);
 
 private:
     void tick_snake_positions_update();
