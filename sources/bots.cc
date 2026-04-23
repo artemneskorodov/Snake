@@ -19,9 +19,10 @@ get_closest_target( const Model& model,
 {
     const Point& head = snake.points.back();
 
-    double minimal_distance_sq = -1.0;
     Coordinate minimal_distance_x = -1;
     Coordinate minimal_distance_y = -1;
+
+    Coordinate minimal_distance = -1;
 
     for ( const Rabbit& rabbit : model.GetRabbits() )
     {
@@ -30,15 +31,18 @@ get_closest_target( const Model& model,
             continue;
         }
 
-        double dx = static_cast<double>( rabbit.point.x - head.x);
-        double dy = static_cast<double>( rabbit.point.y - head.y);
+        Coordinate dx = rabbit.point.x - head.x;
+        Coordinate dy = rabbit.point.y - head.y;
 
-        double dr_sq = dx * dx + dy * dy;
+        dx = (dx > 0) ? dx : -dx;
+        dy = (dy > 0) ? dy : -dy;
 
-        if ( (dr_sq < minimal_distance_sq) ||
-             (minimal_distance_sq < 0) )
+        Coordinate distance = dx + dy;
+
+        if ( (distance < minimal_distance) ||
+             (minimal_distance < 0) )
         {
-            minimal_distance_sq = dr_sq;
+            minimal_distance = distance;
             minimal_distance_x = rabbit.point.x;
             minimal_distance_y = rabbit.point.y;
         }
