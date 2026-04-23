@@ -26,15 +26,12 @@ Model::Tick()
         game_finished_ = true;
     }
 
-    if ( rabbits_counter_ == next_rabbit_counter_ )
+    float rabbits_density = static_cast<float>( rabbits_counter_) /
+                            static_cast<float>( width_ * height_);
+    bool spawn_rabbit = utils::random_true_false( GetRabbitSpawnProbability( rabbits_density));
+    if ( spawn_rabbit )
     {
-        rabbits_counter_ = 0;
-        next_rabbit_counter_ = utils::random_normal( kRabbitsSpawnRateAvg,
-                                                     kRabbitsSpawnRateSigma);
         add_rabbit();
-    } else
-    {
-        ++rabbits_counter_;
     }
 
     ++tick_;
@@ -118,7 +115,7 @@ Model::tick_snake_rabbit_collisions_check()
             }
             if ( head == rabbit.point )
             {
-                rabbit.is_alive = false;
+                remove_rabbit( rabbit);
                 need_pop_front = false;
                 break;
             }
@@ -184,20 +181,16 @@ Model::tick_check_rabbits()
 {
     for ( Rabbit& rabbit : rabbits_ )
     {
+        if ( !rabbit.is_alive )
+        {
+            continue;
+        }
         if ( (rabbit.point.x < 0) ||
              (rabbit.point.x >= width_) ||
              (rabbit.point.y < 0) ||
              (rabbit.point.y >= height_) )
         {
-            if ( view_update_callbacks_.removed_point_cb )
-            {
-                view_update_callbacks_.removed_point_cb( rabbit.point);
-            }
-            rabbit.is_alive = false;
-            if ( view_update_callbacks_.removed_point_cb )
-            {
-                view_update_callbacks_.removed_point_cb( rabbit.point);
-            }
+            remove_rabbit( rabbit);
         }
     }
 }
@@ -287,6 +280,7 @@ Model::add_rabbit()
     {
         view_update_callbacks_.rabbit_add_cb( { x, y});
     }
+    ++rabbits_counter_;
 }
 
 SnakeID
@@ -418,6 +412,18 @@ Model::tick_snake_bone_collisions_check()
             }
         }
     }
+}
+
+void
+Model::remove_rabbit( Rabbit& rabbit)
+{
+    rabbit.is_alive = false;
+    cells_[rabbit.point] = CellType::EMPTY;
+    if ( view_update_callbacks_.removed_point_cb )
+    {
+        view_update_callbacks_.removed_point_cb( rabbit.point);
+    }
+    --rabbits_counter_;
 }
 
 } // ! namespace snake
