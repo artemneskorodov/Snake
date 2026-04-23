@@ -435,6 +435,14 @@ GraphicsView::RenderMenu( const settings::Menu& settings)
     float window_height = static_cast<float>( current_window_size_.second);
     float position = window_height * kMenuDefaultOffsetY;
 
+    std::size_t before_target = settings.GetNumberBeforeActive();
+
+    while ( static_cast<float>( before_target) * kMenuElementHeight + position >
+            window_height - kMenuElementHeight )
+    {
+        position -= 1.f;
+    }
+
     window_.clear( sf::Color::Black);
     for ( const settings::MenuElement& element : settings.GetMenu() )
     {
