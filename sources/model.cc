@@ -241,14 +241,11 @@ Model::remove_snake( Snake& snake)
             add_bone( point, lifetime);
         } else
         {
+            if ( view_update_callbacks_.removed_point_cb )
+            {
+                view_update_callbacks_.removed_point_cb( point);
+            }
             cells_[point] = CellType::EMPTY;
-        }
-    }
-    if ( view_update_callbacks_.removed_point_cb )
-    {
-        for ( const Point& point : snake.points )
-        {
-            view_update_callbacks_.removed_point_cb( point);
         }
     }
     --snakes_number_;
