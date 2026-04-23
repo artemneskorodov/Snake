@@ -192,12 +192,16 @@ public:
             SnakesList& snakes_list = std::get<SnakesList>( menu_[active_].element);
             if ( snakes_list.active == SnakesList::kNoActive )
             {
-                std::string name = "Snake" + std::to_string( current_snake_id_);
-                std::size_t color_id = current_snake_id_ % detail::kSnakesColors.size();
-                std::string color = std::string{ detail::kSnakesColors[color_id]};
-                ++current_snake_id_;
+                if ( &snakes_list != &GetHumanSnakes() ||
+                     snakes_list.snakes.size() < 2 )
+                {
+                    std::string name = "Snake" + std::to_string( current_snake_id_);
+                    std::size_t color_id = current_snake_id_ % detail::kSnakesColors.size();
+                    std::string color = std::string{ detail::kSnakesColors[color_id]};
+                    ++current_snake_id_;
 
-                snakes_list.snakes.emplace_back( name, color);
+                    snakes_list.snakes.emplace_back( name, color);
+                }
             } else
             {
                 SnakeSetting& snake = snakes_list.snakes[snakes_list.active];
