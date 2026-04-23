@@ -38,9 +38,11 @@ struct Button
 struct SnakeSetting
 {
     SnakeSetting( std::string name,
-                  std::string color)
+                  std::string color,
+                  std::string additional_info="")
      :  name{ std::move( name)},
-        color{ std::move( color)}
+        color{ std::move( color)},
+        additional_info{ std::move( additional_info)}
     {
     }
 
@@ -53,6 +55,7 @@ struct SnakeSetting
     std::string name;
     std::string color;
     Active active;
+    std::string additional_info;
     bool is_active{ false};
 };
 
@@ -192,12 +195,28 @@ public:
             SnakesList& snakes_list = std::get<SnakesList>( menu_[active_].element);
             if ( snakes_list.active == SnakesList::kNoActive )
             {
-                std::string name = "Snake" + std::to_string( current_snake_id_);
-                std::size_t color_id = current_snake_id_ % detail::kSnakesColors.size();
-                std::string color = std::string{ detail::kSnakesColors[color_id]};
-                ++current_snake_id_;
+                if ( &snakes_list != &GetHumanSnakes() ||
+                     snakes_list.snakes.size() < 2 )
+                {
+                    std::string name = "Snake" + std::to_string( current_snake_id_);
+                    std::size_t color_id = current_snake_id_ % detail::kSnakesColors.size();
+                    std::string color = std::string{ detail::kSnakesColors[color_id]};
+                    ++current_snake_id_;
 
-                snakes_list.snakes.emplace_back( name, color);
+                    if ( &snakes_list == &GetHumanSnakes() )
+                    {
+                        if ( snakes_list.snakes.size() == 0 )
+                        {
+                            snakes_list.snakes.emplace_back( name, color, "Arrows");
+                        } else
+                        {
+                            snakes_list.snakes.emplace_back( name, color, "WASD");
+                        }
+                    } else
+                    {
+                        snakes_list.snakes.emplace_back( name, color);
+                    }
+                }
             } else
             {
                 SnakeSetting& snake = snakes_list.snakes[snakes_list.active];

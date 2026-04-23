@@ -623,6 +623,17 @@ GraphicsView::render_menu_snakes_list( const settings::MenuElement& menu_elem,
         text.setStyle( text.Bold);
         window_.draw( text);
 
+        if ( snake.additional_info != "" )
+        {
+            text.setString( snake.additional_info);
+            text_rect = text.getLocalBounds();
+            text.setOrigin( { 0, text_rect.size.y / 2.f});
+            text.setPosition( { x + 10.f, y + height / 2.f});
+            text.setFillColor( kColorMenuInactiveString);
+            text.setCharacterSize( kMenuCharacterSize);
+            window_.draw( text);
+        }
+
         y += kMenuElementHeight;
     }
 
