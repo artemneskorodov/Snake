@@ -7,7 +7,7 @@ import numpy
 
 _color_cycle = itertools.cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 
-def add_distribution(data, bins=20, label=None, show_stats=True):
+def add_distribution(data, bins=20, label=None):
     ax = plt.gca()
 
     color = next(_color_cycle)
@@ -22,13 +22,12 @@ def add_distribution(data, bins=20, label=None, show_stats=True):
         density=True
     )
 
-    if show_stats and len(data) > 0:
-        mean = statistics.mean(data)
-        std = statistics.stdev(data) if len(data) > 1 else 0
+    mean = statistics.mean(data)
+    std = statistics.stdev(data) if len(data) > 1 else 0
 
-        ax.axvline(mean, color=color, linestyle="--")
-        ax.axvline(mean - std, color=color, linestyle=":")
-        ax.axvline(mean + std, color=color, linestyle=":")
+    ax.axvline(mean, color=color, linestyle="--")
+    ax.axvline(mean - std, color=color, linestyle=":")
+    ax.axvline(mean + std, color=color, linestyle=":")
 
 def get_pve_values_by_name(pve, name):
     values = []
@@ -65,17 +64,29 @@ def parse_pve(results):
     plt.show()
 
 def parse_pvp(results):
-    values_first, values_second = get_pvp_values_by_names(results, "Dumb", "Smart")
+    values_dumb, values_smart = get_pvp_values_by_names(results, "Dumb", "Smart")
 
     wins = []
-    for d, s in zip(values_first, values_second):
+    for d, s in zip(values_dumb, values_smart):
         if   d > s: wins.append(-1)
         elif d < s: wins.append( 1)
         else:       wins.append( 0)
 
     wins_mean = statistics.mean(wins)
     wins_sigma = statistics.stdev(wins)
-    print(f"{wins_mean} +- {wins_sigma}, where -1='dumb won', 1='smart won', 0='draw'")
+    print(f"Wins mean and sigma (-1='dumb won', 0='draw', 1='smart won'): {wins_mean} +- {wins_sigma}")
+
+    smart_wins_count = 0
+    total_count = 0
+    for i in wins:
+        total_count += 2
+        if i == 1:
+            smart_wins_count += 2
+        elif i == 0:
+            smart_wins_count += 1
+    smart_winrate = smart_wins_count / total_count
+    print(f"Smart bot winrate: {smart_winrate}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Process JSON simulation output")
