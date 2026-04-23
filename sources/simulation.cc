@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "simulation.hh"
 #include "arguments.hh"
@@ -15,34 +16,157 @@ namespace simulation
 namespace
 {
 
-void
-write_simulation_results( std::string         simulation_name,
-                          const snake::Model& model)
-{
-    std::cout << simulation_name << ":" << std::endl;
+constexpr Coordinate kFieldWidth  = 25;
+constexpr Coordinate kFieldHeight = 25;
 
-    for ( const snake::Snake& snake : model.GetSnakes() )
+Model
+run_single_pve_simulation( SnakeTicker ticker)
+{
+    Model model{};
+    model.SetFieldSize( kFieldWidth, kFieldHeight);
+
+    model.AddSnake( "",
+                    colors::Color{ "#000000"},
+                    SnakeGroup::HUMAN,
+                    ticker);
+
+    for ( ; ; )
     {
-        std::cout << "Snake[" << snake.id << "] (";
-        switch ( model.GetSnakeGroup( snake.id) )
+        model.Tick();
+        if ( model.GameFinished() )
         {
-            case snake::SnakeGroup::DUMB:
+            break;
+        }
+    }
+
+    return model;
+}
+
+Model
+run_single_pvp_simulation( SnakeTicker first,
+                           SnakeTicker second)
+{
+    Model model{};
+    model.SetFieldSize( kFieldWidth, kFieldHeight);
+
+    model.AddSnake( "",
+                    colors::Color{ "#000000"},
+                    SnakeGroup::HUMAN,
+                    first);
+
+    model.AddSnake( "",
+                    colors::Color{ "#000000"},
+                    SnakeGroup::HUMAN,
+                    second);
+
+    for ( ; ; )
+    {
+        model.Tick();
+        if ( model.GameFinished() )
+        {
+            break;
+        }
+    }
+
+    return model;
+}
+
+struct SnakeBotInfo
+{
+    std::string_view name;
+    SnakeTicker      ticker;
+};
+
+const std::array<SnakeBotInfo, 2> kSnakeBots{{
+    { "Dumb",  bots::TickDumbBot  },
+    { "Smart", bots::TickSmartBot }
+}};
+
+struct PvEResult
+{
+    int         scores;
+    std::size_t bot_info_id;
+};
+
+struct PvPResult
+{
+    int         scores_first;
+    int         scores_second;
+    std::size_t bot_info_id_first;
+    std::size_t bot_info_id_second;
+};
+
+template<typename ResultT>
+struct Simulation
+{
+    std::vector<ResultT> results;
+    std::size_t          run;
+    std::uint32_t        seed;
+};
+
+std::vector<Simulation<PvEResult>>
+run_pve_simulations( std::size_t runs_number)
+{
+    std::vector<Simulation<PvEResult>> results{};
+
+    for ( std::size_t run = 0; run != runs_number; ++run )
+    {
+        results.emplace_back();
+        Simulation<PvEResult>& result = results.back();
+
+        result.run = run;
+
+        uint32_t seed = run;
+        utils::random::SetSeed( seed);
+        result.seed = seed;
+
+        for ( std::size_t bot = 0; bot != kSnakeBots.size(); ++bot )
+        {
+            const SnakeBotInfo& info = kSnakeBots[bot];
+
+            Model model = run_single_pve_simulation( info.ticker);
+
+            int scores = model.GetSnake( 0).GetScores();
+
+            result.results.emplace_back( PvEResult{ scores, bot});
+        }
+    }
+    return results;
+}
+
+std::vector<Simulation<PvPResult>>
+run_pvp_simulations( std::size_t runs_number)
+{
+    std::vector<Simulation<PvPResult>> results{};
+    for ( std::size_t run = 0; run != runs_number; ++run )
+    {
+        Simulation<PvPResult>& result = results.emplace_back();
+        result.run = run;
+
+        // Setting simulation seed
+        uint32_t seed = run;
+        utils::random::SetSeed( seed);
+        result.seed = seed;
+
+        for ( std::size_t bot_first = 0; bot_first + 1 != kSnakeBots.size(); ++bot_first )
+        {
+            for ( std::size_t bot_second = bot_first + 1; bot_second != kSnakeBots.size(); ++bot_second )
             {
-                std::cout << "dumb";
-                break;
-            }
-            case snake::SnakeGroup::SMART:
-            {
-                std::cout << "smart";
-                break;
-            }
-            default:
-            {
-                throw std::runtime_error{ "Unexpected snake group"};
+                const SnakeBotInfo& info_first  = kSnakeBots[bot_first];
+                const SnakeBotInfo& info_second = kSnakeBots[bot_second];
+
+                Model model = run_single_pvp_simulation( info_first.ticker, info_second.ticker);
+                int scores_first  = model.GetSnake( 0).GetScores();
+                int scores_second = model.GetSnake( 1).GetScores();
+
+                result.results.emplace_back( PvPResult{ scores_first,
+                                                              scores_second,
+                                                              bot_first,
+                                                              bot_second});
             }
         }
-        std::cout << "): scores=" << snake.GetScores() << std::endl;
     }
+    return results;
 }
 
 } // ! anonymous namespace
@@ -50,42 +174,71 @@ write_simulation_results( std::string         simulation_name,
 void
 RunSimulation( const ProgramArguments& arguments)
 {
-    std::size_t dumb  = arguments.simulation_dumb_bots;
-    std::size_t smart = arguments.simulation_smart_bots;
-    std::size_t runs  = arguments.simulation_runs;
+    std::size_t runs_number = arguments.simulate;
 
-    for ( std::size_t i = 0; i != runs; ++i )
+    std::stringstream json_results{};
+    json_results << "{\n";
+
+    json_results << "\t" "\"pve\":[\n";
+    if ( arguments.simulate_pve )
     {
-        snake::Model model{};
-        model.SetFieldSize( 15, 15);
+        std::vector<Simulation<PvEResult>> simulations = run_pve_simulations( runs_number);
 
-        for ( std::size_t d = 0; d != dumb; ++d )
+        for ( const Simulation<PvEResult>& sim : simulations )
         {
-            model.AddSnake( "",
-                            snake::colors::Color{ "#ffffff"},
-                            snake::SnakeGroup::SMART,
-                            snake::bots::TickDumbBot);
-        }
+            json_results << "\t\t" "{\n"
+                            "\t\t" "\"run\": " << sim.run << ",\n"
+                            "\t\t" "\"seed\": " << sim.seed << ",\n"
+                            "\t\t" "\"results\": [\n";
 
-        for ( std::size_t s = 0; s != smart; ++s )
-        {
-            model.AddSnake( "",
-                            snake::colors::Color{ "#ffffff"},
-                            snake::SnakeGroup::SMART,
-                            snake::bots::TickSmartBot);
-        }
-
-        for ( ; ; )
-        {
-            model.Tick();
-            if ( model.GameFinished() )
+            for ( const PvEResult& res : sim.results )
             {
-                break;
+                const SnakeBotInfo& info = kSnakeBots[res.bot_info_id];
+                json_results << "\t\t\t" "{\"name\": \"" << info.name << "\", "
+                                "\"score\": " << res.scores << "}"
+                                << ((&res != &sim.results.back()) ? "," : "") << "\n";
             }
-        }
 
-        write_simulation_results( "Simulation [" + std::to_string( i) + "]", model);
+            json_results << "\t\t\t" "]\n"
+                         << "\t\t" "}"
+                         << ((&sim != &simulations.back()) ? "," : "") << "\n";
+        }
     }
+    json_results << "\t" "],\n"
+                    "\t" "\"pvp\":[\n";
+    if ( arguments.simulate_pvp )
+    {
+        std::vector<Simulation<PvPResult>> simulations = run_pvp_simulations( runs_number);
+
+        for ( const Simulation<PvPResult>& sim : simulations )
+        {
+            json_results << "\t\t" "{\n"
+                            "\t\t" "\"run\": " << sim.run << ",\n"
+                            "\t\t" "\"seed\": " << sim.seed << ",\n"
+                            "\t\t" "\"results\": [\n";
+
+            for ( const PvPResult& res : sim.results )
+            {
+                const SnakeBotInfo& info_first  = kSnakeBots[res.bot_info_id_first];
+                const SnakeBotInfo& info_second = kSnakeBots[res.bot_info_id_second];
+
+                json_results << "\t\t\t" "{\"first-name\": \"" << info_first.name << "\", "
+                                "\"second-name\": \"" << info_second.name << "\", "
+                                "\"first-score\": " << res.scores_first << ","
+                                "\"second-score\": " << res.scores_second << "}"
+                                << ((&res != &sim.results.back()) ? "," : "") << "\n";
+            }
+
+            json_results << "\t\t\t" "]\n"
+                         << "\t\t" "}"
+                         << ((&sim != &simulations.back()) ? "," : "") << "\n";
+        }
+    }
+    json_results << "]\n"
+                    "}";
+
+    // std::cout << ss.str();
+    std::cout << json_results.str();
 }
 
 } // ! namespace simulation

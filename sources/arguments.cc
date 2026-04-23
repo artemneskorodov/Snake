@@ -21,7 +21,7 @@ struct ArgInfo
     std::function<void( ProgramArguments&)>                     default_setter;
 };
 
-const std::array<ArgInfo, 8> kArgsInfo
+const std::array<ArgInfo, 7> kArgsInfo
 {{
     { "--graphics", "-g",
       "Type of graphics: sfml or ascii. Usage: --graphics=<sfml/ascii>",
@@ -86,51 +86,39 @@ const std::array<ArgInfo, 8> kArgsInfo
         }
     },
 
-    { "--simulate-dumb", "-sim-d",
-      "Number of dumb bots in simulation. Usage: --simulate-dumb=<number>",
-      []( ProgramArguments& arguments, const std::string& string)
+    { "--simulate-pve", "-sim-pve",
+      "Flag to run PvE simulation with bots. Used if only --simulation is set. Usage: --simulate-pve",
+      []( ProgramArguments& arguments, const std::string&)
         {
-            arguments.simulation_dumb_bots = std::stoul( string.c_str() + 1, nullptr, 10);
+            arguments.simulate_pve = true;
         },
       []( ProgramArguments& arguments)
         {
-            arguments.simulation_dumb_bots = 3;
+            arguments.simulate_pve = false;
         }
     },
 
-    { "--simulate-smart", "-sim-s",
-      "Number of smart bots in simulation. Usage: --simulate-smart=<number>",
-      []( ProgramArguments& arguments, const std::string& string)
+    { "--simulate-pvp", "-sim-pvp",
+      "Flag to run PvP simulation with bots. Used if only --simulation is set. Usage: --simulate-pvp",
+      []( ProgramArguments& arguments, const std::string&)
         {
-            arguments.simulation_smart_bots = std::stoul( string.c_str() + 1, nullptr, 10);
+            arguments.simulate_pvp = true;
         },
       []( ProgramArguments& arguments)
         {
-            arguments.simulation_smart_bots = 3;
-        }
-    },
-
-    { "--simulate-runs", "-sim-r",
-      "Number of runs to simulate. Usage: --simulate-runs=<number>",
-      []( ProgramArguments& arguments, const std::string& string)
-        {
-            arguments.simulation_runs = std::stoul( string.c_str() + 1, nullptr, 10);
-        },
-      []( ProgramArguments& arguments)
-        {
-            arguments.simulation_runs = 3;
+            arguments.simulate_pvp = false;
         }
     },
 
     { "--simulate", "-sim",
-      "Run simulation without graphics to collect statistics. Usage: --help",
-      []( ProgramArguments& arguments, const std::string& )
+      "Run simulation without graphics to collect statistics. Usage: --simulate=<number>",
+      []( ProgramArguments& arguments, const std::string& string)
         {
-            arguments.simulate = true;
+            arguments.simulate = std::stoul( string.c_str() + 1, nullptr, 10);
         },
       []( ProgramArguments& arguments)
         {
-            arguments.simulate = false;
+            arguments.simulate = 0;
         }
     }
 }};
