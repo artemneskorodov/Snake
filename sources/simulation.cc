@@ -15,34 +15,30 @@ namespace simulation
 namespace
 {
 
-void
-write_simulation_results( std::string         simulation_name,
-                          const snake::Model& model)
-{
-    std::cout << simulation_name << ":" << std::endl;
+constexpr Coordinate kFieldWidth  = 25;
+constexpr Coordinate kFieldHeight = 25;
 
-    for ( const snake::Snake& snake : model.GetSnakes() )
+Model
+run_pve_simulation( SnakeTicker ticker)
+{
+    Model model{};
+    model.SetFieldSize( kFieldWidth, kFieldHeight);
+
+    model.AddSnake( "",
+                    colors::Color{ "#000000"},
+                    SnakeGroup::HUMAN,
+                    ticker);
+
+    for ( ; ; )
     {
-        std::cout << "Snake[" << snake.id << "] (";
-        switch ( model.GetSnakeGroup( snake.id) )
+        model.Tick();
+        if ( model.GameFinished() )
         {
-            case snake::SnakeGroup::DUMB:
-            {
-                std::cout << "dumb";
-                break;
-            }
-            case snake::SnakeGroup::SMART:
-            {
-                std::cout << "smart";
-                break;
-            }
-            default:
-            {
-                throw std::runtime_error{ "Unexpected snake group"};
-            }
+            break;
         }
-        std::cout << "): scores=" << snake.GetScores() << std::endl;
     }
+
+    return model;
 }
 
 } // ! anonymous namespace
@@ -50,41 +46,20 @@ write_simulation_results( std::string         simulation_name,
 void
 RunSimulation( const ProgramArguments& arguments)
 {
-    std::size_t dumb  = arguments.simulation_dumb_bots;
-    std::size_t smart = arguments.simulation_smart_bots;
-    std::size_t runs  = arguments.simulation_runs;
-
-    for ( std::size_t i = 0; i != runs; ++i )
+    std::size_t runs_number = arguments.simulation_runs;
+    // PvE: bots alone on field eating rabbits
+    for ( std::size_t run = 0; run != runs_number; ++run )
     {
-        snake::Model model{};
-        model.SetFieldSize( 15, 15);
+        std::uint32_t seed = std::hash<std::uint32_t>{}( run);
 
-        for ( std::size_t d = 0; d != dumb; ++d )
-        {
-            model.AddSnake( "",
-                            snake::colors::Color{ "#ffffff"},
-                            snake::SnakeGroup::SMART,
-                            snake::bots::TickDumbBot);
-        }
+        utils::random::SetSeed( seed);
 
-        for ( std::size_t s = 0; s != smart; ++s )
-        {
-            model.AddSnake( "",
-                            snake::colors::Color{ "#ffffff"},
-                            snake::SnakeGroup::SMART,
-                            snake::bots::TickSmartBot);
-        }
+        Model model_dumb = run_pve_simulation( snake::bots::TickDumbBot);
+        Model model_smart = run_pve_simulation( snake::bots::TickSmartBot);
 
-        for ( ; ; )
-        {
-            model.Tick();
-            if ( model.GameFinished() )
-            {
-                break;
-            }
-        }
-
-        write_simulation_results( "Simulation [" + std::to_string( i) + "]", model);
+        std::cout << "Simulation [" << run << "] (width seed = " << seed << "):" << std::endl;
+        std::cout << "Dumb:  " << model_dumb.GetSnake( 0).GetScores() << std::endl;
+        std::cout << "Smart: " << model_smart.GetSnake( 0).GetScores() << std::endl;
     }
 }
 
