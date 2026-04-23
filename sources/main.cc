@@ -4,6 +4,7 @@
 #include "model.hh"
 #include "arguments.hh"
 #include "simulation.hh"
+#include "utils.hh"
 
 int
 main( int         argc,
@@ -16,6 +17,8 @@ main( int         argc,
         snake::simulation::RunSimulation( arguments);
         return EXIT_SUCCESS;
     }
+
+    snake::utils::random::SetRandomized();
 
     std::unique_ptr<snake::View> view = nullptr;
     if ( arguments.graphics_type == snake::GraphicsType::ASCII )
