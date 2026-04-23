@@ -9,6 +9,7 @@
 #include "utils.hh"
 #include "colors.hh"
 #include "game_coordinates.hh"
+#include "rabbits.hh"
 
 namespace snake
 {
@@ -267,6 +268,7 @@ private:
     void remove_snake( Snake& snake);
     void set_cells_after_resize();
     void add_bone( const Point& point, TickType lifetime);
+    void remove_rabbit( Rabbit& rabbit);
 
 private:
     void tick_snake_positions_update();
@@ -277,8 +279,6 @@ private:
     void tick_snake_bone_collisions_check();
 
 private:
-    static constexpr int      kRabbitsSpawnRateAvg   = 25;
-    static constexpr int      kRabbitsSpawnRateSigma = 5;
     static constexpr double   kBoneSpawnProbability  = 0.7;
     static constexpr TickType kBonesLifetimeAvg      = 100;
     static constexpr TickType kBonesLifetimeSigma    = 20;
@@ -292,9 +292,10 @@ private:
     std::vector<Rabbit> rabbits_             {};
     std::vector<Bone>   bones_               {};
     std::size_t         snakes_number_       { 0};
-    int                 rabbits_counter_     { 0};
-    int                 next_rabbit_counter_ { utils::random_normal( kRabbitsSpawnRateAvg,
-                                                                     kRabbitsSpawnRateSigma)};
+    std::size_t         rabbits_counter_     { 0};
+    // int                 rabbits_counter_     { 0};
+    // int                 next_rabbit_counter_ { utils::random_normal( kRabbitsSpawnRateAvg,
+                                                                    //  kRabbitsSpawnRateSigma)};
     TickType            tick_{ 0};
     std::unordered_map<Point, CellType, PointHash> cells_;
     std::vector<SnakeID> humans_snakes_group_{};
