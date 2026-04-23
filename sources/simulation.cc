@@ -86,55 +86,59 @@ const std::array<SnakeBotInfo, 2> kSnakeBots{{
 void
 RunSimulation( const ProgramArguments& arguments)
 {
-    std::size_t runs_number = arguments.simulation_runs;
+    std::size_t runs_number = arguments.simulate;
 
-    // PvE: bots alone on field eating rabbits
-    for ( std::size_t run = 0; run != runs_number; ++run )
+    if ( arguments.simulate_pve )
     {
-        // Setting simulation seed
-        uint32_t seed = run;
-        utils::random::SetSeed( seed);
-
-        std::cout << "PvE Simulation [" << run << "] (seed = " << seed << "):" << std::endl;
-
-        for ( const SnakeBotInfo& info : kSnakeBots )
+        for ( std::size_t run = 0; run != runs_number; ++run )
         {
-            Model model = run_pve_simulation( info.ticker);
-            int scores = model.GetSnake( 0).GetScores();
+            // Setting simulation seed
+            uint32_t seed = run;
+            utils::random::SetSeed( seed);
 
-            std::cout << "\t"
-                      << std::setw( 10) << std::left << info.name
-                      << std::setw( 10) << std::right << scores
-                      << std::endl;
+            std::cout << "PvE Simulation [" << run << "] (seed = " << seed << "):" << std::endl;
+
+            for ( const SnakeBotInfo& info : kSnakeBots )
+            {
+                Model model = run_pve_simulation( info.ticker);
+                int scores = model.GetSnake( 0).GetScores();
+
+                std::cout << "\t"
+                          << std::setw( 10) << std::left << info.name
+                          << std::setw( 10) << std::right << scores
+                          << std::endl;
+            }
         }
     }
 
-    // PvP: all pairs of bots
-    for ( std::size_t run = 0; run != runs_number; ++run )
+    if ( arguments.simulate_pvp )
     {
-        // Setting simulation seed
-        uint32_t seed = run;
-        utils::random::SetSeed( seed);
-
-        std::cout << "PvP Simulation [" << run << "] (seed = " << seed << "):" << std::endl;
-
-        auto end = kSnakeBots.end();
-        for ( auto it_first = kSnakeBots.begin(); it_first != std::prev( end); ++it_first )
+        for ( std::size_t run = 0; run != runs_number; ++run )
         {
-            for ( auto it_second = std::next( it_first); it_second != end; ++it_second )
-            {
-                Model model = run_pvp_simulation( it_first->ticker, it_second->ticker);
-                int scores_first  = model.GetSnake( 0).GetScores();
-                int scores_second = model.GetSnake( 1).GetScores();
+            // Setting simulation seed
+            uint32_t seed = run;
+            utils::random::SetSeed( seed);
 
-                std::cout << "\t"
-                          << it_first->name << " vs " << it_second->name << std::endl
-                          << "\t\t"
-                          << std::setw( 10) << std::right << it_first->name
-                          << ".Scores = " << scores_first << std::endl
-                          << "\t\t"
-                          << std::setw( 10) << std::right << it_second->name
-                          << ".Scores = " << scores_second << std::endl;
+            std::cout << "PvP Simulation [" << run << "] (seed = " << seed << "):" << std::endl;
+
+            auto end = kSnakeBots.end();
+            for ( auto it_first = kSnakeBots.begin(); it_first != std::prev( end); ++it_first )
+            {
+                for ( auto it_second = std::next( it_first); it_second != end; ++it_second )
+                {
+                    Model model = run_pvp_simulation( it_first->ticker, it_second->ticker);
+                    int scores_first  = model.GetSnake( 0).GetScores();
+                    int scores_second = model.GetSnake( 1).GetScores();
+
+                    std::cout << "\t"
+                              << it_first->name << " vs " << it_second->name << std::endl
+                              << "\t\t"
+                              << std::setw( 10) << std::right << it_first->name
+                              << ".Scores = " << scores_first << std::endl
+                              << "\t\t"
+                              << std::setw( 10) << std::right << it_second->name
+                              << ".Scores = " << scores_second << std::endl;
+                }
             }
         }
     }

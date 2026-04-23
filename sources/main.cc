@@ -12,7 +12,7 @@ main( int         argc,
 {
     snake::ProgramArguments arguments = snake::GetProgramArguments( argc, argv);
 
-    if ( arguments.simulate )
+    if ( arguments.simulate != 0 )
     {
         snake::simulation::RunSimulation( arguments);
         return EXIT_SUCCESS;
