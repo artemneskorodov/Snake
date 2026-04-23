@@ -293,9 +293,6 @@ private:
     std::vector<Bone>   bones_               {};
     std::size_t         snakes_number_       { 0};
     std::size_t         rabbits_counter_     { 0};
-    // int                 rabbits_counter_     { 0};
-    // int                 next_rabbit_counter_ { utils::random_normal( kRabbitsSpawnRateAvg,
-                                                                    //  kRabbitsSpawnRateSigma)};
     TickType            tick_{ 0};
     std::unordered_map<Point, CellType, PointHash> cells_;
     std::vector<SnakeID> humans_snakes_group_{};
