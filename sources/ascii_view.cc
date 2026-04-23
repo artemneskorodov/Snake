@@ -63,7 +63,7 @@ using colors::operator ""_c;
 
 constexpr colors::Color kColorGameBox            = "#00ffe1"_c;
 constexpr colors::Color kColorRabbit             = "#2f00ff"_c;
-constexpr colors::Color kColorBone               = "#b1b1b1"_c;
+constexpr colors::Color kColorBone               = "#ffffff"_c;
 constexpr colors::Color kMenuActiveColor         = "#bcffa4"_c;
 constexpr colors::Color kMenuInactiveColor       = "#b6c9b7"_c;
 constexpr colors::Color kMenuActiveStringColor   = "#ffffff"_c;
@@ -85,6 +85,11 @@ constexpr Coordinate kSnakeStatusWidth       = kSnakeStatusNameWidth +
                                                kSnakeStatusAliveWidth +
                                                kSnakeStatusGroupWidth +
                                                kSnakeStatusScoresWidth;
+
+const char *const kSymbolBone      = "╬";
+const char *const kSymbolSnakeBody = "○";
+const char *const kSymbolSnakeHead = "●";
+const char *const kSymbolRabbit    = "♥";
 
 } // ! anonymous namespace
 
@@ -156,16 +161,16 @@ AsciiView::render_snake( const Snake& snake)
 
     for ( ; it != std::prev( snake.points.cend()); ++it )
     {
-        write_game_symbol( *it, "○", snake.color);
+        write_game_symbol( *it, kSymbolSnakeBody, snake.color);
     }
 
-    write_game_symbol( *it, "●", snake.color);
+    write_game_symbol( *it, kSymbolSnakeHead, snake.color);
 }
 
 void
 AsciiView::render_rabbit( const Rabbit& rabbit)
 {
-    write_game_symbol( rabbit.point, "♥", kColorRabbit);
+    write_game_symbol( rabbit.point, kSymbolRabbit, kColorRabbit);
 }
 
 std::pair<Coordinate, Coordinate>
@@ -380,7 +385,7 @@ AsciiView::draw_line( Coordinate  x1,
 void
 AsciiView::render_bone( const Bone& bone)
 {
-    write_game_symbol( bone.point, "☠", kColorBone);
+    write_game_symbol( bone.point, kSymbolBone, kColorBone);
 }
 
 void
@@ -770,19 +775,19 @@ AsciiView::GetCallbacks() const
         [this]( const Snake& snake)
         {
             auto it = snake.points.rbegin();
-            write_game_symbol( *it, "●", snake.color);
+            write_game_symbol( *it, kSymbolSnakeHead, snake.color);
             ++it;
-            write_game_symbol( *it, "○", snake.color);
+            write_game_symbol( *it, kSymbolSnakeBody, snake.color);
         },
         // Adding rabbit
         [this]( const Point& point)
         {
-            write_game_symbol( point, "♥", kColorRabbit);
+            write_game_symbol( point, kSymbolRabbit, kColorRabbit);
         },
         // Adding bone
         [this]( const Point& point)
         {
-            write_game_symbol( point, "☠", kColorBone);
+            write_game_symbol( point, kSymbolBone, kColorBone);
         }
     };
 }
