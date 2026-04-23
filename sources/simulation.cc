@@ -176,44 +176,69 @@ RunSimulation( const ProgramArguments& arguments)
 {
     std::size_t runs_number = arguments.simulate;
 
-    std::stringstream ss{};
+    std::stringstream json_results{};
+    json_results << "{\n";
 
+    json_results << "\t" "\"pve\":[\n";
     if ( arguments.simulate_pve )
     {
         std::vector<Simulation<PvEResult>> simulations = run_pve_simulations( runs_number);
 
         for ( const Simulation<PvEResult>& sim : simulations )
         {
-            ss << "PvE simulation (run=" << sim.run << ", seed=" << sim.seed << "):" << std::endl;
+            json_results << "\t\t" "{\n"
+                            "\t\t" "\"run\": " << sim.run << ",\n"
+                            "\t\t" "\"seed\": " << sim.seed << ",\n"
+                            "\t\t" "\"results\": [\n";
 
             for ( const PvEResult& res : sim.results )
             {
                 const SnakeBotInfo& info = kSnakeBots[res.bot_info_id];
-                ss << "\t" << std::setw( 10) << std::left << info.name
-                   << std::setw( 10) << std::right << res.scores << std::endl;
+                json_results << "\t\t\t" "{\"name\": \"" << info.name << "\", "
+                                "\"score\": " << res.scores << "}"
+                                << ((&res != &sim.results.back()) ? "," : "") << "\n";
             }
+
+            json_results << "\t\t\t" "]\n"
+                         << "\t\t" "}"
+                         << ((&sim != &simulations.back()) ? "," : "") << "\n";
         }
     }
-
+    json_results << "\t" "],\n"
+                    "\t" "\"pvp\":[\n";
     if ( arguments.simulate_pvp )
     {
         std::vector<Simulation<PvPResult>> simulations = run_pvp_simulations( runs_number);
 
         for ( const Simulation<PvPResult>& sim : simulations )
         {
-            ss << "PvP simulation (run=" << sim.run << ", seed=" << sim.seed << "):" << std::endl;
+            json_results << "\t\t" "{\n"
+                            "\t\t" "\"run\": " << sim.run << ",\n"
+                            "\t\t" "\"seed\": " << sim.seed << ",\n"
+                            "\t\t" "\"results\": [\n";
 
             for ( const PvPResult& res : sim.results )
             {
                 const SnakeBotInfo& info_first  = kSnakeBots[res.bot_info_id_first];
                 const SnakeBotInfo& info_second = kSnakeBots[res.bot_info_id_second];
 
-                ss << "\t" << info_first.name << " vs " << info_second.name << ": (" << res.scores_first << ") : (" << res.scores_second << ")" << std::endl;
+                json_results << "\t\t\t" "{\"first-name\": \"" << info_first.name << "\", "
+                                "\"second-name\": \"" << info_second.name << "\", "
+                                "\"first-score\": " << res.scores_first << ","
+                                "\"second-score\": " << res.scores_second << "}"
+                                << ((&res != &sim.results.back()) ? "," : "") << "\n";
             }
+
+            json_results << "\t\t\t" "]\n"
+                         << "\t\t" "}"
+                         << ((&sim != &simulations.back()) ? "," : "") << "\n";
         }
     }
+    json_results << "]\n"
+                    "}";
 
-    std::cout << ss.str();
+    // std::cout << ss.str();
+    std::cout << json_results.str();
 }
 
 } // ! namespace simulation
