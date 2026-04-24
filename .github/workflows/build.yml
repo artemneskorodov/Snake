@@ -13,9 +13,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install SFML dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          libxrandr-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libudev-dev \
+          libfreetype-dev \
+          libflac-dev \
+          libvorbis-dev \
+          libgl1-mesa-dev \
+          libegl1-mesa-dev \
+          libopenal-dev
+
     - name: create dir
       run: mkdir -p build
+
     - name: configure cmake
       run: cmake -B build
+
     - name: make
       run: cmake --build build
