@@ -128,7 +128,7 @@ public:
     {
         if ( active_ == kNoActive )
         {
-            active_ = 0;
+            active_global_prev();
         } else
         {
             if ( std::holds_alternative<Button>( menu_[active_].element) )
@@ -372,6 +372,11 @@ public:
     std::size_t
     GetNumberBeforeActive() const
     {
+        if ( active_ == kNoActive )
+        {
+            return 0;
+        }
+
         std::size_t result = 0;
         auto it = menu_.begin();
 
