@@ -2,6 +2,7 @@
 #define SNAKE_ARGUMENTS_HH__
 
 #include <utility>
+#include <cstdint>
 
 namespace snake
 {
@@ -14,12 +15,12 @@ enum class GraphicsType
 
 struct ProgramArguments
 {
-    GraphicsType                  graphics_type;
-    std::pair<uint32_t, uint32_t> window_size;
-    std::size_t                   simulate;
-    bool                          simulate_pve;
-    bool                          simulate_pvp;
-    std::uint32_t                 tick_time;
+    GraphicsType                            graphics_type;
+    std::pair<std::uint32_t, std::uint32_t> window_size;
+    std::size_t                             simulate;
+    bool                                    simulate_pve;
+    bool                                    simulate_pvp;
+    std::uint32_t                           tick_time;
 };
 
 ProgramArguments GetProgramArguments( int argc, const char *argv[]);

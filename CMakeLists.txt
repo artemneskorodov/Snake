@@ -11,6 +11,13 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    find_program(CLANGXX_FOUND clang++)
+    if(CLANGXX_FOUND)
+        set(CMAKE_CXX_COMPILER "clang++" CACHE STRING "C++ compiler" FORCE)
+    endif()
+endif()
+
 set(INCLUDE_DIR "include")
 set(SOURCES_DIR "sources")
 
