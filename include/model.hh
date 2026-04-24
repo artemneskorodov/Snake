@@ -5,6 +5,7 @@
 #include <vector>
 #include <list>
 #include <unordered_map>
+#include <algorithm>
 
 #include "utils.hh"
 #include "colors.hh"
