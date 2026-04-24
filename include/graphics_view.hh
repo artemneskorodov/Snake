@@ -55,8 +55,8 @@ private:
     void draw_snake_stats( const Snake& snake, float x, float y, SnakeGroup group);
 
 private:
-    constexpr sf::Vector2f game_to_sfml( Coordinate x, Coordinate y);
-    constexpr sf::Vector2f game_to_sfml( const Point& point);
+    sf::Vector2f game_to_sfml( Coordinate x, Coordinate y);
+    gsf::Vector2f game_to_sfml( const Point& point);
 
 private:
     sf::RenderWindow window_;

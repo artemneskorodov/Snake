@@ -410,7 +410,7 @@ GraphicsView::render_game_field()
     window_.draw( footer);
 }
 
-constexpr inline sf::Vector2f
+inline sf::Vector2f
 GraphicsView::game_to_sfml( Coordinate x,
                             Coordinate y)
 {
@@ -423,7 +423,7 @@ GraphicsView::game_to_sfml( Coordinate x,
                          static_cast<float>( y) * kCellSize + game_padding_y + kHeaderHeight};
 }
 
-constexpr inline sf::Vector2f
+inline sf::Vector2f
 GraphicsView::game_to_sfml( const Point& point)
 {
     return game_to_sfml( point.x, point.y);
