@@ -46,7 +46,7 @@ Controller::run_menu()
         }
 
         const settings::Button& exit_button = settings.GetExitBtn();
-        if ( exit_button.is_pressed )
+        if ( exit_button.is_pressed || need_exit_ )
         {
             need_exit_ = true;
             break;
