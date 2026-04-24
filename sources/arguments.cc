@@ -21,7 +21,7 @@ struct ArgInfo
     std::function<void( ProgramArguments&)>                     default_setter;
 };
 
-const std::array<ArgInfo, 7> kArgsInfo
+const std::array<ArgInfo, 8> kArgsInfo
 {{
     { "--graphics", "-g",
       "Type of graphics: sfml or ascii. Usage: --graphics=<sfml/ascii>",
@@ -119,6 +119,18 @@ const std::array<ArgInfo, 7> kArgsInfo
       []( ProgramArguments& arguments)
         {
             arguments.simulate = 0;
+        }
+    },
+
+    { "--tick-time", "-t",
+      "Game tick time in milliseconds. Usage: --tick-time=<number>",
+      []( ProgramArguments& arguments, const std::string& string)
+        {
+            arguments.tick_time = std::stoul( string.c_str() + 1, nullptr, 10);
+        },
+      []( ProgramArguments& arguments)
+        {
+            arguments.tick_time = 150;
         }
     }
 }};

@@ -19,6 +19,7 @@ struct ProgramArguments
     std::size_t                   simulate;
     bool                          simulate_pve;
     bool                          simulate_pvp;
+    std::uint32_t                 tick_time;
 };
 
 ProgramArguments GetProgramArguments( int argc, const char *argv[]);

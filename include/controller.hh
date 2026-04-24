@@ -18,11 +18,11 @@ public:
     {
     }
 
-    void Run();
+    void Run( std::uint32_t tick_time);
 
 private:
     settings::Menu run_menu();
-    void run_game( const settings::Menu& settings);
+    void run_game( const settings::Menu& settings, std::uint32_t tick_time);
     void handle_game_event( Event event);
     void handle_menu_event( MenuEvent event, settings::Menu& menu);
 

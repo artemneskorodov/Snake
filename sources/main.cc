@@ -36,5 +36,5 @@ main( int         argc,
     snake::Model model{};
 
     snake::Controller controller{ model, *view};
-    controller.Run();
+    controller.Run( arguments.tick_time);
 }
