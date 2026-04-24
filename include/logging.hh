@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdarg>
 #include <string>
+#include <cstring>
 
 namespace snake
 {
