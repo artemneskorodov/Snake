@@ -208,7 +208,7 @@ AsciiView::UpdateEvents()
     if ( sz < 0 )
     {
         throw std::runtime_error( "Error while reading stdin: " +
-                                  std::string{ std::strerror( errno)});
+                                  std::string( std::strerror( errno)));
     } else if ( sz == 0 )
     {
         throw std::runtime_error( "Closed stdin");
@@ -565,7 +565,7 @@ AsciiView::UpdateMenuEvents()
     if ( sz < 0 )
     {
         throw std::runtime_error( "Error while reading stdin: " +
-                                  std::string{ std::strerror( errno)});
+                                  std::string( std::strerror( errno)));
     } else if ( sz == 0 )
     {
         throw std::runtime_error( "Closed stdin");
