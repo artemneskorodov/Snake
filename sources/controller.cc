@@ -12,7 +12,7 @@ namespace snake
 {
 
 void
-Controller::Run()
+Controller::Run( std::uint32_t tick_time)
 {
     for ( ; ; )
     {
@@ -21,7 +21,7 @@ Controller::Run()
         {
             break;
         }
-        run_game( settings);
+        run_game( settings, tick_time);
         need_go_to_menu_ = false;
     }
 }
@@ -73,7 +73,8 @@ Controller::run_menu()
 }
 
 void
-Controller::run_game( const settings::Menu& settings)
+Controller::run_game( const settings::Menu& settings,
+                      std::uint32_t         tick_time)
 {
     // Resetting game
     auto winsz = view_.GetGameFieldSize();
@@ -138,7 +139,7 @@ Controller::run_game( const settings::Menu& settings)
             break;
         }
 
-        std::this_thread::sleep_for( std::chrono::milliseconds( 150));
+        std::this_thread::sleep_for( std::chrono::milliseconds( tick_time));
     }
 }
 
