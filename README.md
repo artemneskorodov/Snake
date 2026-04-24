@@ -10,8 +10,6 @@
 
 [x] Add SFML graphics view
 
-[ ] Add dynamic rabbits
+[x] Get statistics with different runs
 
 [ ] TODO add more bots in this plan
-
-[ ] Get statistics with different runs
