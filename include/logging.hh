@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdarg>
 #include <string>
+#include <cstring>
 
 namespace snake
 {
@@ -21,8 +22,8 @@ SnakeDebugMsg(std::string_view level, Args... args)
     std::ofstream out{ kDebugFileName, std::ios::app};
     if ( !out )
     {
-        throw std::runtime_error{ "Log file not opened: " +
-                                  std::string{ std::strerror( errno)}};
+        throw std::runtime_error( "Log file not opened: " +
+                                  std::string( std::strerror( errno)));
     }
 
     out << level;

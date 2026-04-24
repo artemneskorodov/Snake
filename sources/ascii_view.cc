@@ -4,6 +4,7 @@
 #include <sys/ioctl.h>
 #include <iomanip>
 #include <string>
+#include <cstring>
 
 #include "view.hh"
 #include "ascii_view.hh"
@@ -208,7 +209,7 @@ AsciiView::UpdateEvents()
     if ( sz < 0 )
     {
         throw std::runtime_error( "Error while reading stdin: " +
-                                  std::string{ std::strerror( errno)});
+                                  std::string( std::strerror( errno)));
     } else if ( sz == 0 )
     {
         throw std::runtime_error( "Closed stdin");
@@ -565,7 +566,7 @@ AsciiView::UpdateMenuEvents()
     if ( sz < 0 )
     {
         throw std::runtime_error( "Error while reading stdin: " +
-                                  std::string{ std::strerror( errno)});
+                                  std::string( std::strerror( errno)));
     } else if ( sz == 0 )
     {
         throw std::runtime_error( "Closed stdin");
