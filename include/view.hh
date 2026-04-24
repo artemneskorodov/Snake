@@ -99,10 +99,84 @@ public:
         return event;
     }
 
+    void
+    SetViewportTarget( SnakeID id)
+    {
+        viewport_target_ = id;
+    }
+
+protected:
+    void
+    update_viewport( const Model& model)
+    {
+        auto screen_field_size = GetGameFieldSize();
+
+        const Snake& target = model.GetSnake( viewport_target_);
+
+        if ( !target.is_alive )
+        {
+            return ;
+        }
+
+        const Point& head = target.points.back();
+
+        Vector viewport_coordinates = to_viewport( head);
+
+        Coordinate min_x = static_cast<Coordinate>( std::round( screen_field_size.first  * 0.1f));
+        Coordinate max_x = static_cast<Coordinate>( std::round( screen_field_size.first  * 0.9f));
+        Coordinate min_y = static_cast<Coordinate>( std::round( screen_field_size.second * 0.1f));
+        Coordinate max_y = static_cast<Coordinate>( std::round( screen_field_size.second * 0.9f));
+
+        while ( viewport_coordinates.x < min_x )
+        {
+            --viewport_.x;
+            viewport_coordinates.x = head.x - viewport_.x;
+        }
+        while ( viewport_coordinates.x > max_x )
+        {
+            ++viewport_.x;
+            viewport_coordinates.x = head.x - viewport_.x;
+        }
+        while ( viewport_coordinates.y < min_y )
+        {
+            --viewport_.y;
+            viewport_coordinates.y = head.y - viewport_.y;
+        }
+        while ( viewport_coordinates.y > max_y )
+        {
+            ++viewport_.y;
+            viewport_coordinates.y = head.y - viewport_.y;
+        }
+    }
+
+    bool
+    in_viewport( const Point& point)
+    {
+        Point viewport_coordinates = to_viewport( point);
+        auto screen_field_size = GetGameFieldSize();
+
+        if ( viewport_coordinates.x < 0 ||
+             viewport_coordinates.x >= screen_field_size.first ||
+             viewport_coordinates.y < 0 ||
+             viewport_coordinates.y >= screen_field_size.second )
+        {
+            return false;
+        }
+        return true;
+    }
+
+    Vector
+    to_viewport( const Point& point)
+    {
+        return point - viewport_;
+    }
+
 protected:
     std::pair<Coordinate, Coordinate> current_window_size_{};
     std::queue<Event>                 events_{};
     std::queue<MenuEvent>             menu_events_{};
+    Vector                            viewport_{};
+    SnakeID                           viewport_target_{};
 
 };
 

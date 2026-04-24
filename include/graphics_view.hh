@@ -44,7 +44,7 @@ private:
     void render_snake( const Snake& snake);
     void render_rabbit( const Rabbit& rabbit);
     void render_bone( const Bone& bone);
-    void render_game_field();
+    void render_game_field( const Model& model);
     void render_menu_button( const settings::MenuElement& menu_elem, float& offset_y);
     void render_menu_snakes_list( const settings::MenuElement& menu_elem, float& offset_y);
     void render_game_statistics( const Model& model);
