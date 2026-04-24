@@ -31,9 +31,13 @@ Controller::run_menu()
 {
     settings::Menu settings{};
 
+    view_.RenderMenu( settings);
+    view_.Show();
+
     for ( ; ; )
     {
         view_.UpdateMenuEvents();
+        bool had_events = false;
         for ( ; ; )
         {
             std::optional<MenuEvent> event = view_.PopMenuEvent();
@@ -41,6 +45,7 @@ Controller::run_menu()
             {
                 break;
             }
+            had_events = true;
 
             handle_menu_event( event.value(), settings);
         }
@@ -64,8 +69,11 @@ Controller::run_menu()
             }
         }
 
-        view_.RenderMenu( settings);
-        view_.Show();
+        if ( had_events )
+        {
+            view_.RenderMenu( settings);
+            view_.Show();
+        }
 
         std::this_thread::sleep_for( std::chrono::milliseconds( 150));
     }
