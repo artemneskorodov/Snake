@@ -4,6 +4,7 @@
 #include <string_view>
 #include <fstream>
 #include <cstdarg>
+#include <string>
 
 namespace snake
 {

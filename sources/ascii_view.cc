@@ -3,6 +3,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <iomanip>
+#include <string>
 
 #include "view.hh"
 #include "ascii_view.hh"

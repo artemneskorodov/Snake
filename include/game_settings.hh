@@ -61,7 +61,7 @@ struct SnakeSetting
 
 struct SnakesList
 {
-    static constexpr std::size_t kNoActive = SIZE_T_MAX;
+    static constexpr std::size_t kNoActive = SIZE_MAX;
 
     std::vector<SnakeSetting> snakes;
     std::size_t active { kNoActive};
